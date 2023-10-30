@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // If condition is not true in the first collection, check the second collection
               FirebaseFirestore.instance
                   .collection(
-                      "FamilyMembers") // Replace with your second collection name
+                      "UserRequest") // Replace with your second collection name
                   .where("email", isEqualTo: e.user!.email)
                   .where("uid", isEqualTo: e.user!.uid)
                   .where("status", isEqualTo: "Approve")
@@ -59,9 +59,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   );
                 } else {
+                  print("1");
+                  int num = 0;
+
                   // Process user data and navigate if conditions are met for the second collection
                   var info = secondCollection.docs[0]
                       .data(); // Use secondCollection here
+                  print('umair');
+                  print(info["FM1"]);
                   final prefs = await SharedPreferences.getInstance();
                   final userinfo = json.encode({
                     "name": info["Name"],
@@ -73,8 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     "age": info["age"],
                     "uid": e.user!.uid,
                     "owner": info["owner"],
-                    "email": info["email"]
+                    "email": info["email"],
+                    "FM${num}": info["FM1"][0]['FamilyName']
                   });
+                  num++;
                   await prefs.setString('userinfo', userinfo);
                   await prefs.setString('email', info["email"]);
                   await prefs.setString(
@@ -94,9 +101,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               });
             } else {
+              int num = 1;
+              print("2");
               // Process user data and navigate if conditions are met for the first collection
               var info = main.docs[0].data();
+              var id = main.docs[0].id;
+              print('umair');
+              print(info["FM${num}"]['FamilyName']);
               final prefs = await SharedPreferences.getInstance();
+              print("id");
               final userinfo = json.encode({
                 "name": info["Name"],
                 "phoneNo": info["Phoneno"],
@@ -107,8 +120,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 "age": info["age"],
                 "uid": e.user!.uid,
                 "owner": info["owner"],
-                "email": info["email"]
+                "id": id,
+                "email": info["email"],
+                "FM${num}": info["FM${num}"]['FamilyName']
               });
+              num++;
               await prefs.setString('userinfo', userinfo);
               await prefs.setString('email', info["email"]);
               await prefs.setString('pass', logins['pass'].toString().trim());

@@ -2,12 +2,15 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FamilyMembers extends StatefulWidget {
   static final routename = 'Family-Members';
+  var id;
+  FamilyMembers({required this.id});
   @override
   _FamilyMembersState createState() => _FamilyMembersState();
 }
@@ -22,7 +25,6 @@ class _FamilyMembersState extends State<FamilyMembers> {
   var adminmember;
   var uaddress;
   var uphonenumber;
-
   var uname;
   var uemailaddress;
   var udesignation;
@@ -73,26 +75,70 @@ class _FamilyMembersState extends State<FamilyMembers> {
 
             final old = await _auth.signInWithEmailAndPassword(
                 email: loignemail, password: loginpass);
+            String FCMtoken = "";
+            final FirebaseMessaging _firebaseMessaging =
+                FirebaseMessaging.instance;
+
+            getMobileToken() {
+              _firebaseMessaging.getToken().then((String? token) {
+                if (token != null) {
+                  setState(() {
+                    FCMtoken = token;
+                  });
+
+                  print("FCM Token: $FCMtoken");
+                } else {
+                  print("Unable to get FCM token");
+                }
+              });
+            }
 
             if (newUser != null) {
-              await FirebaseFirestore.instance.collection('UserRequest').add({
-                "ownermail": _auth.currentUser!.email,
-                "Name": name,
-                "Phoneno": phonenumber,
-                "parentID": uid, "address": uaddress,
+              Map<String, dynamic> fmData = {
+                "Fownermail": _auth.currentUser!.email,
+                "FName": name,
+                "FPhoneno": phonenumber,
+                "FparentID": uid, "Faddress": uaddress,
                 // "fPhonenumber": uphonenumber,
                 // "fName": uname,
                 // "designation": "job",
                 // "age": '-',
-                "owner": uname,
-                "status": "Approve",
-                "email": emailaddress,
+                "FCM_Token": FCMtoken,
+                "Fowner": uname,
+                "Fstatus": "Approve",
+                "Femail": emailaddress,
                 // "role": "child",
-                "uid": newUser.user!.uid,
+                "Fuid": newUser.user!.uid,
                 // "childemail": emailaddress,
 
-                "residentID": "INVOSEG${fourDigitCode}",
-              });
+                "FresidentID": "INVOSEG${fourDigitCode}",
+              };
+              int fmNum = 1;
+
+              await FirebaseFirestore.instance
+                  .collection('UserRequest')
+                  .doc(widget.id)
+                  .set({'FM${fmNum}': fmData, 'TFM': fmNum},
+                      SetOptions(merge: true));
+              fmNum++;
+              // await FirebaseFirestore.instance.collection('UserRequest').add({
+              //   "ownermail": _auth.currentUser!.email,
+              //   "Name": name,
+              //   "Phoneno": phonenumber,
+              //   "parentID": uid, "address": uaddress,
+              //   // "fPhonenumber": uphonenumber,
+              //   // "fName": uname,
+              //   // "designation": "job",
+              //   // "age": '-',
+              //   "owner": uname,
+              //   "status": "Approve",
+              //   "email": emailaddress,
+              //   // "role": "child",
+              //   "uid": newUser.user!.uid,
+              //   // "childemail": emailaddress,
+
+              //   "residentID": "INVOSEG${fourDigitCode}",
+              // });
               EasyLoading.showSuccess("Account Create Successfully");
               _formKey.currentState!.reset();
             }

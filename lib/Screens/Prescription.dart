@@ -8,9 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Prescription extends StatefulWidget {
   static final routename = 'Prescription';
-  
+
   var id;
-  Prescription({ required this.id});
+  Prescription({required this.id});
 
   @override
   State<Prescription> createState() => _PrescriptionState();
@@ -18,23 +18,24 @@ class Prescription extends StatefulWidget {
 
 class _PrescriptionState extends State<Prescription> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
- 
 
-  
-String manuallySpecifiedUID="";
+  String manuallySpecifiedUID = "";
   @override
   void initState() {
     super.initState();
-     manuallySpecifiedUID=widget.id;
+    manuallySpecifiedUID = widget.id;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(   centerTitle: true,leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios_new)),
-       
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new)),
         backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 70,
@@ -107,7 +108,7 @@ String manuallySpecifiedUID="";
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        userinfo["address"]??"OKA",
+                                        userinfo["address"] ?? "OKA",
                                         style: TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
@@ -221,30 +222,31 @@ String manuallySpecifiedUID="";
                                 .collection("consultation")
                                 .doc(manuallySpecifiedUID)
                                 .get(),
-                           builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  } else if (snapshot.hasError) {
-                                    return Text("Error: ${snapshot.error}");
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data == null) {
-                                    return Text("No data available.");
-                                  } else {
-                                    Map<String, dynamic>? patientsData  =
-                                        snapshot.data!.data()
-                                            as Map<String, dynamic>?;
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data == null) {
+                                return Text("No data available.");
+                              } else {
+                                Map<String, dynamic>? patientsData =
+                                    snapshot.data!.data()
+                                        as Map<String, dynamic>?;
 
-                                    if (patientsData  == null ||
-                                        !patientsData .containsKey('patient')) {
-                                      print("Item = ${patientsData }");
-                                      return Text(
-                                          "Patients data not available.");
-                                    }
+                                if (patientsData == null ||
+                                    !patientsData.containsKey('patient')) {
+                                  print("Item = ${patientsData}");
+                                  return Text("Patients data not available.");
+                                }
 
-    Map<String, dynamic> patientMap = patientsData['patient'] as Map<String, dynamic>;
-                                    // List<dynamic> patients =
-                                    //     patientsData['patient'] ?? [];
+                                Map<String, dynamic> patientMap =
+                                    patientsData['patient']
+                                        as Map<String, dynamic>;
+                                // List<dynamic> patients =
+                                //     patientsData['patient'] ?? [];
                                 return Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Container(

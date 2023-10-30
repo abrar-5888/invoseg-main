@@ -4,8 +4,6 @@ import 'package:testapp/Screens/Discounts/All.dart';
 import 'package:testapp/Screens/Discounts/Test.dart';
 import 'package:testapp/Screens/Discounts/food.dart';
 import 'package:testapp/Screens/Discounts/health.dart';
-import 'package:testapp/Screens/Emergency/Completed_M.dart';
-import 'package:testapp/Screens/Emergency/pending_M.dart';
 import 'package:testapp/Screens/Notifications.dart';
 import 'package:testapp/Screens/drawer.dart';
 import 'package:testapp/global.dart';

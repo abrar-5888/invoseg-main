@@ -22,9 +22,7 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
-        
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
         title: FittedBox(
@@ -33,9 +31,12 @@ class _UserProfileState extends State<UserProfile> {
               'Profile',
               style: TextStyle(color: Colors.black),
             )),
-            leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios_new)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new)),
         actions: [
-          
           IconButton(
             icon: Icon(
               Icons.logout_rounded,
@@ -71,6 +72,7 @@ class _UserProfileState extends State<UserProfile> {
               userinfo["owner"],
               userinfo["email"]
             ];
+
             return Stack(
               children: [
                 Column(
@@ -97,8 +99,7 @@ class _UserProfileState extends State<UserProfile> {
                           SizedBox(
                             height: 10.0,
                           ),
-                          Text(
-                            userinfo["name"],
+                          Text(userinfo["name"],
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
@@ -107,7 +108,7 @@ class _UserProfileState extends State<UserProfile> {
                             height: 10.0,
                           ),
                           Text(
-                            userinfo["designation"]??"Not Mention",
+                            userinfo["designation"] ?? "Not Mention",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 15.0,
@@ -122,8 +123,13 @@ class _UserProfileState extends State<UserProfile> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               onPressed: () {
-                                Navigator.of(context)
-                                    .pushNamed(FamilyMembers.routename);
+                                String docid = userinfo["id"];
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FamilyMembers(id: docid),
+                                    ));
                               },
                               style: ButtonStyle(
                                   shape: MaterialStateProperty.all<
@@ -192,8 +198,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["address"]??"Not Medntioned",
-                                                 
+                                                      userinfo["address"] ??
+                                                          "Not Medntioned",
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         color: Colors.grey[400],
@@ -230,7 +236,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["age"]??"Not Mentioned",
+                                                      userinfo["age"] ??
+                                                          "Not Mentioned",
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         color: Colors.grey[400],
@@ -303,7 +310,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["owner"] ?? "Not Mentioned",
+                                                      userinfo["owner"] ??
+                                                          "Not Mentioned",
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         color: Colors.grey[400],
@@ -339,7 +347,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["fname"]??"Not Mentioned",
+                                                      userinfo["fname"] ??
+                                                          "Not Mentioned",
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         color: Colors.grey[400],
@@ -375,7 +384,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["fphoneNo"]??"Not Mentioned",
+                                                      userinfo["fphoneNo"] ??
+                                                          "Not Mentioned",
                                                       // "TEST",
                                                       style: TextStyle(
                                                         fontSize: 12.0,

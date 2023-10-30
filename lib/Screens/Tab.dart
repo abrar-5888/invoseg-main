@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testapp/Screens/Emergency/Emergency.dart';
+import 'package:testapp/Emergency.dart';
 import 'package:testapp/Screens/Dashboard.dart';
 import 'package:testapp/Screens/Design.dart';
 import 'package:testapp/Screens/Explore.dart';
@@ -57,7 +57,7 @@ class _TabsScreenState extends State<TabsScreen> {
     ];
     super.initState();
     setState(() {
-      _selectedPageIndex = widget.index;
+      _selectedPageIndex = 3;
       // widget.index;
     });
   }
@@ -66,7 +66,8 @@ class _TabsScreenState extends State<TabsScreen> {
 
   void _selectPage(int index) {
     setState(() {
-      _selectedPageIndex = index;
+      _selectedPageIndex = 3;
+      // _selectedPageIndex = index;
     });
   }
 

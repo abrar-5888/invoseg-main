@@ -21,7 +21,6 @@ class _PlotsState extends State<Plots> {
     'assets/Images/ss.jpg',
     'assets/Images/plot2.jpg',
     'assets/Images/plot4.jpeg',
-
   ];
   final List<String> listName = [
     'Swiss Mall Gulberg',
@@ -32,11 +31,11 @@ class _PlotsState extends State<Plots> {
     'PIA Housing Scheme',
     // 'Chungi Amar Sidhu',
   ];
-  
-@override
+
+  @override
   void initState() {
     // TODO: implement initState
-    plot_count=0;
+    plot_count = 0;
   }
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
@@ -142,7 +141,7 @@ class _PlotsState extends State<Plots> {
                         top: 8, right: 8, left: 8, bottom: 8),
                     child: Expanded(
                       child: Container(
-                        // width: 
+                        // width:
                         // height: MediaQuery.of(context).size.height / 3.5,
 
                         decoration: BoxDecoration(
@@ -164,8 +163,7 @@ class _PlotsState extends State<Plots> {
                                       fit: BoxFit.cover,
                                       image: AssetImage(listPics[index]),
                                       height:
-                                          MediaQuery.of(context).size.width /
-                                              3,
+                                          MediaQuery.of(context).size.width / 3,
                                       width:
                                           MediaQuery.of(context).size.height /
                                               5.5,
@@ -252,11 +250,11 @@ class _PlotsState extends State<Plots> {
                                               Icons.bed,
                                               size: 13,
                                             ),
-      
+
                                             // SizedBox(
                                             //   width: 1,
                                             // ),
-      
+
                                             SizedBox(
                                               width: 5,
                                             ),
@@ -281,7 +279,7 @@ class _PlotsState extends State<Plots> {
                                             SizedBox(
                                               width: 5,
                                             ),
-      
+
                                             Icon(
                                               Icons.tire_repair,
                                               size: 13,
@@ -320,18 +318,19 @@ class _PlotsState extends State<Plots> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             InkWell(
-                                              onTap: (){},
+                                              onTap: () {},
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(5),
+                                                        BorderRadius.circular(
+                                                            5),
                                                     color: const Color.fromRGBO(
                                                         15, 39, 127, 1)),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                          vertical: 7,
-                                                          horizontal: 10),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 7,
+                                                      horizontal: 10),
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -348,7 +347,8 @@ class _PlotsState extends State<Plots> {
                                                             fontSize: 10,
                                                             fontWeight:
                                                                 FontWeight.bold,
-                                                            color: Colors.white),
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ],
                                                   ),
@@ -359,18 +359,19 @@ class _PlotsState extends State<Plots> {
                                               width: 10,
                                             ),
                                             InkWell(
-                                              onTap: (){},
+                                              onTap: () {},
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(5),
+                                                        BorderRadius.circular(
+                                                            5),
                                                     color: const Color.fromRGBO(
                                                         15, 39, 127, 1)),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                          vertical: 7,
-                                                          horizontal: 10),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      vertical: 7,
+                                                      horizontal: 10),
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -387,7 +388,8 @@ class _PlotsState extends State<Plots> {
                                                             fontSize: 10,
                                                             fontWeight:
                                                                 FontWeight.bold,
-                                                            color: Colors.white),
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ],
                                                   ),
@@ -433,7 +435,7 @@ class _PlotsState extends State<Plots> {
                             // ListTile(
                             //   title: Text(items[index]),
                             // ),
-      
+
                             // Padding(
                             //   padding: EdgeInsets.symmetric(
                             //       horizontal: 0, vertical: 14),
@@ -448,7 +450,7 @@ class _PlotsState extends State<Plots> {
                             //                 borderRadius:
                             //                     BorderRadius.circular(30),
                             //                 color: const Color(0xffd9d9d9),
-      
+
                             //                 //    color: Color.fromARGB(255, 189, 183, 183),
                             //                 border: Border.all(
                             //                     width: 1,
@@ -500,7 +502,7 @@ class _PlotsState extends State<Plots> {
                             //                 borderRadius:
                             //                     BorderRadius.circular(30),
                             //                 color: const Color(0xffd9d9d9),
-      
+
                             //                 //    color: Color.fromARGB(255, 189, 183, 183),
                             //                 border: Border.all(
                             //                     width: 1,
@@ -638,14 +640,14 @@ class _PlotsState extends State<Plots> {
                     );
                   },
                 );
-      
+
                 //  ListTile(
                 //   title: Text(items[index]),
                 // );
               },
             ),
           ),
-      
+
           /////////////////////////////////////////////////////////////////////////////////
           ///
           ///
@@ -664,7 +666,7 @@ class _PlotsState extends State<Plots> {
           ///
           ///
           ///////////////////////////////////////////////////////////////////////////////////
-      
+
           // Expanded(
           //   child: ListView.builder(
           //     itemCount: listPics.length,
@@ -766,7 +768,7 @@ class _PlotsState extends State<Plots> {
           //                                   borderRadius:
           //                                       BorderRadius.circular(30),
           //                                   color: const Color(0xffd9d9d9),
-      
+
           //                                   //    color: Color.fromARGB(255, 189, 183, 183),
           //                                   border: Border.all(
           //                                       width: 1,
@@ -818,7 +820,7 @@ class _PlotsState extends State<Plots> {
           //                                   borderRadius:
           //                                       BorderRadius.circular(30),
           //                                   color: const Color(0xffd9d9d9),
-      
+
           //                                   //    color: Color.fromARGB(255, 189, 183, 183),
           //                                   border: Border.all(
           //                                       width: 1,
@@ -956,7 +958,7 @@ class _PlotsState extends State<Plots> {
           //           );
           //         },
           //       );
-      
+
           //       //  ListTile(
           //       //   title: Text(items[index]),
           //       // );
@@ -968,10 +970,6 @@ class _PlotsState extends State<Plots> {
     );
   }
 }
-
-
-
-
 
 //  ListView.builder(
 //         itemCount: listPics.length,

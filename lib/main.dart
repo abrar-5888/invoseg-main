@@ -139,7 +139,9 @@ class _MyAppState extends State<MyApp> {
         Prescription.routename: (ctx) => Prescription(
               id: "",
             ),
-        FamilyMembers.routename: (ctx) => FamilyMembers(),
+        FamilyMembers.routename: (ctx) => FamilyMembers(
+              id: "",
+            ),
         Complainform.routename: (ctx) => Complainform(),
         '/notification': (ctx) => Notifications()
       },
