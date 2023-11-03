@@ -198,6 +198,7 @@ class _EmergencyState extends State<Emergency> {
                 future: FirebaseFirestore.instance
                     .collection("consultation")
                     .orderBy('date', descending: true)
+                    .limit(30)
                     .get(),
                 builder: (context, consultationSnapshot) {
                   if (consultationSnapshot.connectionState ==

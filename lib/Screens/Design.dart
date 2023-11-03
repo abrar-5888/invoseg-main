@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
@@ -42,9 +43,12 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
   Future<String?> fetchYoutubeLink() async {
     try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('VideoPanel').get();
-
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('VideoPanel') // Replace with your collection name
+          // .where('Email' == "oka1@gmail.com")
+          .orderBy('time', descending: true)
+          .limit(30)
+          .get();
       // Initialize the link variable
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -179,7 +183,47 @@ class _HomeDesign1State extends State<HomeDesign1> {
     return code.toString().padLeft(4, '0');
   }
 
+  String toField = "";
+  String docid = "";
+  bool status = false;
+
+  Future<String> fetchToFieldForLatestDocument(String? currentUserEmail) async {
+    try {
+      // Query to get the document with the latest 'FROM' date and matching 'Email'
+      final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('not_Home') // Replace with your collection name
+          // .where('Email' == "oka1@gmail.com")
+          .orderBy('time', descending: true)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print("not");
+        // The first document in the result will be the latest one that matches the conditions
+        final DocumentSnapshot document = querySnapshot.docs.first;
+        final data = document.data() as Map<String, dynamic>;
+
+        if (data.containsKey('to')) {
+          setState(() {
+            toField = data['to'] as String;
+            docid = document.id;
+            status = data["Status"];
+          });
+
+          print("TOfield = ${toField}");
+          print("TOfield = ${data['from']}");
+          return toField;
+        }
+      }
+    } catch (e) {
+      print('Error fetching TO field: $e');
+    }
+
+    return ''; // Return an empty string or handle errors as needed
+  }
+
   void alertme(String collect) async {
+    String fName = "", fphoneNo = "";
     String fourDigitCode = generateRandomFourDigitCode();
     setState(() {
       btnOnOff = false;
@@ -204,12 +248,43 @@ class _HomeDesign1State extends State<HomeDesign1> {
                 final prefs = await SharedPreferences.getInstance();
                 final userinfo =
                     json.decode(prefs.getString('userinfo') as String);
-                await _firebaseMessaging.getToken().then((String? token) {
+                await _firebaseMessaging.getToken().then((String? token) async {
                   if (token != null) {
                     setState(() {
                       FCMtoken = token;
                       btnOnOff = true;
                     });
+                    final mainCollectionQuery = await FirebaseFirestore.instance
+                        .collection(
+                            "UserRequest") // Replace with your main collection
+                        .where("owner", isEqualTo: userinfo['owner'])
+                        .get();
+
+                    if (mainCollectionQuery.docs.isNotEmpty) {
+                      mainCollectionQuery.docs.forEach((mainDoc) async {
+                        final subcollectionRef =
+                            mainDoc.reference.collection("FMData");
+
+                        final subcollectionQuery = await subcollectionRef
+                            .where("owner", isEqualTo: userinfo['owner'])
+                            .get();
+
+                        if (subcollectionQuery.docs.isNotEmpty) {
+                          subcollectionQuery.docs.forEach((subDoc) {
+                            var data = subDoc.data();
+                            setState(() {
+                              fName = data['Name'];
+                              fphoneNo = data['Phoneno'];
+                            });
+                            // Process subcollection documents here
+                            print("data===$data");
+                          });
+                        }
+                      });
+                    } else {
+                      print(
+                          "No matching documents found in the main collection.");
+                    }
 
                     print("FCM Token: $FCMtoken");
                   } else {
@@ -225,13 +300,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   "name": userinfo["name"],
                   "phoneNo": userinfo["phoneNo"],
                   "address": userinfo["address"],
-                  "fphoneNo": userinfo["fphoneNo"],
-                  "fname": userinfo["fname"],
+                  "fphoneNo": fName,
+                  "fname": fphoneNo,
                   "designation": userinfo["designation"],
                   "age": userinfo["age"],
                   "pressedTime": FieldValue.serverTimestamp(),
                   "type": collect,
-                  "FM${num}": userinfo["FM${num}"],
+                  // "FM${num}": userinfo["FM${num}"],
                   "uid": userinfo["uid"],
                   "owner": userinfo["owner"],
                   "email": userinfo["email"],
@@ -258,7 +333,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                     backgroundColor: Colors.grey[400],
                   ),
                 );
-                log(12);
+
                 _sendEmail(
                     name: '${userinfo["name"]}',
                     email: '${userinfo["email"]}',
@@ -318,12 +393,16 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
   late VideoPlayerController _controller;
   bool startedPlaying = false;
-
+  String video = "";
   void initState() {
     super.initState();
+    fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.email);
     fetchYoutubeLink().then((value) {
       videoId = YoutubePlayer.convertUrlToId(link!) ??
           'https://www.youtube.com/watch?v=-jMrZI4IeJw';
+      // video = YoutubePlayer.convertUrlToId(
+      //         "https://www.youtube.com/watch?v=hFjLbA1GhnM") ??
+      //     "https://www.youtube.com/watch?v=hFjLbA1GhnM";
       y_controller = YoutubePlayerController(
         initialVideoId: this.videoId,
         flags: const YoutubePlayerFlags(
@@ -337,6 +416,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
         isLoading = false;
       });
     });
+
+    getAllIsReadStatus();
 
     // fetchDataAndUseLink();
 
@@ -440,7 +521,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                   minHeight: 15,
                                 ),
                                 child: Text(
-                                  notification_count.toString(),
+                                  "${notification_count}",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize:
@@ -463,7 +544,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           ),
                         );
                         setState(() {
-                          // notification_count = 0;
+                          updateAllIsReadStatus(true);
+                          notification_count = 0;
                         });
                       },
                     ),
@@ -483,393 +565,149 @@ class _HomeDesign1State extends State<HomeDesign1> {
                 ),
                 body: Container(
                     height: MediaQuery.of(context).size.height,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                          color: Colors.white,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Column(
-                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                // crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      // image: DecorationImage(
-                                      //     alignment: Alignment.bottomRight,
-                                      //     image: AssetImage(
-                                      //         ''),
-                                      //     fit: BoxFit.contain),
-                                    ),
-                                    width: MediaQuery.of(context).size.width,
-                                    height:
-                                        MediaQuery.of(context).size.height / 4,
-                                    child: Card(
-                                      elevation: 1,
-                                      color: const Color.fromARGB(
-                                          255, 255, 255, 255),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: AspectRatio(
-                                          aspectRatio: 16 /
-                                              9, // You can adjust this aspect ratio as needed
-                                          child: YoutubePlayer(
-                                              controller: y_controller,
-                                              bottomActions: [
-                                                const SizedBox(width: 8.0),
-                                                CurrentPosition(),
-                                                const SizedBox(width: 175.0),
-                                                RemainingDuration(),
-                                                const SizedBox(width: 10.0),
-                                                PlaybackSpeedButton(),
-                                              ]),
-                                        ),
-                                      ),
-                                    ),
+                    // child: Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Container(
+                      color: Colors.white,
+                      // child: Padding(
+                      //   padding:
+                      //       const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(
+                                  // borderRadius: BorderRadius.circular(15),
+                                  // image: DecorationImage(
+                                  //     alignment: Alignment.bottomRight,
+                                  //     image: AssetImage(
+                                  //         ''),
+                                  //     fit: BoxFit.contain),
                                   ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.only(
-                                  //       top: 3.0, bottom: 1),
-                                  //   child: Container(
-                                  //     decoration: BoxDecoration(
-                                  //       borderRadius: BorderRadius.circular(
-                                  //           10.0), // Adjust the radius as needed
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height / 4,
+                              child: Card(
+                                elevation: 1,
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                child: ClipRRect(
+                                  // borderRadius: BorderRadius.circular(15),
+                                  child: AspectRatio(
+                                    aspectRatio: 16 /
+                                        9, // You can adjust this aspect ratio as needed
+                                    child: YoutubePlayer(
+                                        controller: y_controller,
+                                        bottomActions: [
+                                          const SizedBox(width: 8.0),
+                                          CurrentPosition(),
+                                          const SizedBox(width: 175.0),
+                                          RemainingDuration(),
+                                          const SizedBox(width: 10.0),
+                                          PlaybackSpeedButton(),
+                                        ]),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.only(
+                            //       top: 3.0, bottom: 1),
+                            //   child: Container(
+                            //     decoration: BoxDecoration(
+                            //       borderRadius: BorderRadius.circular(
+                            //           10.0), // Adjust the radius as needed
 
-                                  //       color: const Color.fromARGB(
-                                  //           179, 229, 229, 229),
-                                  //     ),
-                                  //     // width: 220,
-                                  //     child: Padding(
-                                  //       padding: const EdgeInsets.all(2.0),
-                                  //       child: Container(
-                                  //         width: 300,
-                                  //         decoration: BoxDecoration(
-                                  //           borderRadius: BorderRadius.circular(
-                                  //               10.0), // Adjust the radius as needed
+                            //       color: const Color.fromARGB(
+                            //           179, 229, 229, 229),
+                            //     ),
+                            //     // width: 220,
+                            //     child: Padding(
+                            //       padding: const EdgeInsets.all(2.0),
+                            //       child: Container(
+                            //         width: 300,
+                            //         decoration: BoxDecoration(
+                            //           borderRadius: BorderRadius.circular(
+                            //               10.0), // Adjust the radius as needed
 
-                                  //           color: Color.fromRGBO(
-                                  //               222, 226, 231, 1),
-                                  //         ),
-                                  //         child: Padding(
-                                  //           padding: const EdgeInsets.all(2.0),
-                                  //           child: Align(
-                                  //             child: Text(
-                                  //                 "What are you Looking for ?"),
-                                  //             alignment: Alignment.center,
-                                  //           ),
-                                  //         ),
-                                  //       ),
-                                  //     ),
+                            //           color: Color.fromRGBO(
+                            //               222, 226, 231, 1),
+                            //         ),
+                            //         child: Padding(
+                            //           padding: const EdgeInsets.all(2.0),
+                            //           child: Align(
+                            //             child: Text(
+                            //                 "What are you Looking for ?"),
+                            //             alignment: Alignment.center,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            const Row(
+                              // mainAxisAlignment: MainAxisAlignment.start,
+                              // crossAxisAlignment:
+                              //     CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, right: 4, top: 5, bottom: 5),
+                                  child: Text(
+                                    "Emergency Calls",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w900),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Expanded(
+                            //   child:
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 2, horizontal: 8),
+                              child:
+
+                                  //  Card(
+                                  //   color: Colors.grey[200],
+                                  //   shape: RoundedRectangleBorder(
+                                  //     borderRadius:
+                                  //         BorderRadius.circular(20),
                                   //   ),
-                                  // ),
-                                  const Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    // crossAxisAlignment:
-                                    //     CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 8,
-                                            right: 4,
-                                            top: 5,
-                                            bottom: 5),
-                                        child: Text(
-                                          "Emergency Calls",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  // Expanded(
-                                  //   child:
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 8),
-                                    child:
+                                  //   elevation: 20,
+                                  //   child: Padding(
+                                  //     padding: const EdgeInsets.all(4.0),
+                                  //     child:
 
-                                        //  Card(
-                                        //   color: Colors.grey[200],
-                                        //   shape: RoundedRectangleBorder(
-                                        //     borderRadius:
-                                        //         BorderRadius.circular(20),
-                                        //   ),
-                                        //   elevation: 20,
-                                        //   child: Padding(
-                                        //     padding: const EdgeInsets.all(4.0),
-                                        //     child:
-
-                                        Container(
-                                      height: 130,
-                                      width: double.infinity,
-                                      child: Column(
-                                        // mainAxisAlignment:
-                                        //     MainAxisAlignment.spaceAround,
+                                  Container(
+                                height: 130,
+                                width: double.infinity,
+                                child: Column(
+                                  // mainAxisAlignment:
+                                  //     MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 5,
+                                          bottom: 10,
+                                          left: 1,
+                                          right: 1),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.only(
-                                                top: 5,
-                                                bottom: 10,
+                                                // top: 5,
+                                                // bottom: 10,
                                                 left: 1,
                                                 right: 1),
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          // top: 5,
-                                                          // bottom: 10,
-                                                          left: 1,
-                                                          right: 1),
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            2.5,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            18,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            15, 39, 127, 1),
-                                                        // gradient:
-                                                        //     LinearGradient(
-                                                        //   colors: [
-                                                        //     Color.fromRGBO(
-                                                        //         242, 13, 54, 1),
-                                                        //     Color.fromRGBO(104,
-                                                        //         109, 224, 1),
-                                                        //   ],
-                                                        // ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10.0),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.black
-                                                                .withOpacity(
-                                                                    0.3), // Shadow color
-                                                            offset: const Offset(
-                                                                1,
-                                                                4), // Offset of the shadow (x, y)
-                                                            blurRadius:
-                                                                5, // Blur radius
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: TextButton.icon(
-                                                        onPressed: () async {
-                                                          if (button_count_med <=
-                                                              25) {
-                                                            setState(() {
-                                                              button_count_med =
-                                                                  button_count_med +
-                                                                      1;
-                                                            });
-
-                                                            var connectivityResult =
-                                                                await (Connectivity()
-                                                                    .checkConnectivity());
-                                                            print(
-                                                                "Connectivity == ${connectivityResult.toString()}");
-                                                            if (connectivityResult ==
-                                                                ConnectivityResult
-                                                                    .none) {
-                                                              ScaffoldMessenger
-                                                                      .of(
-                                                                          context)
-                                                                  .showSnackBar(
-                                                                      const SnackBar(
-                                                                          content:
-                                                                              Text("This Feature is not available in Offline mode")));
-                                                            } else {
-                                                              alertme(
-                                                                  "button-two");
-                                                            }
-                                                          } else {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                content:
-                                                                    const Text(
-                                                                  "Sorry ! but you have reached your todays limit .",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .black),
-                                                                ),
-                                                                action: SnackBarAction(
-                                                                    label: 'OK',
-                                                                    textColor:
-                                                                        Colors
-                                                                            .black,
-                                                                    onPressed:
-                                                                        () {}),
-                                                                backgroundColor:
-                                                                    Colors.grey[
-                                                                        400],
-                                                              ),
-                                                            );
-                                                          }
-                                                        },
-                                                        label: Text(
-                                                            '  ' +
-                                                                buttonLabels[1],
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                        icon: const Icon(
-                                                          Icons.emergency,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(1.0),
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            2.4,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            18,
-                                                    child: Container(
-                                                      // height: 50,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            15, 39, 127, 1),
-
-                                                        // gradient:
-                                                        //     LinearGradient(
-                                                        //   colors: [
-                                                        //     Color.fromRGBO(
-                                                        //         242, 13, 54, 1),
-                                                        //     Color.fromRGBO(104,
-                                                        //         109, 224, 1),
-                                                        //   ],
-                                                        // ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10.0),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.black
-                                                                .withOpacity(
-                                                                    0.3), // Shadow color
-                                                            offset: const Offset(
-                                                                1,
-                                                                4), // Offset of the shadow (x, y)
-                                                            blurRadius:
-                                                                5, // Blur radius
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: TextButton.icon(
-                                                        onPressed: () async {
-                                                          if (button_count_gro <=
-                                                              25) {
-                                                            setState(() {
-                                                              button_count_gro =
-                                                                  button_count_gro +
-                                                                      1;
-                                                            });
-                                                            var connectivityResult =
-                                                                await (Connectivity()
-                                                                    .checkConnectivity());
-                                                            print(
-                                                                "Connectivity == ${connectivityResult.toString()}");
-                                                            if (connectivityResult ==
-                                                                ConnectivityResult
-                                                                    .none) {
-                                                              ScaffoldMessenger
-                                                                      .of(
-                                                                          context)
-                                                                  .showSnackBar(
-                                                                      const SnackBar(
-                                                                          content:
-                                                                              Text("This Feature is not available in Offline mode")));
-                                                            } else {
-                                                              alertme(
-                                                                  "button-three");
-                                                            }
-                                                          } else {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                content:
-                                                                    const Text(
-                                                                  "Sorry ! but you have reached your todays limit .",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .black),
-                                                                ),
-                                                                action: SnackBarAction(
-                                                                    label: 'OK',
-                                                                    textColor:
-                                                                        Colors
-                                                                            .black,
-                                                                    onPressed:
-                                                                        () {}),
-                                                                backgroundColor:
-                                                                    Colors.grey[
-                                                                        400],
-                                                              ),
-                                                            );
-                                                          }
-                                                        },
-                                                        label: Text(
-                                                          '  ' +
-                                                              buttonLabels[2],
-                                                          style: const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        icon: const Icon(
-                                                          Icons
-                                                              .local_grocery_store_sharp,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(1.0),
                                             child: SizedBox(
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width /
-                                                  1,
+                                                  2.5,
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
@@ -890,27 +728,28 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           10.0),
-                                                  // boxShadow: [
-                                                  //   BoxShadow(
-                                                  //     color: Colors.black
-                                                  //         .withOpacity(
-                                                  //             0.3), // Shadow color
-                                                  //     offset: Offset(1,
-                                                  //         4), // Offset of the shadow (x, y)
-                                                  //     blurRadius:
-                                                  //         5, // Blur radius
-                                                  //   ),
-                                                  // ],
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(
+                                                              0.3), // Shadow color
+                                                      offset: const Offset(1,
+                                                          4), // Offset of the shadow (x, y)
+                                                      blurRadius:
+                                                          5, // Blur radius
+                                                    ),
+                                                  ],
                                                 ),
                                                 child: TextButton.icon(
                                                   onPressed: () async {
-                                                    if (button_count_sec <=
+                                                    if (button_count_med <=
                                                         25) {
                                                       setState(() {
-                                                        button_count_sec =
-                                                            button_count_sec +
+                                                        button_count_med =
+                                                            button_count_med +
                                                                 1;
                                                       });
+
                                                       var connectivityResult =
                                                           await (Connectivity()
                                                               .checkConnectivity());
@@ -919,38 +758,14 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                       if (connectivityResult ==
                                                           ConnectivityResult
                                                               .none) {
-                                                        await showDialog(
-                                                            context: context,
-                                                            builder: (context) =>
-                                                                AlertDialog(
-                                                                    title: const Text(
-                                                                        'Offline !'),
-                                                                    content:
-                                                                        const Text(
-                                                                            'you are currently offline ! Contact us via Messages !'),
-                                                                    actions: <Widget>[
-                                                                      TextButton(
-                                                                        onPressed:
-                                                                            () async {
-                                                                          final recipientPhoneNumber =
-                                                                              '03038465220'; // Replace with the recipient's phone number
-                                                                          final String
-                                                                              messageBody =
-                                                                              'Hello, this is a test message.';
-                                                                          final uri =
-                                                                              Uri.encodeFull('sms:${recipientPhoneNumber}?body=${messageBody}');
-                                                                          await launchUrl(
-                                                                              Uri.parse(uri));
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                        },
-                                                                        child: const Text(
-                                                                            'Send Security Message'),
-                                                                      ),
-                                                                    ]));
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                                    content: Text(
+                                                                        "This Feature is not available in Offline mode")));
                                                       } else {
-                                                        print("Online");
-                                                        alertme("button-one");
+                                                        alertme("button-two");
                                                       }
                                                     } else {
                                                       ScaffoldMessenger.of(
@@ -974,16 +789,121 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                       );
                                                     }
                                                   },
-                                                  icon: const Icon(
-                                                    Icons.security,
-                                                    color: Colors.white,
-                                                  ),
                                                   label: Text(
-                                                      '  ' + buttonLabels[0],
+                                                      '  ' + buttonLabels[1],
                                                       style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
                                                               FontWeight.bold)),
+                                                  icon: const Icon(
+                                                    Icons.emergency,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(1.0),
+                                            child: SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2.4,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  18,
+                                              child: Container(
+                                                // height: 50,
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromRGBO(
+                                                      15, 39, 127, 1),
+
+                                                  // gradient:
+                                                  //     LinearGradient(
+                                                  //   colors: [
+                                                  //     Color.fromRGBO(
+                                                  //         242, 13, 54, 1),
+                                                  //     Color.fromRGBO(104,
+                                                  //         109, 224, 1),
+                                                  //   ],
+                                                  // ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(
+                                                              0.3), // Shadow color
+                                                      offset: const Offset(1,
+                                                          4), // Offset of the shadow (x, y)
+                                                      blurRadius:
+                                                          5, // Blur radius
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: TextButton.icon(
+                                                  onPressed: () async {
+                                                    if (button_count_gro <=
+                                                        25) {
+                                                      setState(() {
+                                                        button_count_gro =
+                                                            button_count_gro +
+                                                                1;
+                                                      });
+                                                      var connectivityResult =
+                                                          await (Connectivity()
+                                                              .checkConnectivity());
+                                                      print(
+                                                          "Connectivity == ${connectivityResult.toString()}");
+                                                      if (connectivityResult ==
+                                                          ConnectivityResult
+                                                              .none) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                                    content: Text(
+                                                                        "This Feature is not available in Offline mode")));
+                                                      } else {
+                                                        alertme("button-three");
+                                                      }
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: const Text(
+                                                            "Sorry ! but you have reached your todays limit .",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                          action: SnackBarAction(
+                                                              label: 'OK',
+                                                              textColor:
+                                                                  Colors.black,
+                                                              onPressed: () {}),
+                                                          backgroundColor:
+                                                              Colors.grey[400],
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  label: Text(
+                                                    '  ' + buttonLabels[2],
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  icon: const Icon(
+                                                    Icons
+                                                        .local_grocery_store_sharp,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -991,615 +911,768 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                         ],
                                       ),
                                     ),
-                                    //   ),
-                                    // ),
-                                  ),
-                                  // ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 3),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            await generatePDF();
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PDFViewerPage(
-                                                            pdfPath:
-                                                                filePath)));
-                                          },
-                                          child: Container(
-                                            // color: Colors.green,
-                                            // height: 80,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5,
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  height: 50,
-                                                  width: 50,
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromRGBO(
-                                                              236, 238, 240, 1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30)),
-                                                  child: const Icon(
-                                                      Icons
-                                                          .table_chart_outlined,
-                                                      color: Color.fromRGBO(
-                                                          15, 39, 127, 1)),
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Text(
-                                                    "Bills",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                1,
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                18,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: const Color.fromRGBO(
+                                                15, 39, 127, 1),
+                                            // gradient:
+                                            //     LinearGradient(
+                                            //   colors: [
+                                            //     Color.fromRGBO(
+                                            //         242, 13, 54, 1),
+                                            //     Color.fromRGBO(104,
+                                            //         109, 224, 1),
+                                            //   ],
+                                            // ),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            // boxShadow: [
+                                            //   BoxShadow(
+                                            //     color: Colors.black
+                                            //         .withOpacity(
+                                            //             0.3), // Shadow color
+                                            //     offset: Offset(1,
+                                            //         4), // Offset of the shadow (x, y)
+                                            //     blurRadius:
+                                            //         5, // Blur radius
+                                            //   ),
+                                            // ],
                                           ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 3),
-                                        child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Discounts()));
-                                          },
-                                          child: Container(
-                                            // color: Colors.green,
-                                            // height: 80,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5,
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  height: 50,
-                                                  width: 50,
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromRGBO(
-                                                              236, 238, 240, 1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30)),
-                                                  child: const Icon(
-                                                      Icons.wb_sunny_outlined,
-                                                      color: Color.fromRGBO(
-                                                          15, 39, 127, 1)),
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Text(
-                                                    "Discount",
-                                                    style: TextStyle(
-                                                        fontSize: 11,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 3),
-                                        child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        TabsScreen(index: 5)));
-                                          },
-                                          child: Container(
-                                            // color: Colors.green,
-                                            // height: 80,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5,
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromRGBO(
-                                                              236, 238, 240, 1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30)),
-                                                  height: 50,
-                                                  width: 50,
-                                                  child: const Icon(
-                                                      Icons.line_style_outlined,
-                                                      //   Icons.line_style_sharp,
-                                                      color: Color.fromRGBO(
-                                                          15, 39, 127, 1)),
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Text(
-                                                    "Plots",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 3),
-                                        child: InkWell(
-                                          child: Container(
-                                            // color: Colors.green,
-                                            // height: 80,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                5,
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  height: 50,
-                                                  width: 50,
-                                                  decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromRGBO(
-                                                              236, 238, 240, 1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30)),
-                                                  child: const Icon(Icons.home,
-                                                      color: Color.fromRGBO(
-                                                          15, 39, 127, 1)),
-                                                ),
-                                                const Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Text(
-                                                    "Not Home",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            print(
-                                                "Datetime format = ${formattedDateTime}");
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) => Center(
-                                                      child: Container(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
-                                                            1.7,
-                                                        // Adjust the width as needed
-                                                        child: FutureBuilder(
-                                                            future:
-                                                                SharedPreferences
-                                                                    .getInstance(),
-                                                            builder: (context,
-                                                                AsyncSnapshot
-                                                                    snapshot) {
-                                                              var userinfo = json
-                                                                  .decode(snapshot
-                                                                          .data
-                                                                          .getString(
-                                                                              'userinfo')
-                                                                      as String);
-                                                              final myListData =
-                                                                  [
-                                                                userinfo[
-                                                                    "name"],
-                                                                userinfo[
-                                                                    "phoneNo"],
-                                                                userinfo[
-                                                                    "address"],
-                                                                userinfo[
-                                                                    "fphoneNo"],
-                                                                userinfo[
-                                                                    "fname"],
-                                                                userinfo[
-                                                                    "designation"],
-                                                                userinfo["age"],
-                                                                userinfo["uid"],
-                                                                userinfo[
-                                                                    "owner"],
-                                                                userinfo[
-                                                                    "email"]
-                                                              ];
-                                                              return AlertDialog(
-                                                                title: Text(
-                                                                    'Not Home'),
-                                                                content: Column(
-                                                                  children: [
-                                                                    Text(
-                                                                        'Select the date when you will be at home'),
-                                                                    SizedBox(
-                                                                        height:
-                                                                            25),
-                                                                    TextFormField(
-                                                                      controller:
-                                                                          currentdate,
-                                                                      readOnly:
-                                                                          true, // Prevent manual editing
-
-                                                                      decoration:
-                                                                          InputDecoration(
-                                                                        labelText:
-                                                                            'From',
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                        height:
-                                                                            25),
-                                                                    TextFormField(
-                                                                      controller:
-                                                                          _dateController,
-                                                                      readOnly:
-                                                                          true, // Prevent manual editing
-                                                                      onTap: () =>
-                                                                          _selectDate(
-                                                                              context),
-                                                                      decoration:
-                                                                          InputDecoration(
-                                                                        labelText:
-                                                                            'To',
-                                                                        suffixIcon:
-                                                                            IconButton(
-                                                                          icon:
-                                                                              Icon(Icons.calendar_today),
-                                                                          onPressed: () =>
-                                                                              _selectDate(context),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
+                                          child: TextButton.icon(
+                                            onPressed: () async {
+                                              if (button_count_sec <= 25) {
+                                                setState(() {
+                                                  button_count_sec =
+                                                      button_count_sec + 1;
+                                                });
+                                                var connectivityResult =
+                                                    await (Connectivity()
+                                                        .checkConnectivity());
+                                                print(
+                                                    "Connectivity == ${connectivityResult.toString()}");
+                                                if (connectivityResult ==
+                                                    ConnectivityResult.none) {
+                                                  await showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          AlertDialog(
+                                                              title: const Text(
+                                                                  'Offline !'),
+                                                              content: const Text(
+                                                                  'you are currently offline ! Contact us via Messages !'),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    final recipientPhoneNumber =
+                                                                        '03038465220'; // Replace with the recipient's phone number
+                                                                    final String
+                                                                        messageBody =
+                                                                        'Hello, this is a test message.';
+                                                                    final uri =
+                                                                        Uri.encodeFull(
+                                                                            'sms:${recipientPhoneNumber}?body=${messageBody}');
+                                                                    await launchUrl(
+                                                                        Uri.parse(
+                                                                            uri));
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  child: const Text(
+                                                                      'Send Security Message'),
                                                                 ),
-                                                                actions: <Widget>[
-                                                                  TextButton(
-                                                                    onPressed:
-                                                                        () async {
-                                                                      final FirebaseMessaging
-                                                                          _firebaseMessaging =
-                                                                          FirebaseMessaging
-                                                                              .instance;
-                                                                      String
-                                                                          FCMtoken =
-                                                                          "";
-                                                                      await _firebaseMessaging
-                                                                          .getToken()
-                                                                          .then((String?
-                                                                              token) {
-                                                                        if (token !=
-                                                                            null) {
-                                                                          setState(
-                                                                              () {
-                                                                            FCMtoken =
-                                                                                token;
-                                                                          });
-
-                                                                          print(
-                                                                              "FCM Token: $FCMtoken");
-                                                                        } else {
-                                                                          print(
-                                                                              "Unable to get FCM token");
-                                                                        }
-                                                                      });
-
-                                                                      await FirebaseFirestore
-                                                                          .instance
-                                                                          .collection(
-                                                                              "not_Home")
-                                                                          .add({
-                                                                        'FCMtoken':
-                                                                            FCMtoken,
-                                                                        'nh':
-                                                                            false,
-                                                                        'from':
-                                                                            '${currentdate.text}',
-                                                                        'to':
-                                                                            '${_dateController.text}',
-                                                                        "days":
-                                                                            _daysDifference,
-                                                                        'Name':
-                                                                            '${userinfo['name']}',
-                                                                        'Email':
-                                                                            '${userinfo['email']}',
-                                                                        'ID':
-                                                                            '${userinfo["uid"]}',
-                                                                        'PhoneNo':
-                                                                            '${userinfo["phoneNo"]}',
-                                                                        'Address':
-                                                                            '${userinfo["address"]}',
-                                                                        'FPhoneNo':
-                                                                            '${userinfo["fphoneNo"]}',
-                                                                        'FName':
-                                                                            '${userinfo["fname"]}',
-                                                                        'Designation':
-                                                                            '${userinfo["designation"]}',
-                                                                        'Age':
-                                                                            '${userinfo["age"]}',
-                                                                        'Owner':
-                                                                            '${userinfo["owner"]}',
-                                                                        'noti':
-                                                                            true,
-                                                                        'Status':
-                                                                            true
-                                                                      }).then((DocumentReference
-                                                                              document) async {
-                                                                        print(
-                                                                            "ID= ${document.id}");
-                                                                        String
-                                                                            formattedTime =
-                                                                            DateFormat('h:mm:ss a').format(DateTime.now());
-                                                                        await FirebaseFirestore
-                                                                            .instance
-                                                                            .collection("notifications")
-                                                                            .add({
-                                                                          'isRead':
-                                                                              false,
-                                                                          'id':
-                                                                              document.id,
-                                                                          'date':
-                                                                              "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                          'description':
-                                                                              "Not at Home is on !",
-                                                                          'image':
-                                                                              "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                                          'time':
-                                                                              formattedTime,
-                                                                          'title':
-                                                                              'Not at Home'
-                                                                        });
-                                                                      });
-
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    },
-                                                                    child: Text(
-                                                                        'OK'),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                            }),
-                                                      ),
-                                                    ));
-
-                                            // _selectDate(context);
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Row(
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 8,
-                                            bottom: 1,
-                                            right: 1,
-                                            top: 6),
-                                        child: Text(
-                                          "Tredning Properties",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w800),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 6,
-                                  ),
-                                  Container(
-                                    // color: Colors.amber,
-                                    height:
-                                        MediaQuery.of(context).size.width / 3,
-                                    child: ListView.builder(
-                                      itemCount: 4,
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 10,
-                                            right: 6,
-                                            top: 1,
-                                            bottom: 1,
+                                                              ]));
+                                                } else {
+                                                  print("Online");
+                                                  alertme("button-one");
+                                                }
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: const Text(
+                                                      "Sorry ! but you have reached your todays limit .",
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    action: SnackBarAction(
+                                                        label: 'OK',
+                                                        textColor: Colors.black,
+                                                        onPressed: () {}),
+                                                    backgroundColor:
+                                                        Colors.grey[400],
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            icon: const Icon(
+                                              Icons.security,
+                                              color: Colors.white,
+                                            ),
+                                            label: Text('  ' + buttonLabels[0],
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           ),
-                                          child: Container(
-                                            // height: MediaQuery.of(context)
-                                            //         .size
-                                            //         .height /
-                                            //     1,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              //   ),
+                              // ),
+                            ),
+                            // ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 3),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      await generatePDF();
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PDFViewerPage(
+                                                      pdfPath: filePath)));
+                                    },
+                                    child: Container(
+                                      // color: Colors.green,
+                                      // height: 80,
+                                      width:
+                                          MediaQuery.of(context).size.width / 5,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            width: 50,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(
-                                                  15.0), // Adjust the radius as needed
-                                              color: const Color.fromRGBO(
-                                                  236, 238, 240, 1),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 8, top: 3, bottom: 3),
-                                              child: Row(
-                                                // mainAxisAlignment:
-                                                //     MainAxisAlignment
-                                                //         .spaceBetween,
-                                                children: [
-                                                  // Padding(
-                                                  // padding:
-                                                  // const EdgeInsets.all(8.0),
-                                                  // child:
-                                                  Container(
-                                                    // height: 100,
-                                                    // width:
-                                                    //     MediaQuery.of(context)
-                                                    //             .size
-                                                    //             .width /
-                                                    //         3.3,
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                      child: Image.asset(
-                                                        "assets/Images/plot4.jpeg",
-                                                        height: 100,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            3.3,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  // ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                      left: 2,
-                                                      right: 2,
-                                                      top: 6,
-                                                      bottom: 2,
-                                                    ),
-                                                    child: Column(children: [
-                                                      Container(
-                                                        height: 90,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            3,
-                                                        child: ListTile(
-                                                          title: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                ' Phase 1 house 68',
-                                                                style: TextStyle(
-                                                                    fontSize: 9,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 5,
-                                                              ),
-                                                              Text(
-                                                                'House no 61 street no 3',
-                                                                style: TextStyle(
-                                                                    fontSize: 9,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Colors
-                                                                        .black45),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 5,
-                                                              ),
-                                                              Text(
-                                                                '3 bedroom 4 washroom 2 kitchens garage double story',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 9,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                height: 5,
-                                                              )
-                                                            ],
-                                                          ),
-                                                          //subtitle: ,
-                                                        ),
-                                                      ),
-                                                    ]),
-
-                                                    //         Column(
-                                                    // mainAxisAlignment:
-                                                    //     MainAxisAlignment
-                                                    //         .spaceBetween,
-                                                    //  children: [
-                                                    // ListTile(
-                                                    //   title: Text(
-                                                    //       'Phase 1 house 68'),
-                                                    // )
-                                                    // Text("Brookline",
-                                                    //     style: TextStyle(
-                                                    //         fontSize:
-                                                    //             7) // Limit to one line of text
-                                                    //     ),
-                                                    // Text("4.5")
-                                                    //    ],
-                                                    //  ),
-                                                  ),
-                                                  // Padding(
-                                                  //   padding:
-                                                  //       const EdgeInsets.only(),
-                                                  //   //child:
-                                                  //   //Align(
-                                                  //   child: Text(
-                                                  //       "Wiley's Cottage",
-                                                  //       style: TextStyle(
-                                                  //           fontSize: 6)),
-                                                  //   //alignment: Alignment
-                                                  //   //  .centerLeft,
-                                                  //   // )
-                                                  // )
-                                                ],
-                                              ),
-                                            ),
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(30)),
+                                            child: const Icon(
+                                                Icons.table_chart_outlined,
+                                                color: Color.fromRGBO(
+                                                    15, 39, 127, 1)),
                                           ),
-                                        );
-                                      },
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Bills",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ]),
-                          )),
-                    )));
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 3),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Discounts()));
+                                    },
+                                    child: Container(
+                                      // color: Colors.green,
+                                      // height: 80,
+                                      width:
+                                          MediaQuery.of(context).size.width / 5,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(30)),
+                                            child: const Icon(
+                                                Icons.wb_sunny_outlined,
+                                                color: Color.fromRGBO(
+                                                    15, 39, 127, 1)),
+                                          ),
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Discount",
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 3),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TabsScreen(index: 5)));
+                                    },
+                                    child: Container(
+                                      // color: Colors.green,
+                                      // height: 80,
+                                      width:
+                                          MediaQuery.of(context).size.width / 5,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(30)),
+                                            height: 50,
+                                            width: 50,
+                                            child: const Icon(
+                                                Icons.line_style_outlined,
+                                                //   Icons.line_style_sharp,
+                                                color: Color.fromRGBO(
+                                                    15, 39, 127, 1)),
+                                          ),
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Plots",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 3),
+                                  child: InkWell(
+                                    child: Container(
+                                      // color: Colors.green,
+                                      // height: 80,
+                                      width:
+                                          MediaQuery.of(context).size.width / 5,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(30)),
+                                            child: const Icon(Icons.home,
+                                                color: Color.fromRGBO(
+                                                    15, 39, 127, 1)),
+                                          ),
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              "Not Home",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      print(
+                                          "Datetime format = ${formattedDateTime}");
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) => Center(
+                                                child: Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      1.65,
+                                                  // Adjust the width as needed
+                                                  child: FutureBuilder(
+                                                      future: SharedPreferences
+                                                          .getInstance(),
+                                                      builder: (context,
+                                                          AsyncSnapshot
+                                                              snapshot) {
+                                                        var userinfo =
+                                                            json.decode(snapshot
+                                                                    .data
+                                                                    .getString(
+                                                                        'userinfo')
+                                                                as String);
+                                                        final myListData = [
+                                                          userinfo["name"],
+                                                          userinfo["phoneNo"],
+                                                          userinfo["address"],
+                                                          userinfo["fphoneNo"],
+                                                          userinfo["fname"],
+                                                          userinfo[
+                                                              "designation"],
+                                                          userinfo["age"],
+                                                          userinfo["uid"],
+                                                          userinfo["owner"],
+                                                          userinfo["email"]
+                                                        ];
+                                                        return AlertDialog(
+                                                          title:
+                                                              Text('Not Home'),
+                                                          content: Column(
+                                                            children: [
+                                                              Text(
+                                                                  'Select the date when you will be at home'),
+                                                              SizedBox(
+                                                                  height: 25),
+                                                              TextFormField(
+                                                                controller:
+                                                                    currentdate,
+                                                                readOnly: true,
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  labelText:
+                                                                      'From',
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                  height: 25),
+                                                              TextFormField(
+                                                                controller:
+                                                                    _dateController,
+                                                                readOnly: true,
+                                                                onTap: () =>
+                                                                    _selectDate(
+                                                                        context),
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  labelText:
+                                                                      'To',
+                                                                  suffixIcon:
+                                                                      IconButton(
+                                                                    icon: Icon(Icons
+                                                                        .calendar_today),
+                                                                    onPressed: () =>
+                                                                        _selectDate(
+                                                                            context),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Align(
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .bottomRight,
+                                                                  child:
+                                                                      TextButton(
+                                                                          onPressed:
+                                                                              () async {
+                                                                            print(docid);
+                                                                            await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
+                                                                              'Status': false,
+                                                                              'cancelled': true,
+                                                                            });
+                                                                          },
+                                                                          child:
+                                                                              Icon(
+                                                                            Icons.delete,
+                                                                            color:
+                                                                                Colors.red,
+                                                                          )))
+                                                            ],
+                                                          ),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                if (DateTime.now() !=
+                                                                        toField ||
+                                                                    status ==
+                                                                        true) {
+                                                                  print(
+                                                                      "feild == ${toField}");
+                                                                  // Uncomment this code to show the confirmation dialog
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return AlertDialog(
+                                                                        title:
+                                                                            const Text(
+                                                                          'Confirmation',
+                                                                          style:
+                                                                              TextStyle(fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                        content:
+                                                                            Text(
+                                                                          'You will not be home for ${_daysDifference} days, Security will look after your house.\nPress YES to send your request.',
+                                                                        ),
+                                                                        actions: <Widget>[
+                                                                          ElevatedButton(
+                                                                            child:
+                                                                                const Text('Yes', style: TextStyle(color: Colors.white)),
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () async {
+                                                                              final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+                                                                              String FCMtoken = "";
+                                                                              await _firebaseMessaging.getToken().then((String? token) {
+                                                                                if (token != null) {
+                                                                                  setState(() {
+                                                                                    FCMtoken = token;
+                                                                                  });
+
+                                                                                  print("FCM Token: $FCMtoken");
+                                                                                } else {
+                                                                                  print("Unable to get FCM token");
+                                                                                }
+                                                                              });
+
+                                                                              await FirebaseFirestore.instance.collection("not_Home").add({
+                                                                                'FCMtoken': FCMtoken,
+                                                                                'time': DateTime.now(),
+                                                                                'nh': false,
+                                                                                'from': '${currentdate.text}',
+                                                                                'to': '${_dateController.text}',
+                                                                                "days": _daysDifference,
+                                                                                'Name': '${userinfo['name']}',
+                                                                                'Email': '${userinfo['email']}',
+                                                                                'ID': '${userinfo["uid"]}',
+                                                                                'PhoneNo': '${userinfo["phoneNo"]}',
+                                                                                'Address': '${userinfo["address"]}',
+                                                                                'FPhoneNo': '${userinfo["fphoneNo"]}',
+                                                                                'FName': '${userinfo["fname"]}',
+                                                                                'Designation': '${userinfo["designation"]}',
+                                                                                'Age': '${userinfo["age"]}',
+                                                                                'Owner': '${userinfo["owner"]}',
+                                                                                'noti': true,
+                                                                                'Status': true,
+                                                                                'cancelled': false,
+                                                                              }).then((DocumentReference document) async {
+                                                                                print("ID= ${document.id}");
+
+                                                                                String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                                                await FirebaseFirestore.instance.collection("notifications").add({
+                                                                                  'isRead': false,
+                                                                                  'id': document.id,
+                                                                                  'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                                                  'description': "Not at Home is on !",
+                                                                                  'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                                                  'time': formattedTime,
+                                                                                  'title': 'Not at Home'
+                                                                                });
+                                                                              });
+
+                                                                              Navigator.push(
+                                                                                  context,
+                                                                                  MaterialPageRoute(
+                                                                                    builder: (context) => TabsScreen(
+                                                                                      index: 0,
+                                                                                    ),
+                                                                                  ));
+
+                                                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                  action: SnackBarAction(
+                                                                                    label: "Ok",
+                                                                                    onPressed: () {},
+                                                                                  ),
+                                                                                  content: Text("Your Details has been sent ")));
+                                                                            },
+                                                                          ),
+                                                                          ElevatedButton(
+                                                                            child:
+                                                                                const Text('No', style: TextStyle(color: Colors.white)),
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.of(context).pop(); // Close the confirmation dialog
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                } else {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(SnackBar(
+                                                                          content:
+                                                                              Text("You can not send another request")));
+                                                                }
+                                                              },
+                                                              child: Text('OK'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: Text(
+                                                                  "Cancel"),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }),
+                                                ),
+                                              ));
+
+                                      // _selectDate(context);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, bottom: 1, right: 1, top: 6),
+                                  child: Text(
+                                    "Tredning Properties",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 6,
+                            ),
+                            Container(
+                              // color: Colors.amber,
+                              height: MediaQuery.of(context).size.width / 3,
+                              child: ListView.builder(
+                                itemCount: 4,
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 10,
+                                      right: 6,
+                                      top: 1,
+                                      bottom: 1,
+                                    ),
+                                    child: Container(
+                                      // height: MediaQuery.of(context)
+                                      //         .size
+                                      //         .height /
+                                      //     1,
+                                      width: MediaQuery.of(context).size.width /
+                                          1.4,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                            15.0), // Adjust the radius as needed
+                                        color: const Color.fromRGBO(
+                                            236, 238, 240, 1),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 8, top: 3, bottom: 3),
+                                        child: Row(
+                                          // mainAxisAlignment:
+                                          //     MainAxisAlignment
+                                          //         .spaceBetween,
+                                          children: [
+                                            // Padding(
+                                            // padding:
+                                            // const EdgeInsets.all(8.0),
+                                            // child:
+                                            Container(
+                                              // height: 100,
+                                              // width:
+                                              //     MediaQuery.of(context)
+                                              //             .size
+                                              //             .width /
+                                              //         3.3,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Image.asset(
+                                                  "assets/Images/plot4.jpeg",
+                                                  height: 100,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3.3,
+                                                ),
+                                              ),
+                                            ),
+                                            // ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 2,
+                                                right: 2,
+                                                top: 6,
+                                                bottom: 2,
+                                              ),
+                                              child: Column(children: [
+                                                Container(
+                                                  height: 90,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  child: ListTile(
+                                                    title: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          ' Phase 1 house 68',
+                                                          style: TextStyle(
+                                                              fontSize: 9,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Text(
+                                                          'House no 61 street no 3',
+                                                          style: TextStyle(
+                                                              fontSize: 9,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors
+                                                                  .black45),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Text(
+                                                          '3 bedroom 4 washroom 2 kitchens garage double story',
+                                                          style: TextStyle(
+                                                            fontSize: 9,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        )
+                                                      ],
+                                                    ),
+                                                    //subtitle: ,
+                                                  ),
+                                                ),
+                                              ]),
+
+                                              //         Column(
+                                              // mainAxisAlignment:
+                                              //     MainAxisAlignment
+                                              //         .spaceBetween,
+                                              //  children: [
+                                              // ListTile(
+                                              //   title: Text(
+                                              //       'Phase 1 house 68'),
+                                              // )
+                                              // Text("Brookline",
+                                              //     style: TextStyle(
+                                              //         fontSize:
+                                              //             7) // Limit to one line of text
+                                              //     ),
+                                              // Text("4.5")
+                                              //    ],
+                                              //  ),
+                                            ),
+                                            // Padding(
+                                            //   padding:
+                                            //       const EdgeInsets.only(),
+                                            //   //child:
+                                            //   //Align(
+                                            //   child: Text(
+                                            //       "Wiley's Cottage",
+                                            //       style: TextStyle(
+                                            //           fontSize: 6)),
+                                            //   //alignment: Alignment
+                                            //   //  .centerLeft,
+                                            //   // )
+                                            // )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ]),
+                    )),
+              );
+    // ));
+  }
+
+  Future<void> fetchSubcollectionDocuments(
+      String currentUserEmail, owner) async {
+    try {
+      final mainCollectionQuery = await FirebaseFirestore.instance
+          .collection("UserRequest") // Replace with your main collection
+          .where("owner", isEqualTo: owner)
+          .get();
+
+      if (mainCollectionQuery.docs.isNotEmpty) {
+        mainCollectionQuery.docs.forEach((mainDoc) async {
+          final subcollectionRef = mainDoc.reference.collection("FMData");
+
+          final subcollectionQuery = await subcollectionRef
+              .where("ownerMail", isEqualTo: currentUserEmail)
+              .get();
+
+          if (subcollectionQuery.docs.isNotEmpty) {
+            subcollectionQuery.docs.forEach((subDoc) {
+              // Process subcollection documents here
+              print("data===${subDoc.data()}");
+            });
+          }
+        });
+      } else {
+        print("No matching documents found in the main collection.");
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
   }
 }

@@ -57,8 +57,8 @@ class _NotificationsState extends State<Notifications> {
           ),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('notifications').snapshots(),
+      body: FutureBuilder<QuerySnapshot>(
+        future: _firestore.collection('notifications').limit(30).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();

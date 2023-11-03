@@ -88,7 +88,7 @@ class _PlotsState extends State<Plots> {
                         minHeight: 15,
                       ),
                       child: Text(
-                        notification_count.toString(),
+                        "${notification_count}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12, // You can customize the font size
@@ -104,12 +104,13 @@ class _PlotsState extends State<Plots> {
               await Navigator.push(
                 context,
                 PageTransition(
-                  duration: const Duration(milliseconds: 700),
+                  duration: Duration(milliseconds: 700),
                   type: PageTransitionType.rightToLeftWithFade,
                   child: Notifications(),
                 ),
               );
               setState(() {
+                updateAllIsReadStatus(true);
                 notification_count = 0;
               });
             },

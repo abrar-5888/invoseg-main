@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:testapp/Emergency.dart';
+import 'package:testapp/Screens/Emergency.dart';
 import 'package:testapp/Screens/Dashboard.dart';
 import 'package:testapp/Screens/Design.dart';
 import 'package:testapp/Screens/Explore.dart';
@@ -56,8 +56,9 @@ class _TabsScreenState extends State<TabsScreen> {
       }
     ];
     super.initState();
+    getAllIsReadStatus();
     setState(() {
-      _selectedPageIndex = 3;
+      _selectedPageIndex = widget.index;
       // widget.index;
     });
   }
@@ -66,8 +67,16 @@ class _TabsScreenState extends State<TabsScreen> {
 
   void _selectPage(int index) {
     setState(() {
-      _selectedPageIndex = 3;
-      // _selectedPageIndex = index;
+      // _selectedPageIndex = 3;
+      _selectedPageIndex = index;
+      if (_selectedPageIndex == 1) {
+        updateAllIsReadStatus(true);
+        gro_count = 0;
+      }
+      if (_selectedPageIndex == 1) {
+        updateAllIsReadStatus(true);
+        med_count = 0;
+      }
     });
   }
 
@@ -105,7 +114,7 @@ class _TabsScreenState extends State<TabsScreen> {
                             minHeight: 12,
                           ),
                           child: Text(
-                            '${gro_count.toString()}',
+                            "${gro_count}",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 8,

@@ -221,6 +221,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
                                 future: _firestore
                                     .collection("grocery")
                                     .doc(manuallySpecifiedUID)
+                                    // limit(30)
                                     .get(),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==

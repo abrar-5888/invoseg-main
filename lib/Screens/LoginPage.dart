@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Rider/rider.dart';
 import 'package:testapp/Screens/Tab.dart';
+import 'package:video_player/video_player.dart';
 
 class LoginScreen extends StatefulWidget {
   static final routename = 'login';
@@ -19,19 +20,29 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   var logins = {"user": "", "pass": ""};
   final GlobalKey<FormState> _formKey = GlobalKey();
+
   void login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      if (logins['user'].toString().contains("rider")) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Rider()));
-      } else {
-        EasyLoading.show(status: 'Authenticating...');
-        FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-                email: logins['user'].toString().trim(),
-                password: logins['pass'].toString().trim())
-            .then((e) async {
+
+      EasyLoading.show(status: 'Authenticating...');
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: logins['user'].toString().trim(),
+              password: logins['pass'].toString().trim())
+          .then((e) async {
+        var ifelse = await FirebaseFirestore.instance
+            .collection("UserRequest")
+            .where("email", isEqualTo: e.user!.email)
+            .get();
+        // .where("uid", isEqualTo: e.user!.uid)
+        // .where("status", isEqualTo: "Approve");
+        if (logins['user'].toString().contains("rider")) {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Rider()));
+        } else
+        // if (ifelse != null)
+        {
           FirebaseFirestore.instance
               .collection("UserRequest")
               .where("email", isEqualTo: e.user!.email)
@@ -49,18 +60,151 @@ class _LoginScreenState extends State<LoginScreen> {
                   .where("status", isEqualTo: "Approve")
                   .get()
                   .then((secondCollection) async {
+                print(secondCollection);
+                print("second ${secondCollection.docs.length}");
+
                 if (secondCollection.docs.length < 1) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Your Application is Not Approved in the Second Collection'),
-                      action: SnackBarAction(label: 'OK', onPressed: () {}),
-                      backgroundColor: Colors.teal,
-                    ),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     content: Text(
+                  //         'Your Application is Not Approved in the Second Collection'),
+                  //     action: SnackBarAction(label: 'OK', onPressed: () {}),
+                  //     backgroundColor: Colors.teal,
+                  //   ),
+                  // );
+                  FirebaseFirestore.instance
+                      .collection("UserRequest")
+                      // .where("email", isEqualTo: e.user!.email)
+                      // .where("uid", isEqualTo: e.user!.uid)
+                      .get()
+                      .then((querySnapshot) {
+                    querySnapshot.docs.forEach((document) {
+                      // Access the parent document
+                      final parentDocument = document.reference;
+
+                      // Now, query the subcollection within the parent document
+                      parentDocument
+                          .collection(
+                              "FMData") // Replace "YourSubcollectionName" with the actual subcollection name
+                          .where("status", isEqualTo: "Approve")
+                          .where('email', isEqualTo: e.user!.email)
+                          .get()
+                          .then((subcollectionSnapshot) {
+                        subcollectionSnapshot.docs.forEach((subDoc) async {
+                          // Process subcollection documents here
+                          if (subcollectionSnapshot.docs.length < 1) {
+                            // If condition is not true in the first collection, check the second collection
+                            parentDocument
+                                .collection(
+                                    "FMData") // Replace "YourSubcollectionName" with the actual subcollection name
+                                .where("status", isEqualTo: "Approve")
+                                .where('email', isEqualTo: e.user!.email)
+                                .get()
+                                .then((secondCollection) async {
+                              print(secondCollection);
+                              print("second ${secondCollection.docs.length}");
+
+                              if (secondCollection.docs.length < 1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'Your Application is Not Approved in the Second Collection'),
+                                    action: SnackBarAction(
+                                        label: 'OK', onPressed: () {}),
+                                    backgroundColor: Colors.teal,
+                                  ),
+                                );
+                              } else {
+                                print("1");
+                                // int num = 0;
+
+                                // Process user data and navigate if conditions are met for the second collection
+                                var info = secondCollection.docs[0]
+                                    .data(); // Use secondCollection here
+                                print('umair');
+                                print(info["FM1"]);
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final userinfo = json.encode({
+                                  "Fname": info["Name"],
+                                  "FphoneNo": info["Phoneno"],
+
+                                  // "FM${num}": info["FM1"][0]['FamilyName']
+                                });
+                                // num++;
+                                await prefs.setString('userinfo', userinfo);
+                                await prefs.setString('email', info["email"]);
+                                await prefs.setString(
+                                    'pass', logins['pass'].toString().trim());
+                                await prefs.setBool("token", true);
+                                EasyLoading.dismiss();
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    duration: Duration(milliseconds: 100),
+                                    type:
+                                        PageTransitionType.rightToLeftWithFade,
+                                    child: TabsScreen(
+                                      index: 0,
+                                    ),
+                                  ),
+                                );
+                              }
+                            });
+                            //
+                          } else {
+                            // int num = 1;
+                            print("2");
+                            // Process user data and navigate if conditions are met for the first collection
+                            var info = subcollectionSnapshot.docs[0].data();
+                            var id = subcollectionSnapshot.docs[0].id;
+                            print('umair');
+                            // print(info["FM${num}"]['FamilyName']);
+                            final prefs = await SharedPreferences.getInstance();
+                            print("id");
+                            final userinfo = json.encode({
+                              "name": info["Name"],
+                              "phoneNo": info["Phoneno"],
+                              "address": info["address"],
+                              "fphoneNo": info["fPhonenumber"],
+                              "fname": info["fName"],
+                              "designation": info["designation"],
+                              "age": info["age"],
+                              "uid": e.user!.uid,
+                              "owner": info["owner"],
+                              "id": id,
+                              "email": info["email"],
+                              // "FM${num}": info["FM${num}"]['FamilyName']
+                              // ? "test"
+                              // : info["FM${num}"]['FamilyName']
+                            });
+                            // num++;
+                            await prefs.setString('userinfo', userinfo);
+                            await prefs.setString('email', info["email"]);
+                            await prefs.setString(
+                                'pass', logins['pass'].toString().trim());
+
+                            await prefs.setBool("token", true);
+                            EasyLoading.dismiss();
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                duration: Duration(milliseconds: 100),
+                                type: PageTransitionType.rightToLeftWithFade,
+                                child: TabsScreen(
+                                  index: 0,
+                                ),
+                              ),
+                            );
+                          }
+                        });
+                      });
+                    });
+                  });
+                  EasyLoading.dismiss();
                 } else {
                   print("1");
-                  int num = 0;
+                  // int num = 0;
 
                   // Process user data and navigate if conditions are met for the second collection
                   var info = secondCollection.docs[0]
@@ -79,9 +223,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     "uid": e.user!.uid,
                     "owner": info["owner"],
                     "email": info["email"],
-                    "FM${num}": info["FM1"][0]['FamilyName']
+                    // "FM${num}": info["FM1"][0]['FamilyName']
                   });
-                  num++;
+                  // num++;
                   await prefs.setString('userinfo', userinfo);
                   await prefs.setString('email', info["email"]);
                   await prefs.setString(
@@ -100,14 +244,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                 }
               });
+              //
             } else {
-              int num = 1;
+              // int num = 1;
               print("2");
               // Process user data and navigate if conditions are met for the first collection
               var info = main.docs[0].data();
               var id = main.docs[0].id;
               print('umair');
-              print(info["FM${num}"]['FamilyName']);
+              // print(info["FM${num}"]['FamilyName']);
               final prefs = await SharedPreferences.getInstance();
               print("id");
               final userinfo = json.encode({
@@ -122,12 +267,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 "owner": info["owner"],
                 "id": id,
                 "email": info["email"],
-                "FM${num}": info["FM${num}"]['FamilyName']
+                // "FM${num}": info["FM${num}"]['FamilyName']
+                // ? "test"
+                // : info["FM${num}"]['FamilyName']
               });
-              num++;
+              // num++;
               await prefs.setString('userinfo', userinfo);
               await prefs.setString('email', info["email"]);
               await prefs.setString('pass', logins['pass'].toString().trim());
+
               await prefs.setBool("token", true);
               EasyLoading.dismiss();
               Navigator.push(
@@ -142,19 +290,90 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             }
           });
-        }).catchError((e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.toString()),
-              action: SnackBarAction(
-                  label: 'OK', textColor: Colors.black, onPressed: () {}),
-              backgroundColor: Colors.grey[400],
-            ),
-          );
+        }
+        // else {
+
+        // }
+      }).catchError((e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            action: SnackBarAction(
+                label: 'OK', textColor: Colors.black, onPressed: () {}),
+            backgroundColor: Colors.grey[400],
+          ),
+        );
+      });
+    }
+  }
+
+/* My Try
+  void login() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      EasyLoading.show(status: 'Authenticating...');
+
+      String? userEmail = logins['user']?.toString().trim();
+      String? userPass = logins['pass']?.toString().trim();
+
+      if (userEmail != null && userPass != null) {
+        FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+          email: userEmail,
+          password: userPass,
+        )
+            .then((e) {
+          if (logins['user'].toString().contains("rider")) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Rider()));
+          } else {
+            FirebaseFirestore.instance
+                .collection("UserRequest")
+                .where("email", isEqualTo: e.user!.email)
+                .get()
+                .then((main) async {
+              if (main.docs.length < 1) {
+                // If condition is not true in the first collection, check the second collection
+
+                FirebaseFirestore.instance
+                    .collection(
+                        "UserRequest") // Replace with your second collection name
+                    .where("email", isEqualTo: e.user!.email)
+                    .where("uid", isEqualTo: e.user!.uid)
+                    .where("status", isEqualTo: "Approve")
+                    .get()
+                    .then((secondCollection) async {
+                  print(secondCollection);
+                  print("second ${secondCollection.docs.length}");
+
+                  if (secondCollection.docs.length < 1) {
+                    //  = secondCollection.docs[0].id;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Your Application is Not Approved in the Second Collection'),
+                        action: SnackBarAction(label: 'OK', onPressed: () {}),
+                        backgroundColor: Colors.teal,
+                      ),
+                    );
+                    EasyLoading.dismiss();
+                  } else {
+                    print("working");
+
+                    EasyLoading.dismiss();
+                  }
+                });
+              } else {
+                print("Subcollection");
+              }
+            });
+          }
         });
       }
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

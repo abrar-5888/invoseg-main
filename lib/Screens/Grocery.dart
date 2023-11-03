@@ -28,9 +28,10 @@ class _GroceryState extends State<Grocery> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    updateAllIsReadStatus(true);
     gro_count = 0;
     GroceryId = "";
-    Timer(Duration(seconds: 10), () {
+    Timer(Duration(minutes: 5), () {
       setState(() {
         isButtonEnabled = false;
       });
@@ -97,7 +98,7 @@ class _GroceryState extends State<Grocery> {
                         minHeight: 15,
                       ),
                       child: Text(
-                        notification_count.toString(),
+                        "${notification_count}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12, // You can customize the font size
@@ -119,6 +120,7 @@ class _GroceryState extends State<Grocery> {
                 ),
               );
               setState(() {
+                updateAllIsReadStatus(true);
                 notification_count = 0;
               });
             },
@@ -156,6 +158,7 @@ class _GroceryState extends State<Grocery> {
                       future: FirebaseFirestore.instance
                           .collection("grocery")
                           .orderBy("date", descending: true)
+                          .limit(30)
                           .get(),
                       // .where('uid',isEqualTo:uid )
                       builder: (context, grocerySnapshot) {

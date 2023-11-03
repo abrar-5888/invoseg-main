@@ -221,6 +221,7 @@ class _ComplainformState extends State<Complainform> {
                                         child: FutureBuilder(
                                           future: FirebaseFirestore.instance
                                               .collection('complain')
+                                              .limit(30)
                                               .get(),
                                           builder: (context,
                                               AsyncSnapshot<QuerySnapshot>

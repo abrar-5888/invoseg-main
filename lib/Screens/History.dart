@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/Notifications.dart';
@@ -141,11 +142,13 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
               final myListData = [
                 userinfo["uid"],
               ];
-              return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
+              return FutureBuilder<QuerySnapshot>(
+                  future: FirebaseFirestore.instance
                       .collection("UserButtonRequest")
                       .where("uid", isEqualTo: myListData[0])
-                      .snapshots(includeMetadataChanges: true),
+                      // .snapshots(includeMetadataChanges: true),
+                      .limit(30)
+                      .get(),
                   builder: (context, snp) {
                     if (snp.hasError) {
                       print(snp);
@@ -204,9 +207,39 @@ class ButtonsHistoryBody extends StatefulWidget {
 }
 
 class _ButtonsHistoryBodyState extends State<ButtonsHistoryBody> {
+  String formatDateFromTimestamp(Timestamp timestamp) {
+    if (timestamp == null) {
+      return "N/A";
+    }
+
+    DateTime date = timestamp.toDate();
+    String formattedDate = DateFormat('yyyy-MM-dd')
+        .format(date); // You can change the format as needed
+    return formattedDate;
+  }
+
+  String formatTimeFromTimestamp(Timestamp timestamp) {
+    if (timestamp == null) {
+      return "N/A";
+    }
+
+    DateTime date = timestamp.toDate();
+    String formattedTime = DateFormat('HH:mm:ss')
+        .format(date); // You can change the format as needed
+    return formattedTime;
+  }
+
   @override
   Widget build(BuildContext context) {
-    String time = widget.comp.data()['pressedTime'].toDate().toString();
+    Timestamp timestamp1 = widget.comp.data()['pressedTime'];
+    String time = formatTimeFromTimestamp(timestamp1);
+    print(time); // Prints the formatted time
+
+    // String time = widget.comp.data()['pressedTime'].toDate().toString();
+    Timestamp timestamp = widget.comp.data()['pressedTime'];
+    String date = formatDateFromTimestamp(timestamp);
+    print(date); // Prints the formatted date
+
     return Container(
       //  color: Color.fromARGB(255, 112, 9, 9),
       child: Padding(
@@ -353,12 +386,23 @@ class _ButtonsHistoryBodyState extends State<ButtonsHistoryBody> {
                 subtitle: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      widget.comp.data()['pressedTime'].toDate().toString(),
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11),
+                    Column(
+                      children: [
+                        Text(
+                          date,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11),
+                        ),
+                        Text(
+                          time,
+                          style: TextStyle(
+                              color: const Color.fromARGB(172, 0, 0, 0),
+                              fontWeight: FontWeight.w400,
+                              fontSize: 11),
+                        ),
+                      ],
                     ),
                     // Container(
                     //   decoration: BoxDecoration(

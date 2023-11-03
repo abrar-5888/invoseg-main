@@ -96,7 +96,7 @@ class _HomeState extends State<Newsandfeeds> {
     "Riphah International University, Lahore Thokar is a private University, chartered by the Federal Government of Pakistan.The University was established with a view to producing professionals with Islamic moral and ethical values. It is sponsored by a not-for-profit trust; namely Islamic International Medical College Trust (IIMCT)",
   ];
   List<bool> fav = [false, false, false, false, false, false];
-
+  bool favo = false;
   List<String> image = [
     "assets/Images/d2.jpg",
     "assets/Images/d1.jpg",
@@ -107,6 +107,7 @@ class _HomeState extends State<Newsandfeeds> {
   ];
 
   Widget build(BuildContext context) {
+    int num = 0;
     return isLoading
         ? Scaffold(
             body: Center(
@@ -160,7 +161,7 @@ class _HomeState extends State<Newsandfeeds> {
                               minHeight: 15,
                             ),
                             child: Text(
-                              notification_count.toString(),
+                              "${notification_count}",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12, // You can customize the font size
@@ -182,7 +183,8 @@ class _HomeState extends State<Newsandfeeds> {
                       ),
                     );
                     setState(() {
-                      // notification_count = 0;
+                      updateAllIsReadStatus(true);
+                      notification_count = 0;
                     });
                   },
                 ),
@@ -200,7 +202,145 @@ class _HomeState extends State<Newsandfeeds> {
                 ),
               ],
             ),
-            body: Container(
+            body: ListView.builder(
+              itemCount: image.length, // Number of posts
+              itemBuilder: (context, index) {
+                return Column(
+                  children: <Widget>[
+                    // User info and post content
+                    ListTile(
+                      leading: CircleAvatar(
+                        // User profile picture
+                        radius: 15,
+                        backgroundImage:
+                            AssetImage('assets/Images/Invoseg.jpg'),
+                      ),
+                      title: Text(title[index]), // Username
+                      // subtitle: Text('Location'), // Location or caption
+                      trailing: Icon(Icons.more_vert), // Options button
+                    ),
+                    // Post image
+                    Image.asset(image[index]),
+                    // Like, comment, and send buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              favo = !favo;
+                            });
+                            print(favo);
+                            if (favo == true) {
+                              setState(() {
+                                num = num + 1;
+                              });
+                            }
+                            if (favo == false) {
+                              setState(() {
+                                num = num - 1;
+                              });
+                            }
+                          },
+                          icon: favo == false
+                              ? Container(
+                                  height: 20,
+                                  width: 20,
+                                  child: Image.asset("assets/Images/heart.png"),
+                                )
+                              : Icon(
+                                  Icons.favorite,
+                                  size: 25,
+                                  color: Colors.red,
+                                ),
+                        ),
+                        Container(
+                          height: 40,
+                          width: 40,
+                          child: IconButton(
+                              icon: Image.asset("assets/Images/chat.png"),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      height: 200, // Set the height as needed
+                                      child: Column(
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text("Test"),
+                                          ),
+                                          ListTile(
+                                            leading: Icon(Icons.camera),
+                                            title: Text('Take a Photo'),
+                                            onTap: () {
+                                              // Handle taking a photo
+                                              Navigator.pop(
+                                                  context); // Close the bottom sheet
+                                            },
+                                          ),
+                                          ListTile(
+                                            leading: Icon(Icons.photo),
+                                            title: Text('Choose from Gallery'),
+                                            onTap: () {
+                                              // Handle choosing from the gallery
+                                              Navigator.pop(
+                                                  context); // Close the bottom sheet
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              }),
+                        ),
+                      ],
+                    ),
+                    // Like count and comments
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text('1234'), // Like count
+                          Text('View all 10 comments'), // View all comments
+                          Row(
+                            children: <Widget>[
+                              Text('username: '), // Comment user
+                              Text('This is a comment.'), // Comment text
+                            ],
+                          ),
+                          // Additional comments go here
+                        ],
+                      ),
+                    ),
+                    // Post time
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('2 hours ago'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ); // Custom widget for displaying posts
+              },
+            ));
+  }
+}
+
+// class InstagramPost extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+    
+//   }
+// }
+            /*Container(
                 height: MediaQuery.of(context).size.height,
                 child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -255,114 +395,100 @@ class _HomeState extends State<Newsandfeeds> {
                                 child: ListView.builder(
                                   itemCount: image.length,
                                   itemBuilder: (context, index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                1.6,
-                                        child: Card(
-                                          elevation: 10,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Row(children: [
-                                                Container(
-                                                  // color: Colors.yellow,
-                                                  height: 70,
-                                                  width: 70,
-                                                  child: IconButton(
-                                                    onPressed: () {},
-                                                    icon: Container(
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25),
-                                                        child: Image.asset(
-                                                            icon[index]),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(
-                                                  title[index],
-                                                  style:
-                                                      TextStyle(fontSize: 18),
-                                                ),
-                                              ]),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      3,
-                                                  child:
-                                                      Image.asset(image[index]),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(7.0),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  child: Text(
-                                                    description[index],
-                                                    style:
-                                                        TextStyle(fontSize: 10),
+                                    return Container(
+                                      color: Colors.transparent,
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              1.6,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Row(children: [
+                                            Container(
+                                              // color: Colors.yellow,
+                                              height: 70,
+                                              width: 70,
+                                              child: IconButton(
+                                                onPressed: () {},
+                                                icon: Container(
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                    child: Image.asset(
+                                                        icon[index]),
                                                   ),
                                                 ),
                                               ),
-                                              Row(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            3.0),
-                                                    child: Container(
-                                                        child: IconButton(
-                                                      icon: fav[index]
-                                                          ? Icon(Icons.favorite,
-                                                              color: Colors
-                                                                  .red) // Change this to your desired icon
-                                                          : Icon(
-                                                              Icons
-                                                                  .favorite_border,
-                                                            ), // Initial icon
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          fav[index] =
-                                                              !fav[index];
-                                                        });
-                                                      },
-                                                    )),
-                                                  ),
-                                                  Container(
-                                                      child: IconButton(
-                                                    icon: Icon(
-                                                        Icons.comment_outlined),
-                                                    onPressed: () {
-                                                      _showBottomSheet(context);
-                                                    },
-                                                  ))
-                                                ],
-                                              )
-                                            ],
+                                            ),
+                                            // SizedBox(
+                                            //   width: 4,
+                                            // ),
+                                            Text(
+                                              title[index],
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ]),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                              child: Image.asset(image[index]),
+                                            ),
                                           ),
-                                        ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(7.0),
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              child: Text(
+                                                description[index],
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(3.0),
+                                                child: Container(
+                                                    child: IconButton(
+                                                  icon: fav[index]
+                                                      ? Icon(Icons.favorite,
+                                                          color: Colors
+                                                              .red) // Change this to your desired icon
+                                                      : Icon(
+                                                          Icons.favorite_border,
+                                                        ), // Initial icon
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      fav[index] = !fav[index];
+                                                    });
+                                                  },
+                                                )),
+                                              ),
+                                              Container(
+                                                  child: IconButton(
+                                                icon: Icon(
+                                                    Icons.comment_outlined),
+                                                onPressed: () {
+                                                  _showBottomSheet(context);
+                                                },
+                                              ))
+                                            ],
+                                          )
+                                        ],
                                       ),
                                     );
                                   },
@@ -380,3 +506,4 @@ class _HomeState extends State<Newsandfeeds> {
     );
   }
 }
+*/
