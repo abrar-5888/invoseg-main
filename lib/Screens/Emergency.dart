@@ -197,7 +197,7 @@ class _EmergencyState extends State<Emergency> {
               child: FutureBuilder<QuerySnapshot>(
                 future: FirebaseFirestore.instance
                     .collection("consultation")
-                    .orderBy('date', descending: true)
+                    .orderBy('time', descending: true)
                     .limit(30)
                     .get(),
                 builder: (context, consultationSnapshot) {
@@ -342,7 +342,19 @@ class _EmergencyState extends State<Emergency> {
                                                 ),
                                               ),
                                               onPressed: () {
-                                                launch(meetingID);
+                                                if (meetingID
+                                                    .contains("meet")) {
+                                                  launch(meetingID);
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        "Meeting link expired.Please request a new one"),
+                                                    action: SnackBarAction(
+                                                        label: 'ok',
+                                                        onPressed: () {}),
+                                                  ));
+                                                }
                                               },
                                               style: ButtonStyle(
                                                 shape:

@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Rider/rider.dart';
 import 'package:testapp/Screens/Tab.dart';
+import 'package:testapp/Screens/forgotPass.dart';
 import 'package:video_player/video_player.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -31,12 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
               email: logins['user'].toString().trim(),
               password: logins['pass'].toString().trim())
           .then((e) async {
-        var ifelse = await FirebaseFirestore.instance
-            .collection("UserRequest")
-            .where("email", isEqualTo: e.user!.email)
-            .get();
-        // .where("uid", isEqualTo: e.user!.uid)
-        // .where("status", isEqualTo: "Approve");
         if (logins['user'].toString().contains("rider")) {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => Rider()));
@@ -75,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   FirebaseFirestore.instance
                       .collection("UserRequest")
                       // .where("email", isEqualTo: e.user!.email)
-                      // .where("uid", isEqualTo: e.user!.uid)
+                      .where("uid", isEqualTo: e.user!.uid)
                       .get()
                       .then((querySnapshot) {
                     querySnapshot.docs.forEach((document) {
@@ -107,8 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (secondCollection.docs.length < 1) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                        'Your Application is Not Approved in the Second Collection'),
+                                    content: Text('Invalid Credentials'),
                                     action: SnackBarAction(
                                         label: 'OK', onPressed: () {}),
                                     backgroundColor: Colors.teal,
@@ -152,7 +146,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                             });
                             //
-                          } else {
+                          }
+
+                          ///next
+                          else {
                             // int num = 1;
                             print("2");
                             // Process user data and navigate if conditions are met for the first collection
@@ -164,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             print("id");
                             final userinfo = json.encode({
                               "name": info["Name"],
-                              "phoneNo": info["Phoneno"],
+                              "phoneNo": info["phonenumber"],
                               "address": info["address"],
                               "fphoneNo": info["fPhonenumber"],
                               "fname": info["fName"],
@@ -214,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   final prefs = await SharedPreferences.getInstance();
                   final userinfo = json.encode({
                     "name": info["Name"],
-                    "phoneNo": info["Phoneno"],
+                    "phoneNo": info["phonenumber"],
                     "address": info["address"],
                     "fphoneNo": info["fPhonenumber"],
                     "fname": info["fName"],
@@ -257,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
               print("id");
               final userinfo = json.encode({
                 "name": info["Name"],
-                "phoneNo": info["Phoneno"],
+                "phoneNo": info["phonenumber"],
                 "address": info["address"],
                 "fphoneNo": info["fPhonenumber"],
                 "fname": info["fName"],
@@ -294,18 +291,262 @@ class _LoginScreenState extends State<LoginScreen> {
         // else {
 
         // }
-      }).catchError((e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString()),
-            action: SnackBarAction(
-                label: 'OK', textColor: Colors.black, onPressed: () {}),
-            backgroundColor: Colors.grey[400],
-          ),
-        );
+      }).catchError((e) async {
+        try {
+          var parentColl = FirebaseFirestore.instance.collection('UserRequest');
+
+          parentColl
+              .where('phonenumber', isEqualTo: logins['user'])
+              .get()
+              .then((QuerySnapshot querySnapshot) {
+            if (querySnapshot.docs.isNotEmpty) {
+              // Phone number match found in parent collection
+              var doc = querySnapshot.docs.first;
+              var data = doc.data() as Map<String, dynamic>;
+              var email = data['email'];
+
+              // Authenticate with email and password
+              FirebaseAuth.instance
+                  .signInWithEmailAndPassword(
+                      email: email, password: logins['pass'].toString().trim())
+                  .then((e) async {
+                FirebaseFirestore.instance
+                    .collection("UserRequest")
+                    .where("email", isEqualTo: email)
+                    .where("uid", isEqualTo: e.user!.uid)
+                    // .where("status", isEqualTo: "Approve")
+                    .get()
+                    .then((main) async {
+                  if (main.docs.length < 1) {
+                    print("object");
+                  } else {
+                    // int num = 1;
+                    print("2");
+                    // Process user data and navigate if conditions are met for the first collection
+                    var info = main.docs[0].data();
+                    var id = main.docs[0].id;
+                    print('umair');
+                    // print(info["FM${num}"]['FamilyName']);
+                    final prefs = await SharedPreferences.getInstance();
+                    print("id");
+                    final userinfo = json.encode({
+                      "name": info["Name"],
+                      "phoneNo": info["phonenumber"],
+                      "address": info["address"],
+                      "fphoneNo": info["fPhonenumber"],
+                      "fname": info["fName"],
+                      "designation": info["designation"],
+                      "age": info["age"],
+                      "uid": e.user!.uid,
+                      "owner": info["owner"],
+                      "id": id,
+                      "email": info["email"],
+                      // "FM${num}": info["FM${num}"]['FamilyName']
+                      // ? "test"
+                      // : info["FM${num}"]['FamilyName']
+                    });
+
+                    // num++;
+                    await prefs.setString('userinfo', userinfo);
+                    await prefs.setString('email', info["email"]);
+                    await prefs.setString(
+                        'pass', logins['pass'].toString().trim());
+
+                    await prefs.setBool("token", true);
+                    EasyLoading.dismiss();
+                    Navigator.push(
+                      context,
+                      PageTransition(
+                        duration: Duration(milliseconds: 100),
+                        type: PageTransitionType.rightToLeftWithFade,
+                        child: TabsScreen(
+                          index: 0,
+                        ),
+                      ),
+                    );
+                  }
+                }).catchError((error) {
+                  // Handle authentication failure
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Invalid Credentials"),
+                    action: SnackBarAction(label: 'Ok', onPressed: () {}),
+                  ));
+                });
+              });
+            } else {
+              // No match in parent collection, check subcollections
+
+              parentColl.get().then((querySnapshot) {
+                querySnapshot.docs.forEach((document) {
+                  final parentDocument = document.reference;
+
+                  // Query the subcollection within the parent document
+                  parentDocument
+                      .collection(
+                          'FMData') // Replace with your subcollection name
+                      .where('Phoneno', isEqualTo: logins['user'])
+                      .get()
+                      .then((subcollectionSnapshot) {
+                    subcollectionSnapshot.docs.forEach((subDoc) {
+                      print(subDoc.data());
+                      var data = subDoc.data() as Map<String, dynamic>;
+                      logins['user'] = data['email'];
+                      var email = data['email'];
+
+                      // Authenticate with email and password
+                      FirebaseAuth.instance
+                          .signInWithEmailAndPassword(
+                              email: email,
+                              password: logins['pass'].toString().trim())
+                          .then((e) async {
+                        print("Success");
+                        if (subcollectionSnapshot.docs.length < 1) {
+                          // If condition is not true in the first collection, check the second collection
+                          parentDocument
+                              .collection(
+                                  "FMData") // Replace "YourSubcollectionName" with the actual subcollection name
+                              .where("status", isEqualTo: "Approve")
+                              .where('email', isEqualTo: email)
+                              .get()
+                              .then((secondCollection) async {
+                            print(secondCollection);
+                            print("second ${secondCollection.docs.length}");
+
+                            if (secondCollection.docs.length < 1) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Invalid Credentials'),
+                                  action: SnackBarAction(
+                                      label: 'OK', onPressed: () {}),
+                                  backgroundColor: Colors.teal,
+                                ),
+                              );
+                            } else {
+                              print("1");
+                              // int num = 0;
+
+                              // Process user data and navigate if conditions are met for the second collection
+                              var info = secondCollection.docs[0]
+                                  .data(); // Use secondCollection here
+                              print('umair');
+                              print(info["FM1"]);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final userinfo = json.encode({
+                                "Fname": info["Name"],
+                                "FphoneNo": info["Phoneno"],
+
+                                // "FM${num}": info["FM1"][0]['FamilyName']
+                              });
+                              // num++;
+                              await prefs.setString('userinfo', userinfo);
+                              await prefs.setString('email', info["email"]);
+                              await prefs.setString(
+                                  'pass', logins['pass'].toString().trim());
+                              await prefs.setBool("token", true);
+                              EasyLoading.dismiss();
+                              Navigator.push(
+                                context,
+                                PageTransition(
+                                  duration: Duration(milliseconds: 100),
+                                  type: PageTransitionType.rightToLeftWithFade,
+                                  child: TabsScreen(
+                                    index: 0,
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                          //
+                        }
+                        //..next
+                        else {
+                          // int num = 1;
+                          print("2");
+                          // Process user data and navigate if conditions are met for the first collection
+                          var info = subcollectionSnapshot.docs[0].data();
+                          var id = subcollectionSnapshot.docs[0].id;
+                          print('umair');
+                          // print(info["FM${num}"]['FamilyName']);
+                          final prefs = await SharedPreferences.getInstance();
+                          print("id");
+                          final userinfo = json.encode({
+                            "name": info["Name"],
+                            "phoneNo": info["phonenumber"],
+                            "address": info["address"],
+                            "fphoneNo": info["fPhonenumber"],
+                            "fname": info["fName"],
+                            "designation": info["designation"],
+                            "age": info["age"],
+                            "uid": e.user!.uid,
+                            "owner": info["owner"],
+                            "id": id,
+                            "email": info["email"],
+                            // "FM${num}": info["FM${num}"]['FamilyName']
+                            // ? "test"
+                            // : info["FM${num}"]['FamilyName']
+                          });
+                          // num++;
+                          await prefs.setString('userinfo', userinfo);
+                          await prefs.setString('email', info["email"]);
+                          await prefs.setString(
+                              'pass', logins['pass'].toString().trim());
+
+                          await prefs.setBool("token", true);
+                          EasyLoading.dismiss();
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              duration: Duration(milliseconds: 100),
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: TabsScreen(
+                                index: 0,
+                              ),
+                            ),
+                          );
+                          print(e.user!.uid);
+                        }
+                        // Authentication successful
+                        // Add your navigation logic here
+                      }).catchError((error) {
+                        EasyLoading.dismiss();
+                        // Handle authentication failure
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Inavlid Credentials"),
+                          action: SnackBarAction(label: 'Ok', onPressed: () {}),
+                        ));
+                      });
+                    });
+                  });
+                });
+
+                // Handle the case where no match was found in the subcollections
+                // ...
+              });
+            }
+          });
+          EasyLoading.dismiss();
+        } catch (e) {
+          EasyLoading.dismiss();
+          // Handle any errors that occur during Firestore or Authentication operations
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Invalid Credentials"),
+            action: SnackBarAction(label: 'Ok', onPressed: () {}),
+          ));
+        }
       });
     }
+    ;
   }
+
+  // ScaffoldMessenger.of(context).showSnackBar(
+  //   SnackBar(
+  //     content: Text(e.toString()),
+  //     action: SnackBarAction(
+  //         label: 'OK', textColor: Colors.black, onPressed: () {}),
+  //     backgroundColor: Colors.grey[400],
+  //   ),
+  // );
 
 /* My Try
   void login() async {
@@ -381,13 +622,14 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       body: Container(
         decoration: BoxDecoration(
-            image: DecorationImage(
-          image: NetworkImage(
-              'https://w0.peakpx.com/wallpaper/395/822/HD-wallpaper-city-amoled-black-building-city-new-night-sky.jpg'),
-          fit: BoxFit.cover,
-          colorFilter: new ColorFilter.mode(
-              Colors.black.withOpacity(0.7), BlendMode.dstATop),
-        )),
+            //     image: DecorationImage(
+            //   image: NetworkImage(
+            //       'https://w0.peakpx.com/wallpaper/395/822/HD-wallpaper-city-amoled-black-building-city-new-night-sky.jpg'),
+            //   fit: BoxFit.cover,
+            //   colorFilter: new ColorFilter.mode(
+            //       Colors.black.withOpacity(0.7), BlendMode.dstATop),
+            // )
+            ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -459,19 +701,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                           keyboardType:
                                               TextInputType.emailAddress,
                                           decoration: InputDecoration(
-                                            labelText: 'Email',
+                                            labelText: 'Email or PhoneNo',
                                             border: InputBorder.none,
                                             hintText:
-                                                'Enter your Email Address',
+                                                'Enter your Email Address or PhoneNo',
                                             hintStyle: TextStyle(
                                                 color: Colors.grey,
                                                 fontSize: 10),
                                           ),
                                           validator: (value) {
-                                            if (value!.isEmpty ||
-                                                !value.contains('@')) {
-                                              return 'Invalid email!';
-                                            }
+                                            // if (value!.isEmpty) {
+                                            //   return 'Invalid email!';
+                                            // } else if (!value.contains('@')) {
+                                            //   // return 'Invalid email';
+                                            //   if (!value.contains('03') ||
+                                            //       !value.contains('+92')) {
+                                            //     return 'Invalid Number';
+                                            //   }
+                                            //   return ' invalid email';
+                                            // }
                                           },
                                           onSaved: (value) {
                                             logins['user'] = value!;
@@ -569,49 +817,39 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                // Container(
-                                //   margin: const EdgeInsets.only(top: 5.0),
-                                //   padding:
-                                //       const EdgeInsets.only(left: 20.0, right: 20.0),
-                                //   child: Column(
-                                //     crossAxisAlignment: CrossAxisAlignment.center,
-                                //     children: [
-                                //       Row(
-                                //         mainAxisAlignment: MainAxisAlignment.center,
-                                //         children: [
-                                //           Container(
-                                //               child: FittedBox(
-                                //                   child: Text(
-                                //                       "Don\'t have an account?"))),
-                                //           Container(
-                                //             child: TextButton(
-                                //               style: TextButton.styleFrom(
-                                //                 textStyle:
-                                //                     const TextStyle(fontSize: 10),
-                                //               ),
-                                //               onPressed: () {
-                                //                 Navigator.push(
-                                //                     context,
-                                //                     PageTransition(
-                                //                         duration: Duration(
-                                //                             milliseconds: 700),
-                                //                         type: PageTransitionType
-                                //                             .rightToLeftWithFade,
-                                //                         child: requestLoginPage()));
-                                //               },
-                                //               child: const Text(
-                                //                 'Request Login Credentials.',
-                                //                 style: TextStyle(
-                                //                     color: Colors.teal,
-                                //                     fontWeight: FontWeight.bold),
-                                //               ),
-                                //             ),
-                                //           ),
-                                //         ],
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
+                                Container(
+                                  margin: const EdgeInsets.only(top: 5.0),
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20.0),
+                                  child: Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          textStyle:
+                                              const TextStyle(fontSize: 10),
+                                        ),
+                                        onPressed: () {
+                                          // Navigator.push(
+                                          //     context,
+                                          //     PageTransition(
+                                          //         duration: Duration(
+                                          //             milliseconds: 700),
+                                          //         type: PageTransitionType
+                                          //             .rightToLeftWithFade,
+                                          //         child:
+                                          //             PhoneVerificationScreen()));
+                                        },
+                                        child: const Text(
+                                          'Forgot Password ?',
+                                          style: TextStyle(
+                                              color: Colors.teal,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),

@@ -64,15 +64,15 @@ class _UserProfileState extends State<UserProfile> {
               userinfo["name"],
               userinfo["phoneNo"],
               userinfo["address"],
-              userinfo["fphoneNo"],
-              userinfo["fname"],
+              userinfo["FphoneNo"],
+              userinfo["Fname"],
               userinfo["designation"],
               userinfo["age"],
               userinfo["uid"],
               userinfo["owner"],
               userinfo["email"]
             ];
-
+            print("uid = ${userinfo["uid"]}");
             return Stack(
               children: [
                 Column(
@@ -99,7 +99,7 @@ class _UserProfileState extends State<UserProfile> {
                           SizedBox(
                             height: 10.0,
                           ),
-                          Text(userinfo["name"],
+                          Text(userinfo["name"] ?? "null",
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20.0,
@@ -273,7 +273,8 @@ class _UserProfileState extends State<UserProfile> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      userinfo["phoneNo"],
+                                                      userinfo["phoneNo"] ??
+                                                          "not Mentioned",
                                                       // "TEST",
                                                       style: TextStyle(
                                                         fontSize: 12.0,

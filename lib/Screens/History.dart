@@ -37,14 +37,22 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Image(
-            image: AssetImage('assets/Images/rehman.png'),
-            height: 60,
-            width: 60,
-          ),
-        ),
+        // leading: Padding(
+        //   padding: const EdgeInsets.only(left: 8.0),
+        //   child: Image(
+        //     image: AssetImage('assets/Images/rehman.png'),
+        //     height: 60,
+        //     width: 60,
+        //   ),
+        // ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.black,
+            )),
         title: Text(
           'History',
           style: TextStyle(

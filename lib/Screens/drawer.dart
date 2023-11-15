@@ -12,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/Bill.dart';
 import 'package:testapp/Screens/Complaint.dart';
+import 'package:testapp/Screens/History.dart';
 import 'package:testapp/Screens/Notifications.dart';
 import 'package:testapp/Screens/Profile.dart';
 import 'package:testapp/Screens/Tab.dart';
@@ -222,38 +223,38 @@ class _DrawerWidgState extends State<DrawerWidg> {
                             const SizedBox(
                               height: 7,
                             ),
-                            ListTile(
-                              dense: true,
-                              visualDensity: const VisualDensity(vertical: -3),
-                              leading: Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                    color:
-                                        const Color.fromRGBO(236, 238, 240, 1),
-                                    borderRadius: BorderRadius.circular(30)),
-                                child: const Icon(Icons.list_alt_sharp,
-                                    color: Color(0xff3A1D8C)),
-                              ),
-                              title: const Text(
-                                ' Complains ',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Complainform(),
-                                    ));
-                              },
-                            ),
-                            const SizedBox(
-                              height: 7,
-                            ),
+                            // ListTile(
+                            //   dense: true,
+                            //   visualDensity: const VisualDensity(vertical: -3),
+                            //   leading: Container(
+                            //     height: 30,
+                            //     width: 30,
+                            //     decoration: BoxDecoration(
+                            //         color:
+                            //             const Color.fromRGBO(236, 238, 240, 1),
+                            //         borderRadius: BorderRadius.circular(30)),
+                            //     child: const Icon(Icons.list_alt_sharp,
+                            //         color: Color(0xff3A1D8C)),
+                            //   ),
+                            //   title: const Text(
+                            //     ' Complains ',
+                            //     style: TextStyle(
+                            //       fontSize: 14,
+                            //       fontWeight: FontWeight.w500,
+                            //       color: Colors.black,
+                            //     ),
+                            //   ),
+                            //   onTap: () {
+                            //     Navigator.push(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => Complainform(),
+                            //         ));
+                            //   },
+                            // ),
+                            // const SizedBox(
+                            //   height: 7,
+                            // ),
                             ListTile(
                               dense: true,
                               visualDensity: const VisualDensity(vertical: -3),
@@ -299,7 +300,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                     color: Color(0xff3A1D8C)),
                               ),
                               title: const Text(
-                                ' Discount ',
+                                ' History ',
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -315,7 +316,8 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => Discounts()));
+                                        builder: (context) =>
+                                            ButtonsHistory()));
                               },
                             ),
                             const SizedBox(
@@ -346,7 +348,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                   context,
                                   MaterialPageRoute(
                                     builder: ((context) =>
-                                        TabsScreen(index: 5)),
+                                        TabsScreen(index: 4)),
                                   ),
                                 );
                               },

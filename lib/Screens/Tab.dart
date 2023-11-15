@@ -45,10 +45,10 @@ class _TabsScreenState extends State<TabsScreen> {
         'Pages': Newsandfeeds(),
         'title': 'News & Feeds',
       },
-      {
-        'Pages': ButtonsHistory(),
-        'title': 'History',
-      },
+      // {
+      //   'Pages': ButtonsHistory(),
+      //   'title': 'History',
+      // },
       {
         'Pages': Plots(),
         // 'Pages': Explore(),.
@@ -192,38 +192,38 @@ class _TabsScreenState extends State<TabsScreen> {
                 : Icon(Icons.feed_rounded),
             label: 'Feeds',
           ),
-          BottomNavigationBarItem(
-            icon: history_count > 0
-                ? Stack(
-                    children: <Widget>[
-                      Icon(Icons.history),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            '${history_count.toString()}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Icon(Icons.history),
-            label: 'History',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: history_count > 0
+          //       ? Stack(
+          //           children: <Widget>[
+          //             Icon(Icons.history),
+          //             Positioned(
+          //               right: 0,
+          //               child: Container(
+          //                 padding: EdgeInsets.all(2),
+          //                 decoration: BoxDecoration(
+          //                   color: Colors.red,
+          //                   borderRadius: BorderRadius.circular(6),
+          //                 ),
+          //                 constraints: BoxConstraints(
+          //                   minWidth: 12,
+          //                   minHeight: 12,
+          //                 ),
+          //                 child: Text(
+          //                   '${history_count.toString()}',
+          //                   style: TextStyle(
+          //                     color: Colors.white,
+          //                     fontSize: 8,
+          //                   ),
+          //                   textAlign: TextAlign.center,
+          //                 ),
+          //               ),
+          //             ),
+          //           ],
+          //         )
+          //       : Icon(Icons.history),
+          //   label: 'History',
+          // ),
           BottomNavigationBarItem(
             icon: plot_count > 0
                 ? Stack(

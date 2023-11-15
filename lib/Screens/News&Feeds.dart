@@ -70,7 +70,6 @@ class _HomeState extends State<Newsandfeeds> {
 
   bool isLoading = true;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-
   List<String> icon = [
     "assets/Images/Invoseg.jpg",
     "assets/Images/Invoseg.jpg",
@@ -202,6 +201,39 @@ class _HomeState extends State<Newsandfeeds> {
                 ),
               ],
             ),
+            // body: FutureBuilder(
+            //   future: FirebaseFirestore.instance.collection("feed").get(),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.hasError) {
+            //       print("Error");
+            //       return Text("Error");
+            //     } else if(snapshot.hasData) {
+            //       var data=snapshot.data!.docs;
+            //       var title="Abrar";
+            //       var image=data[''];
+            //       var descripiton;
+            //       return Container(
+            //         width: MediaQuery.of(context).size.width,
+            //         height: MediaQuery.of(context).size.height / 3,
+            //         child: Card(
+            //           child: Padding(
+            //             padding: const EdgeInsets.all(5.0),
+            //             child: Column(
+            //               children: [
+            //                 Padding(
+            //                   padding: const EdgeInsets.all(5.0),
+            //                   child: Row(
+            //                     children: [Text("data")],
+            //                   ),
+            //                 )
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       );
+            //     }
+            //   },
+            // )
             body: ListView.builder(
               itemCount: image.length, // Number of posts
               itemBuilder: (context, index) {

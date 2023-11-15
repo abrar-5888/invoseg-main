@@ -58,7 +58,7 @@ class _PlotsState extends State<Plots> {
           ),
         ),
         title: const Text(
-          'Plots',
+          'Plot & House',
           style: TextStyle(
               color: Color(0xff212121),
               fontWeight: FontWeight.w700,

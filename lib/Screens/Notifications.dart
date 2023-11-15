@@ -18,6 +18,14 @@ class _NotificationsState extends State<Notifications> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var read;
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      notification_count = 0;
+    });
+  }
+
   Widget build(BuildContext context) {
     // final message=ModalRoute.of(context)?.settings.arguments as RemoteMessage;
     // if(message is RemoteMessage){

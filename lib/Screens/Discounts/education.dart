@@ -5,14 +5,14 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
 
-class Food extends StatefulWidget {
-  const Food({super.key});
+class Education extends StatefulWidget {
+  const Education({super.key});
 
   @override
-  State<Food> createState() => _FoodState();
+  State<Education> createState() => _EducationState();
 }
 
-class _FoodState extends State<Food> {
+class _EducationState extends State<Education> {
   final List<String> listPics = [
     'assets/Images/d2.jpg',
     'assets/Images/d1.jpg',

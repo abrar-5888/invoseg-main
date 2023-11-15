@@ -10,10 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/Bill.dart';
+import 'package:testapp/Screens/Complaint.dart';
 import 'package:testapp/Screens/Notifications.dart';
 import 'package:testapp/Screens/Tab.dart';
 import 'package:testapp/Screens/Discounts/discounts.dart';
 import 'package:testapp/Screens/drawer.dart';
+import 'package:testapp/Screens/plots.dart';
 import 'package:testapp/global.dart';
 import 'dart:io';
 import 'package:html/parser.dart' as parser;
@@ -222,7 +224,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
     return ''; // Return an empty string or handle errors as needed
   }
 
-  void alertme(String collect) async {
+  void secAlertMe(String collect) async {
     String fName = "", fphoneNo = "";
     String fourDigitCode = generateRandomFourDigitCode();
     setState(() {
@@ -236,7 +238,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Are you sure you want to send a request?',
+          'Are you sure you want to send a Security request?',
         ),
         actions: <Widget>[
           ElevatedButton(
@@ -334,12 +336,286 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   ),
                 );
 
-                _sendEmail(
-                    name: '${userinfo["name"]}',
-                    email: '${userinfo["email"]}',
-                    message:
-                        "type : ${collect}\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
-                    subject: "test subject");
+                // _sendEmail(
+                //     name: '${userinfo["name"]}',
+                //     email: '${userinfo["email"]}',
+                //     message:
+                //         "type : ${collect}\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                //     subject: "test subject");
+              } else {}
+            },
+          ),
+          ElevatedButton(
+            child: const Text(
+              'No',
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black)),
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void groAlertMe(String collect) async {
+    String fName = "", fphoneNo = "";
+    String fourDigitCode = generateRandomFourDigitCode();
+    setState(() {
+      btnOnOff = false;
+    });
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          'Confirmation',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to send a Grocery request?',
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Yes', style: TextStyle(color: Colors.white)),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black)),
+            onPressed: () async {
+              if (btnOnOff == false) {
+                final prefs = await SharedPreferences.getInstance();
+                final userinfo =
+                    json.decode(prefs.getString('userinfo') as String);
+                await _firebaseMessaging.getToken().then((String? token) async {
+                  if (token != null) {
+                    setState(() {
+                      FCMtoken = token;
+                      btnOnOff = true;
+                    });
+                    final mainCollectionQuery = await FirebaseFirestore.instance
+                        .collection(
+                            "UserRequest") // Replace with your main collection
+                        .where("owner", isEqualTo: userinfo['owner'])
+                        .get();
+
+                    if (mainCollectionQuery.docs.isNotEmpty) {
+                      mainCollectionQuery.docs.forEach((mainDoc) async {
+                        final subcollectionRef =
+                            mainDoc.reference.collection("FMData");
+
+                        final subcollectionQuery = await subcollectionRef
+                            .where("owner", isEqualTo: userinfo['owner'])
+                            .get();
+
+                        if (subcollectionQuery.docs.isNotEmpty) {
+                          subcollectionQuery.docs.forEach((subDoc) {
+                            var data = subDoc.data();
+                            setState(() {
+                              fName = data['Name'];
+                              fphoneNo = data['Phoneno'];
+                            });
+                            // Process subcollection documents here
+                            print("data===$data");
+                          });
+                        }
+                      });
+                    } else {
+                      print(
+                          "No matching documents found in the main collection.");
+                    }
+
+                    print("FCM Token: $FCMtoken");
+                  } else {
+                    print("Unable to get FCM token");
+                  }
+                });
+                int num = 1;
+
+                //no issue in upper code !
+
+                // print("FCMtoken===${FCMtoken}");
+                await FirebaseFirestore.instance.collection(collect).add({
+                  "name": userinfo["name"],
+                  "phoneNo": userinfo["phoneNo"],
+                  "address": userinfo["address"],
+                  "fphoneNo": fName,
+                  "fname": fphoneNo,
+                  "designation": userinfo["designation"],
+                  "age": userinfo["age"],
+                  "pressedTime": FieldValue.serverTimestamp(),
+                  "type": collect,
+                  // "FM${num}": userinfo["FM${num}"],
+                  "uid": userinfo["uid"],
+                  "owner": userinfo["owner"],
+                  "email": userinfo["email"],
+                  "noti": true,
+                  "residentID": "Invoseg${fourDigitCode}",
+                  "FCMtoken": FCMtoken
+                });
+                num++;
+                FirebaseFirestore.instance.collection("UserButtonRequest").add({
+                  "type": collect,
+                  "uid": userinfo["uid"],
+                  "pressedTime": FieldValue.serverTimestamp(),
+                });
+                Navigator.of(ctx).pop(true);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Your Request is sent",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                        label: 'OK', textColor: Colors.black, onPressed: () {}),
+                    backgroundColor: Colors.grey[400],
+                  ),
+                );
+
+                // _sendEmail(
+                //     name: '${userinfo["name"]}',
+                //     email: '${userinfo["email"]}',
+                //     message:
+                //         "type : ${collect}\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                //     subject: "test subject");
+              } else {}
+            },
+          ),
+          ElevatedButton(
+            child: const Text(
+              'No',
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black)),
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void medAlertMe(String collect) async {
+    String fName = "", fphoneNo = "";
+    String fourDigitCode = generateRandomFourDigitCode();
+    setState(() {
+      btnOnOff = false;
+    });
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(
+          'Confirmation',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to send a Medical consultation request?',
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            child: const Text('Yes', style: TextStyle(color: Colors.white)),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black)),
+            onPressed: () async {
+              if (btnOnOff == false) {
+                final prefs = await SharedPreferences.getInstance();
+                final userinfo =
+                    json.decode(prefs.getString('userinfo') as String);
+                await _firebaseMessaging.getToken().then((String? token) async {
+                  if (token != null) {
+                    setState(() {
+                      FCMtoken = token;
+                      btnOnOff = true;
+                    });
+                    final mainCollectionQuery = await FirebaseFirestore.instance
+                        .collection(
+                            "UserRequest") // Replace with your main collection
+                        .where("owner", isEqualTo: userinfo['owner'])
+                        .get();
+
+                    if (mainCollectionQuery.docs.isNotEmpty) {
+                      mainCollectionQuery.docs.forEach((mainDoc) async {
+                        final subcollectionRef =
+                            mainDoc.reference.collection("FMData");
+
+                        final subcollectionQuery = await subcollectionRef
+                            .where("owner", isEqualTo: userinfo['owner'])
+                            .get();
+
+                        if (subcollectionQuery.docs.isNotEmpty) {
+                          subcollectionQuery.docs.forEach((subDoc) {
+                            var data = subDoc.data();
+                            setState(() {
+                              fName = data['Name'];
+                              fphoneNo = data['Phoneno'];
+                            });
+                            // Process subcollection documents here
+                            print("data===$data");
+                          });
+                        }
+                      });
+                    } else {
+                      print(
+                          "No matching documents found in the main collection.");
+                    }
+
+                    print("FCM Token: $FCMtoken");
+                  } else {
+                    print("Unable to get FCM token");
+                  }
+                });
+                int num = 1;
+
+                //no issue in upper code !
+
+                // print("FCMtoken===${FCMtoken}");
+                await FirebaseFirestore.instance.collection(collect).add({
+                  "name": userinfo["name"],
+                  "phoneNo": userinfo["phoneNo"],
+                  "address": userinfo["address"],
+                  "fphoneNo": fName,
+                  "fname": fphoneNo,
+                  "designation": userinfo["designation"],
+                  "age": userinfo["age"],
+                  "pressedTime": FieldValue.serverTimestamp(),
+                  "type": collect,
+                  // "FM${num}": userinfo["FM${num}"],
+                  "uid": userinfo["uid"],
+                  "owner": userinfo["owner"],
+                  "email": userinfo["email"],
+                  "noti": true,
+                  "residentID": "Invoseg${fourDigitCode}",
+                  "FCMtoken": FCMtoken
+                });
+                num++;
+                FirebaseFirestore.instance.collection("UserButtonRequest").add({
+                  "type": collect,
+                  "uid": userinfo["uid"],
+                  "pressedTime": FieldValue.serverTimestamp(),
+                });
+                Navigator.of(ctx).pop(true);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Your Request is sent",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                        label: 'OK', textColor: Colors.black, onPressed: () {}),
+                    backgroundColor: Colors.grey[400],
+                  ),
+                );
+
+                // _sendEmail(
+                //     name: '${userinfo["name"]}',
+                //     email: '${userinfo["email"]}',
+                //     message:
+                //         "type : ${collect}\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                //     subject: "test subject");
               } else {}
             },
           ),
@@ -535,6 +811,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                       ),
                       onPressed: () async {
                         // Handle tapping on the notifications icon
+                        setState(() {
+                          notification_count = 0;
+                        });
                         await Navigator.push(
                           context,
                           PageTransition(
@@ -707,7 +986,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width /
-                                                  2.5,
+                                                  2.2,
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
@@ -765,7 +1044,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     content: Text(
                                                                         "This Feature is not available in Offline mode")));
                                                       } else {
-                                                        alertme("button-two");
+                                                        medAlertMe(
+                                                            "button-two");
                                                       }
                                                     } else {
                                                       ScaffoldMessenger.of(
@@ -809,7 +1089,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width /
-                                                  2.4,
+                                                  2.2,
                                               height: MediaQuery.of(context)
                                                       .size
                                                       .height /
@@ -868,7 +1148,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     content: Text(
                                                                         "This Feature is not available in Offline mode")));
                                                       } else {
-                                                        alertme("button-three");
+                                                        groAlertMe(
+                                                            "button-three");
                                                       }
                                                     } else {
                                                       ScaffoldMessenger.of(
@@ -993,7 +1274,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                               ]));
                                                 } else {
                                                   print("Online");
-                                                  alertme("button-one");
+                                                  secAlertMe("button-one");
                                                 }
                                               } else {
                                                 ScaffoldMessenger.of(context)
@@ -1136,9 +1417,12 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     onTap: () {
                                       Navigator.push(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  TabsScreen(index: 5)));
+                                          PageTransition(
+                                              duration:
+                                                  Duration(milliseconds: 700),
+                                              type: PageTransitionType
+                                                  .rightToLeftWithFade,
+                                              child: Complainform()));
                                     },
                                     child: Container(
                                       // color: Colors.green,
@@ -1164,7 +1448,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                           const Padding(
                                             padding: EdgeInsets.all(5.0),
                                             child: Text(
-                                              "Plots",
+                                              "Complaint",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600),
@@ -1462,9 +1746,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(
-                                      left: 8, bottom: 1, right: 1, top: 6),
+                                      left: 8, bottom: 3, right: 1, top: 6),
                                   child: Text(
-                                    "Tredning Properties",
+                                    "Trending Properties",
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w800),
@@ -1473,170 +1757,205 @@ class _HomeDesign1State extends State<HomeDesign1> {
                               ],
                             ),
                             const SizedBox(
-                              height: 6,
+                              height: 10,
                             ),
-                            Container(
-                              // color: Colors.amber,
-                              height: MediaQuery.of(context).size.width / 3,
-                              child: ListView.builder(
-                                itemCount: 4,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 10,
-                                      right: 6,
-                                      top: 1,
-                                      bottom: 1,
-                                    ),
-                                    child: Container(
-                                      // height: MediaQuery.of(context)
-                                      //         .size
-                                      //         .height /
-                                      //     1,
-                                      width: MediaQuery.of(context).size.width /
-                                          1.4,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            15.0), // Adjust the radius as needed
-                                        color: const Color.fromRGBO(
-                                            236, 238, 240, 1),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 8, top: 3, bottom: 3),
-                                        child: Row(
-                                          // mainAxisAlignment:
-                                          //     MainAxisAlignment
-                                          //         .spaceBetween,
-                                          children: [
-                                            // Padding(
-                                            // padding:
-                                            // const EdgeInsets.all(8.0),
-                                            // child:
-                                            Container(
-                                              // height: 100,
-                                              // width:
-                                              //     MediaQuery.of(context)
-                                              //             .size
-                                              //             .width /
-                                              //         3.3,
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                child: Image.asset(
-                                                  "assets/Images/plot4.jpeg",
-                                                  height: 100,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3.3,
-                                                ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        PageTransition(
+                                            duration:
+                                                Duration(milliseconds: 700),
+                                            type: PageTransitionType
+                                                .rightToLeftWithFade,
+                                            child: TabsScreen(index: 4)));
+                                  },
+                                  child: Container(
+                                    // color: Colors.amber,
+                                    height:
+                                        MediaQuery.of(context).size.width / 2.5,
+                                    child: ListView.builder(
+                                      itemCount: 4,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 10,
+                                            right: 6,
+                                            top: 6,
+                                            bottom: 2,
+                                          ),
+                                          child: Expanded(
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  1.4,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(
+                                                    15.0), // Adjust the radius as needed
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
                                               ),
-                                            ),
-                                            // ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                left: 2,
-                                                right: 2,
-                                                top: 6,
-                                                bottom: 2,
-                                              ),
-                                              child: Column(children: [
-                                                Container(
-                                                  height: 90,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3,
-                                                  child: ListTile(
-                                                    title: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          ' Phase 1 house 68',
-                                                          style: TextStyle(
-                                                              fontSize: 9,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 8, top: 3, bottom: 3),
+                                                child: Row(
+                                                  // mainAxisAlignment:
+                                                  //     MainAxisAlignment
+                                                  //         .spaceBetween,
+                                                  children: [
+                                                    // Padding(
+                                                    // padding:
+                                                    // const EdgeInsets.all(8.0),
+                                                    // child:
+                                                    Container(
+                                                      // height: 100,
+                                                      // width:
+                                                      //     MediaQuery.of(context)
+                                                      //             .size
+                                                      //             .width /
+                                                      //         3.3,
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: Image.asset(
+                                                          "assets/Images/plot4.jpeg",
+                                                          height: 140,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              3.3,
                                                         ),
-                                                        SizedBox(
-                                                          height: 5,
-                                                        ),
-                                                        Text(
-                                                          'House no 61 street no 3',
-                                                          style: TextStyle(
-                                                              fontSize: 9,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Colors
-                                                                  .black45),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 5,
-                                                        ),
-                                                        Text(
-                                                          '3 bedroom 4 washroom 2 kitchens garage double story',
-                                                          style: TextStyle(
-                                                            fontSize: 9,
-                                                            fontWeight:
-                                                                FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    // ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                        left: 2,
+                                                        right: 2,
+                                                        top: 6,
+                                                        bottom: 2,
+                                                      ),
+                                                      child: Column(children: [
+                                                        Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              6,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              3,
+                                                          child: ListTile(
+                                                            title: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Text(
+                                                                  ' Phase 1 house 68',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 5,
+                                                                ),
+                                                                Text(
+                                                                  'House no 61 street no 3',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color: Colors
+                                                                          .black45),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 5,
+                                                                ),
+                                                                Text(
+                                                                  '3 bedroom 4 washroom 2 kitchens garage double story',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 5,
+                                                                )
+                                                              ],
+                                                            ),
+                                                            //subtitle: ,
                                                           ),
                                                         ),
-                                                        SizedBox(
-                                                          height: 5,
-                                                        )
-                                                      ],
-                                                    ),
-                                                    //subtitle: ,
-                                                  ),
-                                                ),
-                                              ]),
+                                                      ]),
 
-                                              //         Column(
-                                              // mainAxisAlignment:
-                                              //     MainAxisAlignment
-                                              //         .spaceBetween,
-                                              //  children: [
-                                              // ListTile(
-                                              //   title: Text(
-                                              //       'Phase 1 house 68'),
-                                              // )
-                                              // Text("Brookline",
-                                              //     style: TextStyle(
-                                              //         fontSize:
-                                              //             7) // Limit to one line of text
-                                              //     ),
-                                              // Text("4.5")
-                                              //    ],
-                                              //  ),
+                                                      //         Column(
+                                                      // mainAxisAlignment:
+                                                      //     MainAxisAlignment
+                                                      //         .spaceBetween,
+                                                      //  children: [
+                                                      // ListTile(
+                                                      //   title: Text(
+                                                      //       'Phase 1 house 68'),
+                                                      // )
+                                                      // Text("Brookline",
+                                                      //     style: TextStyle(
+                                                      //         fontSize:
+                                                      //             7) // Limit to one line of text
+                                                      //     ),
+                                                      // Text("4.5")
+                                                      //    ],
+                                                      //  ),
+                                                    ),
+                                                    // Padding(
+                                                    //   padding:
+                                                    //       const EdgeInsets.only(),
+                                                    //   //child:
+                                                    //   //Align(
+                                                    //   child: Text(
+                                                    //       "Wiley's Cottage",
+                                                    //       style: TextStyle(
+                                                    //           fontSize: 6)),
+                                                    //   //alignment: Alignment
+                                                    //   //  .centerLeft,
+                                                    //   // )
+                                                    // )
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            // Padding(
-                                            //   padding:
-                                            //       const EdgeInsets.only(),
-                                            //   //child:
-                                            //   //Align(
-                                            //   child: Text(
-                                            //       "Wiley's Cottage",
-                                            //       style: TextStyle(
-                                            //           fontSize: 6)),
-                                            //   //alignment: Alignment
-                                            //   //  .centerLeft,
-                                            //   // )
-                                            // )
-                                          ],
-                                        ),
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
+                                  ),
+                                ),
                               ),
                             ),
                           ]),
