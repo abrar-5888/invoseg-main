@@ -16,7 +16,6 @@ import 'package:testapp/Screens/History.dart';
 import 'package:testapp/Screens/Notifications.dart';
 import 'package:testapp/Screens/Profile.dart';
 import 'package:testapp/Screens/Tab.dart';
-import 'package:testapp/Screens/Discounts/discounts.dart';
 
 class DrawerWidg extends StatefulWidget {
   const DrawerWidg({super.key});
