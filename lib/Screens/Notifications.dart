@@ -1,13 +1,13 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/global.dart';
 import 'Prescription.dart';
 import 'Complaint.dart';
 import 'Tab.dart';
 import 'E-Reciept.dart';
+import 'NotificationCounterProvider.dart'; // Import your NotificationCounterProvider
 
 class Notifications extends StatefulWidget {
   @override
@@ -16,32 +16,17 @@ class Notifications extends StatefulWidget {
 
 class _NotificationsState extends State<Notifications> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  var read;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       notification_count = 0;
     });
   }
 
+  @override
   Widget build(BuildContext context) {
-    // final message=ModalRoute.of(context)?.settings.arguments as RemoteMessage;
-    // if(message is RemoteMessage){
-    // print("title = ${message.notification!.title.toString()}");
-    // }
-    //  if(message!=null )
-    //   {
-    //         print("message  not NULL");
-
-    //   }
-    //   else{
-    //     print("message niull");
-    //   }
-
-    // print("title = ${message.notification?.title.toString()}");
-    // print("body = ${message.notification?.body.toString()}");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -65,8 +50,8 @@ class _NotificationsState extends State<Notifications> {
           ),
         ),
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: _firestore.collection('notifications').limit(30).get(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection('notifications').limit(30).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
@@ -82,43 +67,12 @@ class _NotificationsState extends State<Notifications> {
             );
           }
 
-          Map<String, List<QueryDocumentSnapshot>> notificationsByDate = {};
+          // Use your NotificationCounterProvider to update the count
+          Provider.of<NotificationCounterProvider>(context, listen: false)
+              .getAllIsReadStatus();
 
-          snapshot.data!.docs.forEach((document) {
-            var date = document['date'] as String;
-
-            if (!notificationsByDate.containsKey(date)) {
-              notificationsByDate[date] = [];
-            }
-            notificationsByDate[date]!.add(document);
-          });
-          List<QueryDocumentSnapshot> newNotifications = [];
-          List<QueryDocumentSnapshot> earlierNotifications = [];
-
-          DateTime oneDayAgo = DateTime.now().subtract(Duration(days: 1));
-
-          notificationsByDate.forEach((date, notifications) {
-            DateTime parsedDate = DateFormat('MM/dd/yyyy').parse(date);
-
-            if (parsedDate.isAfter(oneDayAgo)) {
-              if (read == false) {
-                setState(() {
-                  notification_count = read.length;
-                });
-
-                newNotifications.addAll(notifications);
-              } else {
-                newNotifications.addAll(notifications);
-              }
-            } else {
-              if (read == false) {
-                notification_count = read.length;
-                earlierNotifications.addAll(notifications);
-              } else {
-                earlierNotifications.addAll(notifications);
-              }
-            }
-          });
+          // Rest of your existing code...
+          // ...
 
           return ListView(
             children: [
@@ -137,7 +91,6 @@ class _NotificationsState extends State<Notifications> {
     String date,
     List<QueryDocumentSnapshot> notifications,
   ) {
-    print("notification_count=${notification_count}");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,8 +114,6 @@ class _NotificationsState extends State<Notifications> {
             var des = document['description'];
             var image = document['image'];
             var id = document['id'];
-
-            read = ['isRead'];
 
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
@@ -227,7 +178,6 @@ class _NotificationsState extends State<Notifications> {
                   leading: Container(
                     height: 100,
                     width: 60,
-                    // child: Image.network(document['image']),
                     child: Icon(
                       Icons.image,
                       color: Color(0xff2824e5),
@@ -248,11 +198,6 @@ class _NotificationsState extends State<Notifications> {
                     ],
                   ),
                   subtitle: Text(des, maxLines: 2),
-                  // trailing:
-                  // Container(
-                  // child:
-                  // Text("${DateTime.now}")),
-                  // Display timestamp
                 ),
               ),
             );
@@ -260,8 +205,5 @@ class _NotificationsState extends State<Notifications> {
         ),
       ],
     );
-// body: Column(children: [
-//   // Text("title = ${message}"),Text("data"),Text("data"),
-// ],),
   }
 }

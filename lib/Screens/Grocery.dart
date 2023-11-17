@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:badges/badges.dart' as badge;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testapp/Providers/NotificationCounterProvider.dart';
 import 'package:testapp/Screens/E-Reciept.dart';
-import 'package:testapp/Screens/LoginPage.dart';
 import 'package:testapp/Screens/Notifications.dart';
-import 'package:testapp/Screens/Prescription.dart';
-import 'package:testapp/Screens/Profile.dart';
 import 'package:testapp/Screens/drawer.dart';
 import 'package:testapp/global.dart';
 
@@ -24,10 +22,11 @@ class Grocery extends StatefulWidget {
 class _GroceryState extends State<Grocery> {
   bool isButtonEnabled = true;
   String GroceryId = "";
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    // This line was already there, updating notification count on page load
     updateAllIsReadStatus(true);
     gro_count = 0;
     GroceryId = "";
@@ -44,13 +43,6 @@ class _GroceryState extends State<Grocery> {
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
     String uid = "";
-
-    // {
-    //   'DateTime': 'Dec 08, 2024 - 15:00 PM',
-    //   'Name': 'Muhammad Amir',
-    //   'Address': '667-B, Canal View Lahore',
-    //   'Status': 'Delivered'
-    // }
 
     return Scaffold(
       key: _key,
@@ -70,9 +62,10 @@ class _GroceryState extends State<Grocery> {
         title: Text(
           'Grocery',
           style: TextStyle(
-              color: Color(0xff212121),
-              fontWeight: FontWeight.w700,
-              fontSize: 24),
+            color: Color(0xff212121),
+            fontWeight: FontWeight.w700,
+            fontSize: 24,
+          ),
         ),
         actions: <Widget>[
           IconButton(
@@ -82,7 +75,8 @@ class _GroceryState extends State<Grocery> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (notification_count >
+                if (Provider.of<NotificationCounterProvider>(context)
+                        .notificationCount >
                     0) // Show the badge only if there are unread notifications
                   Positioned(
                     right: 0,
@@ -98,7 +92,7 @@ class _GroceryState extends State<Grocery> {
                         minHeight: 15,
                       ),
                       child: Text(
-                        "${notification_count}",
+                        "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12, // You can customize the font size
@@ -121,7 +115,9 @@ class _GroceryState extends State<Grocery> {
               );
               setState(() {
                 updateAllIsReadStatus(true);
-                notification_count = 0;
+                // Using Provider to get and update the notification count
+                Provider.of<NotificationCounterProvider>(context, listen: false)
+                    .resetNotificationCount();
               });
             },
           ),

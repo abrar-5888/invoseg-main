@@ -3,8 +3,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Models/firebase_api.dart';
+import 'package:testapp/Providers/NotificationCounterProvider.dart';
 import 'package:testapp/Screens/AddFamilyMembers.dart';
 import 'package:testapp/Screens/Complaint.dart';
 import 'package:testapp/Screens/Dashboard.dart';
@@ -29,7 +31,8 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((value) => runApp(MyApp()));
+  ]).then((value) => runApp(ChangeNotifierProvider(
+      create: (context) => NotificationCounterProvider(), child: MyApp())));
   // runApp(MyApp());
 }
 // void main() {

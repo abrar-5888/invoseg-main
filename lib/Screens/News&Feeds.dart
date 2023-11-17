@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
+import 'package:testapp/Providers/NotificationCounterProvider.dart';
 import 'package:testapp/Screens/Complaint.dart';
 import 'package:testapp/Screens/Notifications.dart';
 import 'package:testapp/Screens/Prescription.dart';
@@ -143,7 +145,8 @@ class _HomeState extends State<Newsandfeeds> {
                         Icons.notifications,
                         color: Colors.black,
                       ),
-                      if (notification_count >
+                      if (Provider.of<NotificationCounterProvider>(context)
+                              .notificationCount >
                           0) // Show the badge only if there are unread notifications
                         Positioned(
                           right: 0,
@@ -160,7 +163,7 @@ class _HomeState extends State<Newsandfeeds> {
                               minHeight: 15,
                             ),
                             child: Text(
-                              "${notification_count}",
+                              "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12, // You can customize the font size
@@ -183,7 +186,10 @@ class _HomeState extends State<Newsandfeeds> {
                     );
                     setState(() {
                       updateAllIsReadStatus(true);
-                      notification_count = 0;
+                      // Using Provider to get and update the notification count
+                      Provider.of<NotificationCounterProvider>(context,
+                              listen: false)
+                          .resetNotificationCount();
                     });
                   },
                 ),

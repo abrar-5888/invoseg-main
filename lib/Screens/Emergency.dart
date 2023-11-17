@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/LoginPage.dart';
 import 'package:testapp/Screens/Notifications.dart';
@@ -12,6 +13,8 @@ import 'package:testapp/Screens/Profile.dart';
 import 'package:testapp/Screens/drawer.dart';
 import 'package:testapp/global.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../Providers/NotificationCounterProvider.dart';
 
 final Uri _url = Uri.parse('https://meet.google.com/gdj-uuof-qvm');
 
@@ -125,7 +128,8 @@ class _EmergencyState extends State<Emergency> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (notification_count >
+                if (Provider.of<NotificationCounterProvider>(context)
+                        .notificationCount >
                     0) // Show the badge only if there are unread notifications
                   Positioned(
                     right: 0,
@@ -141,7 +145,7 @@ class _EmergencyState extends State<Emergency> {
                         minHeight: 15,
                       ),
                       child: Text(
-                        notification_count.toString(),
+                        "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12, // You can customize the font size
@@ -163,7 +167,10 @@ class _EmergencyState extends State<Emergency> {
                 ),
               );
               setState(() {
-                notification_count = 0;
+                updateAllIsReadStatus(true);
+                // Using Provider to get and update the notification count
+                Provider.of<NotificationCounterProvider>(context, listen: false)
+                    .resetNotificationCount();
               });
             },
           ),

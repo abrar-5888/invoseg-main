@@ -39,9 +39,43 @@ class HomeDesign1 extends StatefulWidget {
 }
 
 class _HomeDesign1State extends State<HomeDesign1> {
+  bool? nh;
+  int? Fdays;
+  TextEditingController FfromDate = TextEditingController();
+  TextEditingController FtoDate = TextEditingController();
   String? link = "ddd";
   String videoId = "dd";
   var y_controller;
+
+  Future<void> getchNH() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('not_Home') // Replace with your collection name
+          // .where('Email' == "oka1@gmail.com")
+          .orderBy('time', descending: true)
+          .limit(30)
+          .get();
+      // Initialize the link variable
+
+      if (querySnapshot.docs.isNotEmpty) {
+        Map<String, dynamic> data =
+            querySnapshot.docs.first.data() as Map<String, dynamic>;
+        setState(() {
+          nh = data['nh'];
+          Fdays = data['days'];
+          FfromDate.text = data['from'];
+          FtoDate.text = data['to'];
+        });
+        print("NH =${nh}");
+
+        // print("Fetched Link: $link");
+      } else {
+        print("No documents found in the 'Not_Home' collection.");
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+  }
 
   Future<String?> fetchYoutubeLink() async {
     try {
@@ -91,6 +125,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
       text:
           "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}");
   DateTime selectedDate = DateTime.now();
+  DateTime newSelectedDate = DateTime.now();
+
   bool _isLoading = true;
   CollectionReference _collectionRef =
       FirebaseFirestore.instance.collection('utility');
@@ -166,6 +202,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        newSelectedDate = picked;
+
         _dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
         _daysDifference = daysDifference;
         print("days= ${_daysDifference}");
@@ -209,6 +247,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
           setState(() {
             toField = data['to'] as String;
             docid = document.id;
+            newSelectedDate = DateTime.parse(data['to'] as String);
+
             status = data["Status"];
           });
 
@@ -383,6 +423,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
+              bool go = false;
               if (btnOnOff == false) {
                 final prefs = await SharedPreferences.getInstance();
                 final userinfo =
@@ -409,17 +450,23 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             .get();
 
                         if (subcollectionQuery.docs.isNotEmpty) {
-                          subcollectionQuery.docs.forEach((subDoc) {
+                          subcollectionQuery.docs.forEach((subDoc) async {
                             var data = subDoc.data();
+                            print(data['Name']);
+
                             setState(() {
                               fName = data['Name'];
                               fphoneNo = data['Phoneno'];
                             });
+                            SharedPreferences user =
+                                await SharedPreferences.getInstance();
+                            user.setString('Fname', fName);
+                            user.setString('Fnumber', fphoneNo);
                             // Process subcollection documents here
-                            print("data===$data");
                           });
                         }
                       });
+                      go = true;
                     } else {
                       print(
                           "No matching documents found in the main collection.");
@@ -430,16 +477,18 @@ class _HomeDesign1State extends State<HomeDesign1> {
                     print("Unable to get FCM token");
                   }
                 });
-                int num = 1;
 
                 //no issue in upper code !
 
                 // print("FCMtoken===${FCMtoken}");
+
+                print("data===${userinfo['Fname']}");
                 await FirebaseFirestore.instance.collection(collect).add({
                   "name": userinfo["name"],
                   "phoneNo": userinfo["phoneNo"],
                   "address": userinfo["address"],
                   "fphoneNo": fName,
+                  "update": false,
                   "fname": fphoneNo,
                   "designation": userinfo["designation"],
                   "age": userinfo["age"],
@@ -453,12 +502,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   "residentID": "Invoseg${fourDigitCode}",
                   "FCMtoken": FCMtoken
                 });
-                num++;
+
                 FirebaseFirestore.instance.collection("UserButtonRequest").add({
                   "type": collect,
                   "uid": userinfo["uid"],
                   "pressedTime": FieldValue.serverTimestamp(),
                 });
+
                 Navigator.of(ctx).pop(true);
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -574,6 +624,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                 // print("FCMtoken===${FCMtoken}");
                 await FirebaseFirestore.instance.collection(collect).add({
                   "name": userinfo["name"],
+                  "prescription": false,
                   "phoneNo": userinfo["phoneNo"],
                   "address": userinfo["address"],
                   "fphoneNo": fName,
@@ -672,6 +723,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
   String video = "";
   void initState() {
     super.initState();
+    getchNH();
     fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.email);
     fetchYoutubeLink().then((value) {
       videoId = YoutubePlayer.convertUrlToId(link!) ??
@@ -1459,287 +1511,633 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     ),
                                   ),
                                 ),
+
+                                // Padding(
+                                //   padding: const EdgeInsets.symmetric(
+                                //       horizontal: 0, vertical: 3),
+                                //   child: InkWell(
+                                //     child: Container(
+                                //       // color: Colors.green,
+                                //       // height: 80,
+                                //       width:
+                                //           MediaQuery.of(context).size.width / 5,
+                                //       child: Column(
+                                //         children: [
+                                //           Container(
+                                //             height: 50,
+                                //             width: 50,
+                                //             decoration: BoxDecoration(
+                                //                 color: const Color.fromRGBO(
+                                //                     236, 238, 240, 1),
+                                //                 borderRadius:
+                                //                     BorderRadius.circular(30)),
+                                //             child: const Icon(Icons.home,
+                                //                 color: Color.fromRGBO(
+                                //                     15, 39, 127, 1)),
+                                //           ),
+                                //           const Padding(
+                                //             padding: EdgeInsets.all(5.0),
+                                //             child: Text(
+                                //               "Not Home",
+                                //               style: TextStyle(
+                                //                   fontSize: 12,
+                                //                   fontWeight: FontWeight.w600),
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ),
+                                //     onTap: () {
+                                //       print(
+                                //           "Datetime format = ${formattedDateTime}");
+                                //       showDialog(
+                                //           context: context,
+                                //           builder: (context) => Center(
+                                //                 child: Container(
+                                //                   height: MediaQuery.of(context)
+                                //                           .size
+                                //                           .height /
+                                //                       1.65,
+                                //                   // Adjust the width as needed
+                                //                   child: FutureBuilder(
+                                //                       future: SharedPreferences
+                                //                           .getInstance(),
+                                //                       builder: (context,
+                                //                           AsyncSnapshot
+                                //                               snapshot) {
+                                //                         var userinfo =
+                                //                             json.decode(snapshot
+                                //                                     .data
+                                //                                     .getString(
+                                //                                         'userinfo')
+                                //                                 as String);
+                                //                         final myListData = [
+                                //                           userinfo["name"],
+                                //                           userinfo["phoneNo"],
+                                //                           userinfo["address"],
+                                //                           userinfo["fphoneNo"],
+                                //                           userinfo["fname"],
+                                //                           userinfo[
+                                //                               "designation"],
+                                //                           userinfo["age"],
+                                //                           userinfo["uid"],
+                                //                           userinfo["owner"],
+                                //                           userinfo["email"]
+                                //                         ];
+                                //                         return AlertDialog(
+                                //                           title:
+                                //                               Text('Not Home'),
+                                //                           content: Column(
+                                //                             children: [
+                                //                               Text(
+                                //                                   'Select the date when you will be at home'),
+                                //                               SizedBox(
+                                //                                   height: 25),
+                                //                               TextFormField(
+                                //                                 controller:
+                                //                                     currentdate,
+                                //                                 readOnly: true,
+                                //                                 decoration:
+                                //                                     InputDecoration(
+                                //                                   labelText:
+                                //                                       'From',
+                                //                                 ),
+                                //                               ),
+                                //                               SizedBox(
+                                //                                   height: 25),
+                                //                               TextFormField(
+                                //                                 controller:
+                                //                                     _dateController,
+                                //                                 readOnly: true,
+                                //                                 onTap: () =>
+                                //                                     _selectDate(
+                                //                                         context),
+                                //                                 decoration:
+                                //                                     InputDecoration(
+                                //                                   labelText:
+                                //                                       'To',
+                                //                                   suffixIcon:
+                                //                                       IconButton(
+                                //                                     icon: Icon(Icons
+                                //                                         .calendar_today),
+                                //                                     onPressed: () =>
+                                //                                         _selectDate(
+                                //                                             context),
+                                //                                   ),
+                                //                                 ),
+                                //                               ),
+                                //                               Align(
+                                //                                   alignment:
+                                //                                       Alignment
+                                //                                           .bottomRight,
+                                //                                   child:
+                                //                                       TextButton(
+                                //                                           onPressed:
+                                //                                               () async {
+                                //                                             print(docid);
+                                //                                             await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
+                                //                                               'Status': false,
+                                //                                               'cancelled': true,
+                                //                                             });
+                                //                                           },
+                                //                                           child:
+                                //                                               Icon(
+                                //                                             Icons.delete,
+                                //                                             color:
+                                //                                                 Colors.red,
+                                //                                           )))
+                                //                             ],
+                                //                           ),
+                                //                           actions: <Widget>[
+                                //                             TextButton(
+                                //                               onPressed: () {
+                                //                                 if (DateTime.now() !=
+                                //                                         toField ||
+                                //                                     status ==
+                                //                                         true) {
+                                //                                   print(
+                                //                                       "feild == ${toField}");
+                                //                                   // Uncomment this code to show the confirmation dialog
+                                //                                   showDialog(
+                                //                                     context:
+                                //                                         context,
+                                //                                     builder:
+                                //                                         (context) {
+                                //                                       return AlertDialog(
+                                //                                         title:
+                                //                                             const Text(
+                                //                                           'Confirmation',
+                                //                                           style:
+                                //                                               TextStyle(fontWeight: FontWeight.bold),
+                                //                                         ),
+                                //                                         content:
+                                //                                             Text(
+                                //                                           'You will not be home for ${_daysDifference} days, Security will look after your house.\nPress YES to send your request.',
+                                //                                         ),
+                                //                                         actions: <Widget>[
+                                //                                           ElevatedButton(
+                                //                                             child:
+                                //                                                 const Text('Yes', style: TextStyle(color: Colors.white)),
+                                //                                             style:
+                                //                                                 ButtonStyle(
+                                //                                               backgroundColor: MaterialStateProperty.all(Colors.black),
+                                //                                             ),
+                                //                                             onPressed:
+                                //                                                 () async {
+                                //                                               final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+                                //                                               String FCMtoken = "";
+                                //                                               await _firebaseMessaging.getToken().then((String? token) {
+                                //                                                 if (token != null) {
+                                //                                                   setState(() {
+                                //                                                     FCMtoken = token;
+                                //                                                   });
+
+                                //                                                   print("FCM Token: $FCMtoken");
+                                //                                                 } else {
+                                //                                                   print("Unable to get FCM token");
+                                //                                                 }
+                                //                                               });
+
+                                //                                               await FirebaseFirestore.instance.collection("not_Home").add({
+                                //                                                 'FCMtoken': FCMtoken,
+                                //                                                 'time': DateTime.now(),
+                                //                                                 'nh': false,
+                                //                                                 'from': '${currentdate.text}',
+                                //                                                 'to': '${_dateController.text}',
+                                //                                                 "days": _daysDifference,
+                                //                                                 'Name': '${userinfo['name']}',
+                                //                                                 'Email': '${userinfo['email']}',
+                                //                                                 'ID': '${userinfo["uid"]}',
+                                //                                                 'PhoneNo': '${userinfo["phoneNo"]}',
+                                //                                                 'Address': '${userinfo["address"]}',
+                                //                                                 'FPhoneNo': '${userinfo["fphoneNo"]}',
+                                //                                                 'FName': '${userinfo["fname"]}',
+                                //                                                 'Designation': '${userinfo["designation"]}',
+                                //                                                 'Age': '${userinfo["age"]}',
+                                //                                                 'Owner': '${userinfo["owner"]}',
+                                //                                                 'noti': true,
+                                //                                                 'Status': true,
+                                //                                                 'cancelled': false,
+                                //                                               }).then((DocumentReference document) async {
+                                //                                                 print("ID= ${document.id}");
+
+                                //                                                 String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                //                                                 await FirebaseFirestore.instance.collection("notifications").add({
+                                //                                                   'isRead': false,
+                                //                                                   'id': document.id,
+                                //                                                   'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                //                                                   'description': "Not at Home is on !",
+                                //                                                   'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                //                                                   'time': formattedTime,
+                                //                                                   'title': 'Not at Home'
+                                //                                                 });
+                                //                                               });
+
+                                //                                               Navigator.push(
+                                //                                                   context,
+                                //                                                   MaterialPageRoute(
+                                //                                                     builder: (context) => TabsScreen(
+                                //                                                       index: 0,
+                                //                                                     ),
+                                //                                                   ));
+
+                                //                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                //                                                   action: SnackBarAction(
+                                //                                                     label: "Ok",
+                                //                                                     onPressed: () {},
+                                //                                                   ),
+                                //                                                   content: Text("Your Details has been sent ")));
+                                //                                             },
+                                //                                           ),
+                                //                                           ElevatedButton(
+                                //                                             child:
+                                //                                                 const Text('No', style: TextStyle(color: Colors.white)),
+                                //                                             style:
+                                //                                                 ButtonStyle(
+                                //                                               backgroundColor: MaterialStateProperty.all(Colors.black),
+                                //                                             ),
+                                //                                             onPressed:
+                                //                                                 () {
+                                //                                               Navigator.of(context).pop(); // Close the confirmation dialog
+                                //                                             },
+                                //                                           ),
+                                //                                         ],
+                                //                                       );
+                                //                                     },
+                                //                                   );
+                                //                                 } else {
+                                //                                   ScaffoldMessenger.of(
+                                //                                           context)
+                                //                                       .showSnackBar(SnackBar(
+                                //                                           content:
+                                //                                               Text("You can not send another request")));
+                                //                                 }
+                                //                               },
+                                //                               child: Text('OK'),
+                                //                             ),
+                                //                             TextButton(
+                                //                               onPressed: () {
+                                //                                 Navigator.pop(
+                                //                                     context);
+                                //                               },
+                                //                               child: Text(
+                                //                                   "Cancel"),
+                                //                             ),
+                                //                           ],
+                                //                         );
+                                //                       }),
+                                //                 ),
+                                //               ));
+
+                                //       // _selectDate(context);
+                                //     },
+                                //   ),
+                                // ),
+
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 0, vertical: 3),
                                   child: InkWell(
-                                    child: Container(
-                                      // color: Colors.green,
-                                      // height: 80,
-                                      width:
-                                          MediaQuery.of(context).size.width / 5,
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            height: 50,
-                                            width: 50,
-                                            decoration: BoxDecoration(
-                                                color: const Color.fromRGBO(
-                                                    236, 238, 240, 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(30)),
-                                            child: const Icon(Icons.home,
-                                                color: Color.fromRGBO(
-                                                    15, 39, 127, 1)),
-                                          ),
-                                          const Padding(
-                                            padding: EdgeInsets.all(5.0),
-                                            child: Text(
-                                              "Not Home",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600),
+                                      child: Container(
+                                        // color: Colors.green,
+                                        // height: 80,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                5,
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              height: 50,
+                                              width: 50,
+                                              decoration: BoxDecoration(
+                                                  color: const Color.fromRGBO(
+                                                      236, 238, 240, 1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30)),
+                                              child: const Icon(Icons.home,
+                                                  color: Color.fromRGBO(
+                                                      15, 39, 127, 1)),
                                             ),
-                                          ),
-                                        ],
+                                            const Padding(
+                                              padding: EdgeInsets.all(5.0),
+                                              child: Text(
+                                                "Not Home",
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    onTap: () {
-                                      print(
-                                          "Datetime format = ${formattedDateTime}");
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) => Center(
-                                                child: Container(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      1.65,
-                                                  // Adjust the width as needed
-                                                  child: FutureBuilder(
-                                                      future: SharedPreferences
-                                                          .getInstance(),
-                                                      builder: (context,
-                                                          AsyncSnapshot
-                                                              snapshot) {
-                                                        var userinfo =
-                                                            json.decode(snapshot
-                                                                    .data
-                                                                    .getString(
-                                                                        'userinfo')
-                                                                as String);
-                                                        final myListData = [
-                                                          userinfo["name"],
-                                                          userinfo["phoneNo"],
-                                                          userinfo["address"],
-                                                          userinfo["fphoneNo"],
-                                                          userinfo["fname"],
-                                                          userinfo[
-                                                              "designation"],
-                                                          userinfo["age"],
-                                                          userinfo["uid"],
-                                                          userinfo["owner"],
-                                                          userinfo["email"]
-                                                        ];
-                                                        return AlertDialog(
-                                                          title:
-                                                              Text('Not Home'),
-                                                          content: Column(
-                                                            children: [
-                                                              Text(
-                                                                  'Select the date when you will be at home'),
-                                                              SizedBox(
-                                                                  height: 25),
-                                                              TextFormField(
-                                                                controller:
-                                                                    currentdate,
-                                                                readOnly: true,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  labelText:
-                                                                      'From',
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                  height: 25),
-                                                              TextFormField(
-                                                                controller:
-                                                                    _dateController,
-                                                                readOnly: true,
-                                                                onTap: () =>
-                                                                    _selectDate(
-                                                                        context),
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  labelText:
-                                                                      'To',
-                                                                  suffixIcon:
-                                                                      IconButton(
-                                                                    icon: Icon(Icons
-                                                                        .calendar_today),
-                                                                    onPressed: () =>
-                                                                        _selectDate(
-                                                                            context),
+                                      onTap: () {
+                                        if (nh == false) {
+                                          print(
+                                              "New Selected Date    ${newSelectedDate}");
+
+                                          print(
+                                              "Datetime format = ${formattedDateTime}");
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) => Center(
+                                                    child: Container(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              1.65,
+                                                      // Adjust the width as needed
+                                                      child: FutureBuilder(
+                                                          future:
+                                                              SharedPreferences
+                                                                  .getInstance(),
+                                                          builder: (context,
+                                                              AsyncSnapshot
+                                                                  snapshot) {
+                                                            var userinfo = json
+                                                                .decode(snapshot
+                                                                        .data
+                                                                        .getString(
+                                                                            'userinfo')
+                                                                    as String);
+                                                            final myListData = [
+                                                              userinfo["name"],
+                                                              userinfo[
+                                                                  "phoneNo"],
+                                                              userinfo[
+                                                                  "address"],
+                                                              userinfo[
+                                                                  "fphoneNo"],
+                                                              userinfo["fname"],
+                                                              userinfo[
+                                                                  "designation"],
+                                                              userinfo["age"],
+                                                              userinfo["uid"],
+                                                              userinfo["owner"],
+                                                              userinfo["email"]
+                                                            ];
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  'Not Home'),
+                                                              content: Column(
+                                                                children: [
+                                                                  Text(
+                                                                      'Select the date when you will be at home'),
+                                                                  SizedBox(
+                                                                      height:
+                                                                          10),
+                                                                  TextFormField(
+                                                                    controller:
+                                                                        currentdate,
+                                                                    readOnly:
+                                                                        true,
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      labelText:
+                                                                          'From',
+                                                                    ),
                                                                   ),
-                                                                ),
+                                                                  SizedBox(
+                                                                      height:
+                                                                          25),
+                                                                  TextFormField(
+                                                                    controller:
+                                                                        _dateController,
+                                                                    readOnly:
+                                                                        true,
+                                                                    onTap: () {
+                                                                      if (newSelectedDate ==
+                                                                              DateTime
+                                                                                  .now() ||
+                                                                          status ==
+                                                                              false) {
+                                                                        print(
+                                                                            "New Selected Date    ${newSelectedDate}");
+                                                                        _selectDate(
+                                                                            context);
+                                                                      } else {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                            content:
+                                                                                Text("You can not send another request")));
+                                                                      }
+                                                                    },
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      labelText:
+                                                                          'To',
+                                                                      suffixIcon:
+                                                                          IconButton(
+                                                                        icon: Icon(
+                                                                            Icons.calendar_today),
+                                                                        onPressed:
+                                                                            () {
+                                                                          if (newSelectedDate == DateTime.now() ||
+                                                                              status == false) {
+                                                                            print("New Selected Date    ${newSelectedDate}");
+                                                                            _selectDate(context);
+                                                                          } else {
+                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You can not send another request")));
+                                                                          }
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  // Align(
+                                                                  //     alignment:
+                                                                  //         Alignment
+                                                                  //             .bottomRight,
+                                                                  //     child: TextButton(
+                                                                  //         onPressed: () async {
+
+                                                                  //         },
+                                                                  //         child: Icon(
+                                                                  //           Icons.delete,
+                                                                  //           color:
+                                                                  //               Colors.red,
+                                                                  //         )))
+                                                                ],
                                                               ),
-                                                              Align(
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .bottomRight,
-                                                                  child:
-                                                                      TextButton(
-                                                                          onPressed:
-                                                                              () async {
-                                                                            print(docid);
-                                                                            await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
-                                                                              'Status': false,
-                                                                              'cancelled': true,
-                                                                            });
-                                                                          },
-                                                                          child:
-                                                                              Icon(
-                                                                            Icons.delete,
-                                                                            color:
-                                                                                Colors.red,
-                                                                          )))
-                                                            ],
-                                                          ),
-                                                          actions: <Widget>[
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                if (DateTime.now() !=
-                                                                        toField ||
-                                                                    status ==
-                                                                        true) {
-                                                                  print(
-                                                                      "feild == ${toField}");
-                                                                  // Uncomment this code to show the confirmation dialog
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return AlertDialog(
-                                                                        title:
-                                                                            const Text(
-                                                                          'Confirmation',
-                                                                          style:
-                                                                              TextStyle(fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                        content:
-                                                                            Text(
-                                                                          'You will not be home for ${_daysDifference} days, Security will look after your house.\nPress YES to send your request.',
-                                                                        ),
-                                                                        actions: <Widget>[
-                                                                          ElevatedButton(
-                                                                            child:
-                                                                                const Text('Yes', style: TextStyle(color: Colors.white)),
-                                                                            style:
-                                                                                ButtonStyle(
-                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    if (DateTime.now() !=
+                                                                            toField ||
+                                                                        status ==
+                                                                            true) {
+                                                                      print(
+                                                                          "feild == ${toField}");
+                                                                      // Uncomment this code to show the confirmation dialog
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (context) {
+                                                                          return AlertDialog(
+                                                                            title:
+                                                                                const Text(
+                                                                              'Confirmation',
+                                                                              style: TextStyle(fontWeight: FontWeight.bold),
                                                                             ),
-                                                                            onPressed:
-                                                                                () async {
-                                                                              final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-                                                                              String FCMtoken = "";
-                                                                              await _firebaseMessaging.getToken().then((String? token) {
-                                                                                if (token != null) {
-                                                                                  setState(() {
-                                                                                    FCMtoken = token;
+                                                                            content:
+                                                                                Text(
+                                                                              'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
+                                                                            ),
+                                                                            actions: <Widget>[
+                                                                              ElevatedButton(
+                                                                                child: const Text('Yes', style: TextStyle(color: Colors.white)),
+                                                                                style: ButtonStyle(
+                                                                                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                                ),
+                                                                                onPressed: () async {
+                                                                                  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+                                                                                  String FCMtoken = "";
+                                                                                  await _firebaseMessaging.getToken().then((String? token) {
+                                                                                    if (token != null) {
+                                                                                      setState(() {
+                                                                                        FCMtoken = token;
+                                                                                      });
+
+                                                                                      print("FCM Token: $FCMtoken");
+                                                                                    } else {
+                                                                                      print("Unable to get FCM token");
+                                                                                    }
                                                                                   });
 
-                                                                                  print("FCM Token: $FCMtoken");
-                                                                                } else {
-                                                                                  print("Unable to get FCM token");
-                                                                                }
-                                                                              });
+                                                                                  await FirebaseFirestore.instance.collection("not_Home").add({
+                                                                                    'FCMtoken': FCMtoken,
+                                                                                    'time': DateTime.now(),
+                                                                                    'nh': false,
+                                                                                    'from': '${currentdate.text}',
+                                                                                    'to': '${_dateController.text}',
+                                                                                    "days": _daysDifference,
+                                                                                    'Name': '${userinfo['name']}',
+                                                                                    'Email': '${userinfo['email']}',
+                                                                                    'ID': '${userinfo["uid"]}',
+                                                                                    'PhoneNo': '${userinfo["phoneNo"]}',
+                                                                                    'Address': '${userinfo["address"]}',
+                                                                                    'FPhoneNo': '${userinfo["fphoneNo"]}',
+                                                                                    'FName': '${userinfo["fname"]}',
+                                                                                    'Designation': '${userinfo["designation"]}',
+                                                                                    'Age': '${userinfo["age"]}',
+                                                                                    'Owner': '${userinfo["owner"]}',
+                                                                                    'noti': true,
+                                                                                    'Status': true,
+                                                                                    'cancelled': false,
+                                                                                  }).then((DocumentReference document) async {
+                                                                                    print("ID= ${document.id}");
 
-                                                                              await FirebaseFirestore.instance.collection("not_Home").add({
-                                                                                'FCMtoken': FCMtoken,
-                                                                                'time': DateTime.now(),
-                                                                                'nh': false,
-                                                                                'from': '${currentdate.text}',
-                                                                                'to': '${_dateController.text}',
-                                                                                "days": _daysDifference,
-                                                                                'Name': '${userinfo['name']}',
-                                                                                'Email': '${userinfo['email']}',
-                                                                                'ID': '${userinfo["uid"]}',
-                                                                                'PhoneNo': '${userinfo["phoneNo"]}',
-                                                                                'Address': '${userinfo["address"]}',
-                                                                                'FPhoneNo': '${userinfo["fphoneNo"]}',
-                                                                                'FName': '${userinfo["fname"]}',
-                                                                                'Designation': '${userinfo["designation"]}',
-                                                                                'Age': '${userinfo["age"]}',
-                                                                                'Owner': '${userinfo["owner"]}',
-                                                                                'noti': true,
-                                                                                'Status': true,
-                                                                                'cancelled': false,
-                                                                              }).then((DocumentReference document) async {
-                                                                                print("ID= ${document.id}");
+                                                                                    String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                                                    await FirebaseFirestore.instance.collection("notifications").add({
+                                                                                      'isRead': false,
+                                                                                      'id': document.id,
+                                                                                      'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                                                      'description': "Not at Home is on !",
+                                                                                      'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                                                      'time': formattedTime,
+                                                                                      'title': 'Not at Home'
+                                                                                    });
+                                                                                  });
 
-                                                                                String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
-                                                                                await FirebaseFirestore.instance.collection("notifications").add({
-                                                                                  'isRead': false,
-                                                                                  'id': document.id,
-                                                                                  'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                                  'description': "Not at Home is on !",
-                                                                                  'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                                                  'time': formattedTime,
-                                                                                  'title': 'Not at Home'
-                                                                                });
-                                                                              });
+                                                                                  Navigator.push(
+                                                                                      context,
+                                                                                      MaterialPageRoute(
+                                                                                        builder: (context) => TabsScreen(
+                                                                                          index: 0,
+                                                                                        ),
+                                                                                      ));
 
-                                                                              Navigator.push(
-                                                                                  context,
-                                                                                  MaterialPageRoute(
-                                                                                    builder: (context) => TabsScreen(
-                                                                                      index: 0,
-                                                                                    ),
-                                                                                  ));
-
-                                                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                  action: SnackBarAction(
-                                                                                    label: "Ok",
-                                                                                    onPressed: () {},
-                                                                                  ),
-                                                                                  content: Text("Your Details has been sent ")));
-                                                                            },
-                                                                          ),
-                                                                          ElevatedButton(
-                                                                            child:
-                                                                                const Text('No', style: TextStyle(color: Colors.white)),
-                                                                            style:
-                                                                                ButtonStyle(
-                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                                            ),
-                                                                            onPressed:
-                                                                                () {
-                                                                              Navigator.of(context).pop(); // Close the confirmation dialog
-                                                                            },
-                                                                          ),
-                                                                        ],
+                                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                      action: SnackBarAction(
+                                                                                        label: "Ok",
+                                                                                        onPressed: () {},
+                                                                                      ),
+                                                                                      content: Text("Your Details has been sent ")));
+                                                                                },
+                                                                              ),
+                                                                              ElevatedButton(
+                                                                                child: const Text('No', style: TextStyle(color: Colors.white)),
+                                                                                style: ButtonStyle(
+                                                                                  backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                                ),
+                                                                                onPressed: () {
+                                                                                  Navigator.of(context).pop(); // Close the confirmation dialog
+                                                                                },
+                                                                              ),
+                                                                            ],
+                                                                          );
+                                                                        },
                                                                       );
-                                                                    },
-                                                                  );
-                                                                } else {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(SnackBar(
-                                                                          content:
-                                                                              Text("You can not send another request")));
-                                                                }
-                                                              },
-                                                              child: Text('OK'),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: Text(
-                                                                  "Cancel"),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      }),
-                                                ),
-                                              ));
+                                                                    } else {
+                                                                      ScaffoldMessenger.of(
+                                                                              context)
+                                                                          .showSnackBar(
+                                                                              SnackBar(content: Text("You can not send another request")));
+                                                                    }
+                                                                  },
+                                                                  child: Text(
+                                                                      'OK'),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  child: Text(
+                                                                      "Cancel"),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          }),
+                                                    ),
+                                                  ));
 
-                                      // _selectDate(context);
-                                    },
-                                  ),
-                                ),
+                                          // _selectDate(context);
+                                        } else {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return Center(
+                                                child: Container(
+                                                    child: Column(
+                                                  children: [
+                                                    Text("Not Home"),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Text(
+                                                        "Security will look after your house for the next ${Fdays! + 1} days"),
+                                                    SizedBox(
+                                                      height: 20,
+                                                    ),
+                                                    TextFormField(
+                                                      controller: FfromDate,
+                                                      readOnly: true,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText: 'From',
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    TextFormField(
+                                                      controller: FtoDate,
+                                                      readOnly: true,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText: 'To',
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )),
+                                              );
+                                            },
+                                          );
+                                        }
+                                      }),
+                                ), //
                               ],
                             ),
                             const Row(
