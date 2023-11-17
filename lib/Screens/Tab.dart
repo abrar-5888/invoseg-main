@@ -56,7 +56,7 @@ class _TabsScreenState extends State<TabsScreen> {
       }
     ];
     super.initState();
-    getAllIsReadStatus();
+    // getAllIsReadStatus();
     setState(() {
       _selectedPageIndex = widget.index;
       // widget.index;
@@ -70,11 +70,11 @@ class _TabsScreenState extends State<TabsScreen> {
       // _selectedPageIndex = 3;
       _selectedPageIndex = index;
       if (_selectedPageIndex == 1) {
-        updateAllIsReadStatus(true);
+        // updateAllIsReadStatus(true);
         gro_count = 0;
       }
       if (_selectedPageIndex == 1) {
-        updateAllIsReadStatus(true);
+        // updateAllIsReadStatus(true);
         med_count = 0;
       }
     });

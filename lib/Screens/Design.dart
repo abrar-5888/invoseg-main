@@ -745,7 +745,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
       });
     });
 
-    getAllIsReadStatus();
+    // getAllIsReadStatus();
 
     // fetchDataAndUseLink();
 
@@ -825,61 +825,61 @@ class _HomeDesign1State extends State<HomeDesign1> {
                         fontSize: 24),
                   ),
                   actions: <Widget>[
-                    IconButton(
-                      icon: Stack(
-                        children: <Widget>[
-                          Icon(
-                            Icons.notifications,
-                            color: Colors.black,
-                          ),
-                          if (notification_count >
-                              0) // Show the badge only if there are unread notifications
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                padding: EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors
-                                      .red, // You can customize the badge color
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 15,
-                                  minHeight: 15,
-                                ),
-                                child: Text(
-                                  "${notification_count}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize:
-                                        12, // You can customize the font size
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      onPressed: () async {
-                        // Handle tapping on the notifications icon
-                        setState(() {
-                          notification_count = 0;
-                        });
-                        await Navigator.push(
-                          context,
-                          PageTransition(
-                            duration: Duration(milliseconds: 700),
-                            type: PageTransitionType.rightToLeftWithFade,
-                            child: Notifications(),
-                          ),
-                        );
-                        setState(() {
-                          updateAllIsReadStatus(true);
-                          notification_count = 0;
-                        });
-                      },
-                    ),
+                    // IconButton(
+                    //   icon: Stack(
+                    //     children: <Widget>[
+                    //       Icon(
+                    //         Icons.notifications,
+                    //         color: Colors.black,
+                    //       ),
+                    //       if (notification_count >
+                    //           0) // Show the badge only if there are unread notifications
+                    //         Positioned(
+                    //           right: 0,
+                    //           top: 0,
+                    //           child: Container(
+                    //             padding: EdgeInsets.all(2),
+                    //             decoration: BoxDecoration(
+                    //               shape: BoxShape.circle,
+                    //               color: Colors
+                    //                   .red, // You can customize the badge color
+                    //             ),
+                    //             constraints: BoxConstraints(
+                    //               minWidth: 15,
+                    //               minHeight: 15,
+                    //             ),
+                    //             child: Text(
+                    //               "${notification_count}",
+                    //               style: TextStyle(
+                    //                 color: Colors.white,
+                    //                 fontSize:
+                    //                     12, // You can customize the font size
+                    //               ),
+                    //               textAlign: TextAlign.center,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //     ],
+                    //   ),
+                    //   onPressed: () async {
+                    //     // Handle tapping on the notifications icon
+                    //     setState(() {
+                    //       notification_count = 0;
+                    //     });
+                    //     await Navigator.push(
+                    //       context,
+                    //       PageTransition(
+                    //         duration: Duration(milliseconds: 700),
+                    //         type: PageTransitionType.rightToLeftWithFade,
+                    //         child: Notifications(),
+                    //       ),
+                    //     );
+                    //     setState(() {
+                    //       updateAllIsReadStatus(true);
+                    //       notification_count = 0;
+                    //     });
+                    //   },
+                    // ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: IconButton(

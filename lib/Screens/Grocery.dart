@@ -27,7 +27,7 @@ class _GroceryState extends State<Grocery> {
   void initState() {
     super.initState();
     // This line was already there, updating notification count on page load
-    updateAllIsReadStatus(true);
+    // updateAllIsReadStatus(true);
     gro_count = 0;
     GroceryId = "";
     Timer(Duration(minutes: 5), () {
@@ -114,7 +114,7 @@ class _GroceryState extends State<Grocery> {
                 ),
               );
               setState(() {
-                updateAllIsReadStatus(true);
+                // updateAllIsReadStatus(true);/
                 // Using Provider to get and update the notification count
                 Provider.of<NotificationCounterProvider>(context, listen: false)
                     .resetNotificationCount();

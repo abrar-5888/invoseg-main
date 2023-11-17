@@ -68,6 +68,8 @@ class _HomeState extends State<Newsandfeeds> {
         isLoading = false;
       });
     });
+    Provider.of<NotificationCounterProvider>(context, listen: false)
+        .getAllIsReadStatus();
   }
 
   bool isLoading = true;
@@ -115,260 +117,272 @@ class _HomeState extends State<Newsandfeeds> {
               child: CircularProgressIndicator(),
             ),
           )
-        : Scaffold(
-            key: _key,
-            drawer: const DrawerWidg(),
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              centerTitle: true,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Image(
-                  image: AssetImage('assets/Images/rehman.png'),
-                  height: 60,
-                  width: 60,
-                ),
-              ),
-              title: const Text(
-                'Feeds',
-                style: TextStyle(
-                    color: Color(0xff212121),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 24),
-              ),
-              actions: <Widget>[
-                IconButton(
-                  icon: Stack(
-                    children: <Widget>[
-                      Icon(
-                        Icons.notifications,
-                        color: Colors.black,
+        : Consumer<NotificationCounterProvider>(
+            builder: (context, value, child) {
+              return Scaffold(
+                  key: _key,
+                  drawer: const DrawerWidg(),
+                  appBar: AppBar(
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+                    centerTitle: true,
+                    leading: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Image(
+                        image: AssetImage('assets/Images/rehman.png'),
+                        height: 60,
+                        width: 60,
                       ),
-                      if (Provider.of<NotificationCounterProvider>(context)
-                              .notificationCount >
-                          0) // Show the badge only if there are unread notifications
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors
-                                  .red, // You can customize the badge color
+                    ),
+                    title: const Text(
+                      'Feeds',
+                      style: TextStyle(
+                          color: Color(0xff212121),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24),
+                    ),
+                    actions: <Widget>[
+                      IconButton(
+                        icon: Stack(
+                          children: <Widget>[
+                            Icon(
+                              Icons.notifications,
+                              color: Colors.black,
                             ),
-                            constraints: BoxConstraints(
-                              minWidth: 15,
-                              minHeight: 15,
-                            ),
-                            child: Text(
-                              "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12, // You can customize the font size
+                            if (Provider.of<NotificationCounterProvider>(
+                                        context)
+                                    .notificationCount >
+                                0) // Show the badge only if there are unread notifications
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .red, // You can customize the badge color
+                                  ),
+                                  constraints: BoxConstraints(
+                                    minWidth: 15,
+                                    minHeight: 15,
+                                  ),
+                                  child: Text(
+                                    "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize:
+                                          12, // You can customize the font size
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                          ],
                         ),
+                        onPressed: () async {
+                          // Handle tapping on the notifications icon
+                          await Navigator.push(
+                            context,
+                            PageTransition(
+                              duration: Duration(milliseconds: 700),
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: Notifications(),
+                            ),
+                          );
+                          // setState(() {
+                          // updateAllIsReadStatus(true);
+                          // Using Provider to get and update the notification count
+                          Provider.of<NotificationCounterProvider>(context,
+                                  listen: false)
+                              .resetNotificationCount();
+                          // });
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.menu,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            _key.currentState!.openDrawer();
+                          },
+                        ),
+                      ),
                     ],
                   ),
-                  onPressed: () async {
-                    // Handle tapping on the notifications icon
-                    await Navigator.push(
-                      context,
-                      PageTransition(
-                        duration: Duration(milliseconds: 700),
-                        type: PageTransitionType.rightToLeftWithFade,
-                        child: Notifications(),
-                      ),
-                    );
-                    setState(() {
-                      updateAllIsReadStatus(true);
-                      // Using Provider to get and update the notification count
-                      Provider.of<NotificationCounterProvider>(context,
-                              listen: false)
-                          .resetNotificationCount();
-                    });
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.menu,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      _key.currentState!.openDrawer();
-                    },
-                  ),
-                ),
-              ],
-            ),
-            // body: FutureBuilder(
-            //   future: FirebaseFirestore.instance.collection("feed").get(),
-            //   builder: (context, snapshot) {
-            //     if (snapshot.hasError) {
-            //       print("Error");
-            //       return Text("Error");
-            //     } else if(snapshot.hasData) {
-            //       var data=snapshot.data!.docs;
-            //       var title="Abrar";
-            //       var image=data[''];
-            //       var descripiton;
-            //       return Container(
-            //         width: MediaQuery.of(context).size.width,
-            //         height: MediaQuery.of(context).size.height / 3,
-            //         child: Card(
-            //           child: Padding(
-            //             padding: const EdgeInsets.all(5.0),
-            //             child: Column(
-            //               children: [
-            //                 Padding(
-            //                   padding: const EdgeInsets.all(5.0),
-            //                   child: Row(
-            //                     children: [Text("data")],
-            //                   ),
-            //                 )
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     }
-            //   },
-            // )
-            body: ListView.builder(
-              itemCount: image.length, // Number of posts
-              itemBuilder: (context, index) {
-                return Column(
-                  children: <Widget>[
-                    // User info and post content
-                    ListTile(
-                      leading: CircleAvatar(
-                        // User profile picture
-                        radius: 15,
-                        backgroundImage:
-                            AssetImage('assets/Images/Invoseg.jpg'),
-                      ),
-                      title: Text(title[index]), // Username
-                      // subtitle: Text('Location'), // Location or caption
-                      trailing: Icon(Icons.more_vert), // Options button
-                    ),
-                    // Post image
-                    Image.asset(image[index]),
-                    // Like, comment, and send buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              favo = !favo;
-                            });
-                            print(favo);
-                            if (favo == true) {
-                              setState(() {
-                                num = num + 1;
-                              });
-                            }
-                            if (favo == false) {
-                              setState(() {
-                                num = num - 1;
-                              });
-                            }
-                          },
-                          icon: favo == false
-                              ? Container(
-                                  height: 20,
-                                  width: 20,
-                                  child: Image.asset("assets/Images/heart.png"),
-                                )
-                              : Icon(
-                                  Icons.favorite,
-                                  size: 25,
-                                  color: Colors.red,
-                                ),
-                        ),
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: IconButton(
-                              icon: Image.asset("assets/Images/chat.png"),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Container(
-                                      height: 200, // Set the height as needed
-                                      child: Column(
-                                        children: <Widget>[
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text("Test"),
-                                          ),
-                                          ListTile(
-                                            leading: Icon(Icons.camera),
-                                            title: Text('Take a Photo'),
-                                            onTap: () {
-                                              // Handle taking a photo
-                                              Navigator.pop(
-                                                  context); // Close the bottom sheet
-                                            },
-                                          ),
-                                          ListTile(
-                                            leading: Icon(Icons.photo),
-                                            title: Text('Choose from Gallery'),
-                                            onTap: () {
-                                              // Handle choosing from the gallery
-                                              Navigator.pop(
-                                                  context); // Close the bottom sheet
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              }),
-                        ),
-                      ],
-                    ),
-                    // Like count and comments
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  // body: FutureBuilder(
+                  //   future: FirebaseFirestore.instance.collection("feed").get(),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.hasError) {
+                  //       print("Error");
+                  //       return Text("Error");
+                  //     } else if(snapshot.hasData) {
+                  //       var data=snapshot.data!.docs;
+                  //       var title="Abrar";
+                  //       var image=data[''];
+                  //       var descripiton;
+                  //       return Container(
+                  //         width: MediaQuery.of(context).size.width,
+                  //         height: MediaQuery.of(context).size.height / 3,
+                  //         child: Card(
+                  //           child: Padding(
+                  //             padding: const EdgeInsets.all(5.0),
+                  //             child: Column(
+                  //               children: [
+                  //                 Padding(
+                  //                   padding: const EdgeInsets.all(5.0),
+                  //                   child: Row(
+                  //                     children: [Text("data")],
+                  //                   ),
+                  //                 )
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       );
+                  //     }
+                  //   },
+                  // )
+                  body: ListView.builder(
+                    itemCount: image.length, // Number of posts
+                    itemBuilder: (context, index) {
+                      return Column(
                         children: <Widget>[
-                          Text('1234'), // Like count
-                          Text('View all 10 comments'), // View all comments
+                          // User info and post content
+                          ListTile(
+                            leading: CircleAvatar(
+                              // User profile picture
+                              radius: 15,
+                              backgroundImage:
+                                  AssetImage('assets/Images/Invoseg.jpg'),
+                            ),
+                            title: Text(title[index]), // Username
+                            // subtitle: Text('Location'), // Location or caption
+                            trailing: Icon(Icons.more_vert), // Options button
+                          ),
+                          // Post image
+                          Image.asset(image[index]),
+                          // Like, comment, and send buttons
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: <Widget>[
-                              Text('username: '), // Comment user
-                              Text('This is a comment.'), // Comment text
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    favo = !favo;
+                                  });
+                                  print(favo);
+                                  if (favo == true) {
+                                    setState(() {
+                                      num = num + 1;
+                                    });
+                                  }
+                                  if (favo == false) {
+                                    setState(() {
+                                      num = num - 1;
+                                    });
+                                  }
+                                },
+                                icon: favo == false
+                                    ? Container(
+                                        height: 20,
+                                        width: 20,
+                                        child: Image.asset(
+                                            "assets/Images/heart.png"),
+                                      )
+                                    : Icon(
+                                        Icons.favorite,
+                                        size: 25,
+                                        color: Colors.red,
+                                      ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: IconButton(
+                                    icon: Image.asset("assets/Images/chat.png"),
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Container(
+                                            height:
+                                                200, // Set the height as needed
+                                            child: Column(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text("Test"),
+                                                ),
+                                                ListTile(
+                                                  leading: Icon(Icons.camera),
+                                                  title: Text('Take a Photo'),
+                                                  onTap: () {
+                                                    // Handle taking a photo
+                                                    Navigator.pop(
+                                                        context); // Close the bottom sheet
+                                                  },
+                                                ),
+                                                ListTile(
+                                                  leading: Icon(Icons.photo),
+                                                  title: Text(
+                                                      'Choose from Gallery'),
+                                                  onTap: () {
+                                                    // Handle choosing from the gallery
+                                                    Navigator.pop(
+                                                        context); // Close the bottom sheet
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }),
+                              ),
                             ],
                           ),
-                          // Additional comments go here
+                          // Like count and comments
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('1234'), // Like count
+                                Text(
+                                    'View all 10 comments'), // View all comments
+                                Row(
+                                  children: <Widget>[
+                                    Text('username: '), // Comment user
+                                    Text('This is a comment.'), // Comment text
+                                  ],
+                                ),
+                                // Additional comments go here
+                              ],
+                            ),
+                          ),
+                          // Post time
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('2 hours ago'),
+                              ),
+                            ),
+                          ),
                         ],
-                      ),
-                    ),
-                    // Post time
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('2 hours ago'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ); // Custom widget for displaying posts
-              },
-            ));
+                      ); // Custom widget for displaying posts
+                    },
+                  ));
+            },
+          );
   }
 }
 

@@ -109,7 +109,7 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                 ),
               );
               setState(() {
-                updateAllIsReadStatus(true);
+                // updateAllIsReadStatus(true);
                 // Using Provider to get and update the notification count
                 Provider.of<NotificationCounterProvider>(context, listen: false)
                     .resetNotificationCount();
