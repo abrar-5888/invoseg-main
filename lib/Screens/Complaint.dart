@@ -240,6 +240,7 @@ class _ComplainformState extends State<Complainform> {
                                   'owner': '${userinfo["owner"]}',
                                   'complainStatus': 'pending',
                                   'FCMtoken': FCMtoken,
+                                  "isProcessed": false,
                                 }).then((value) {
                                   print("Complain Added");
                                   complian.clear();

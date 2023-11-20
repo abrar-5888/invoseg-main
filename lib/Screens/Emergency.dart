@@ -75,10 +75,9 @@ class _EmergencyState extends State<Emergency> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    med_count = 0;
     _fetchConsultationData();
+    getAllIsReadStatus();
   }
 
   @override
@@ -128,9 +127,7 @@ class _EmergencyState extends State<Emergency> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (Provider.of<NotificationCounterProvider>(context)
-                        .notificationCount >
-                    0) // Show the badge only if there are unread notifications
+                if (notification_count > 0)
                   Positioned(
                     right: 0,
                     top: 0,
@@ -138,17 +135,17 @@ class _EmergencyState extends State<Emergency> {
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.red, // You can customize the badge color
+                        color: Colors.red,
                       ),
                       constraints: BoxConstraints(
                         minWidth: 15,
                         minHeight: 15,
                       ),
                       child: Text(
-                        "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
+                        "${notification_count}",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12, // You can customize the font size
+                          fontSize: 12,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -157,6 +154,12 @@ class _EmergencyState extends State<Emergency> {
               ],
             ),
             onPressed: () async {
+              // resetNotificationCount();
+
+              setState(() {
+                notification_count = 0;
+              });
+              updateAllIsReadStatus(true);
               // Handle tapping on the notifications icon
               await Navigator.push(
                 context,
@@ -166,12 +169,7 @@ class _EmergencyState extends State<Emergency> {
                   child: Notifications(),
                 ),
               );
-              setState(() {
-                // updateAllIsReadStatus(true);
-                // Using Provider to get and update the notification count
-                Provider.of<NotificationCounterProvider>(context, listen: false)
-                    .resetNotificationCount();
-              });
+              // No need to manually reset the count here
             },
           ),
           Padding(

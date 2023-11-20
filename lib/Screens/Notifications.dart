@@ -16,9 +16,11 @@ class _NotificationsState extends State<Notifications> {
   @override
   void initState() {
     super.initState();
-    // Call the function to fetch notifications and update the count
-    Provider.of<NotificationCounterProvider>(context, listen: false)
-        .getAllIsReadStatus();
+    setState(() {
+      notification_count = 0;
+    }); // Call the function to fetch notifications and update the count
+    resetNotificationCount();
+    updateAllIsReadStatus(true);
   }
 
   @override

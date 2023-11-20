@@ -25,7 +25,8 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
   @override
   void initState() {
     // TODO: implement initState
-    history_count = 0;
+    // history_count = 0;
+    // getAllIsReadStatus();
   }
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
@@ -70,9 +71,7 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (Provider.of<NotificationCounterProvider>(context)
-                        .notificationCount >
-                    0) // Show the badge only if there are unread notifications
+                if (notification_count > 0)
                   Positioned(
                     right: 0,
                     top: 0,
@@ -80,17 +79,17 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.red, // You can customize the badge color
+                        color: Colors.red,
                       ),
                       constraints: BoxConstraints(
                         minWidth: 15,
                         minHeight: 15,
                       ),
                       child: Text(
-                        "${Provider.of<NotificationCounterProvider>(context).notificationCount}",
+                        "${notification_count}",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12, // You can customize the font size
+                          fontSize: 12,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -99,6 +98,12 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
               ],
             ),
             onPressed: () async {
+              // resetNotificationCount();
+
+              setState(() {
+                notification_count = 0;
+              });
+              updateAllIsReadStatus(true);
               // Handle tapping on the notifications icon
               await Navigator.push(
                 context,
@@ -108,16 +113,9 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                   child: Notifications(),
                 ),
               );
-              setState(() {
-                // updateAllIsReadStatus(true);
-                // Using Provider to get and update the notification count
-                Provider.of<NotificationCounterProvider>(context, listen: false)
-                    .resetNotificationCount();
-              });
+              // No need to manually reset the count here
             },
           ),
-          //final GlobalKey<ScaffoldState> _key = GlobalKey();
-
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(

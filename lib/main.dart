@@ -21,6 +21,7 @@ import 'package:testapp/Screens/Tab.dart';
 
 // Step 1
 import 'package:flutter/services.dart';
+import 'package:testapp/global.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -31,8 +32,7 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((value) => runApp(ChangeNotifierProvider(
-      create: (context) => NotificationCounterProvider(), child: MyApp())));
+  ]).then((value) => runApp(MyApp()));
   // runApp(MyApp());
 }
 // void main() {
@@ -70,6 +70,8 @@ class _MyAppState extends State<MyApp> {
     initializeFlutterFire();
     super.initState();
     //  _fc.subscribeToTopic("Events");
+    getAllIsReadStatus();
+    print("====================================$notification_count");
   }
 
   @override
