@@ -1,0 +1,16 @@
+Account SID
+
+ACb18ba78e228a2b2d40e1e637825778ab
+
+Auth Token
+
+e1db8c3c0536a8a158272ecd16f2e261
+
+Twilio PhoneNo 
+
++19365144103
+
+
+SKf3510fdc36fcffc1dda1233a9df8c066
+
+SoSuguGVc8gq0m6MCBh71LqINcLwRyPs
