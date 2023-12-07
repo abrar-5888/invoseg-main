@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
 
 class All extends StatefulWidget {
@@ -62,18 +61,8 @@ class _AllState extends State<All> {
       body: Container(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                  // color: Colors.amber,
-                  child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: IconButton(
-                    onPressed: () {}, icon: Icon(Icons.filter_alt_outlined)),
-              )),
-            ),
             SizedBox(
-                height: MediaQuery.of(context).size.height / 1.36,
+                height: MediaQuery.of(context).size.height / 1.23,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
@@ -82,7 +71,7 @@ class _AllState extends State<All> {
                     builder: (context, discountSnapshot) {
                       if (discountSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Center(
+                        return const Center(
                           child: CircularProgressIndicator(
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.black),
@@ -100,14 +89,18 @@ class _AllState extends State<All> {
                         return ListView.builder(
                             itemCount: discounts.length,
                             itemBuilder: (context, index) {
+                              EasyLoading.show();
                               final data = discounts[index].data()
                                   as Map<String, dynamic>;
                               final mediaUrls =
                                   data['mediaUrls'] as List<dynamic>;
                               print("Media = ${mediaUrls[0]}");
-                              final logo = data['logo'] as List<dynamic>;
-                              print(logo[0]);
+                              final logo = data['logo'];
+                              print(logo);
                               print(data);
+                              String id = data['id'];
+                              print(id);
+                              EasyLoading.dismiss();
                               return Flex(
                                 direction: Axis.vertical,
                                 children: [
@@ -118,11 +111,12 @@ class _AllState extends State<All> {
                                           Navigator.push(
                                               context,
                                               PageTransition(
-                                                  duration: Duration(
+                                                  duration: const Duration(
                                                       milliseconds: 700),
                                                   type: PageTransitionType
                                                       .rightToLeftWithFade,
-                                                  child: DiscountDetails()));
+                                                  child: DiscountDetails(
+                                                      ids: id)));
                                         },
                                         child: Container(
                                             // height: MediaQuery.of(context)
@@ -132,7 +126,7 @@ class _AllState extends State<All> {
                                             child: Card(
                                                 elevation: 10,
                                                 color: Colors.white,
-                                                shape: RoundedRectangleBorder(
+                                                shape: const RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.only(
                                                             topLeft:
@@ -153,12 +147,13 @@ class _AllState extends State<All> {
                                                     height: 150,
                                                     decoration: BoxDecoration(
                                                         image: DecorationImage(
-                                                          image: AssetImage(
-                                                              listPics[0]),
+                                                          image: NetworkImage(
+                                                              mediaUrls[0]),
                                                           fit: BoxFit.cover,
                                                         ),
                                                         borderRadius:
-                                                            BorderRadius.only(
+                                                            const BorderRadius
+                                                                .only(
                                                                 topLeft: Radius
                                                                     .circular(
                                                                         20),
@@ -174,10 +169,6 @@ class _AllState extends State<All> {
                                                                 .all(8.0),
                                                         child: Container(
                                                           width: 40,
-                                                          child: Image.network(
-                                                            logo[0],
-                                                            // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
-                                                          ),
                                                           //     ??
                                                           // "https://upload.wikimedia.org/wikipedia/commons/3/33/Vanamo_Logo.png"), // Image(
                                                           //     // image: AssetImage(
@@ -185,16 +176,20 @@ class _AllState extends State<All> {
                                                           //     image: NetworkImage(
                                                           //         "https://firebasestorage.googleapis.com/v0/b/usman-a51d1.appspot.com/o/Logos%2FWhatsApp%20Image%202023-10-31%20at%2016.31.40_2c2e9a63.jpg?alt=media&token=031cda9c-dc7f-4bf3-9217-356ccd00955a")),
                                                           decoration: BoxDecoration(
-                                                              color: Color
+                                                              color: const Color
                                                                   .fromARGB(
-                                                                      228,
-                                                                      211,
-                                                                      211,
-                                                                      211),
+                                                                  228,
+                                                                  211,
+                                                                  211,
+                                                                  211),
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
                                                                           10)),
+                                                          child: Image.network(
+                                                            logo,
+                                                            // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
@@ -205,7 +200,7 @@ class _AllState extends State<All> {
                                                   ),
                                                   Container(
                                                     // height: 80,
-                                                    decoration: BoxDecoration(
+                                                    decoration: const BoxDecoration(
                                                         borderRadius:
                                                             BorderRadius.only(
                                                                 bottomLeft: Radius
@@ -238,7 +233,7 @@ class _AllState extends State<All> {
                                                                     child: Text(
                                                                       data[
                                                                           'Name'],
-                                                                      style: TextStyle(
+                                                                      style: const TextStyle(
                                                                           fontSize:
                                                                               18,
                                                                           fontWeight:
@@ -254,6 +249,12 @@ class _AllState extends State<All> {
                                                                 children: [
                                                                   Container(
                                                                     // width: ,
+                                                                    decoration: BoxDecoration(
+                                                                        color: const Color.fromRGBO(15, 39, 127, 1),
+
+                                                                        // color: Colors.red[600],
+                                                                        borderRadius: BorderRadius.circular(10)),
+                                                                    // width: ,
                                                                     child:
                                                                         Padding(
                                                                       padding: const EdgeInsets
@@ -264,7 +265,7 @@ class _AllState extends State<All> {
                                                                         data[
                                                                             'address'],
                                                                         style:
-                                                                            TextStyle(
+                                                                            const TextStyle(
                                                                           fontSize:
                                                                               15,
                                                                           color:
@@ -272,41 +273,40 @@ class _AllState extends State<All> {
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    decoration: BoxDecoration(
-                                                                        color: Color.fromRGBO(15, 39, 127, 1),
-
-                                                                        // color: Colors.red[600],
-                                                                        borderRadius: BorderRadius.circular(10)),
                                                                   ),
                                                                 ],
                                                               ),
                                                             ],
                                                           ),
                                                         ),
+                                                        // subtitle: Padding(
+                                                        //   padding:
+                                                        //       const EdgeInsets
+                                                        //           .all(8.0),
+                                                        //   child: Text(data[
+                                                        //       'description']),
+                                                        // ),
                                                         trailing: Container(
+                                                          decoration: BoxDecoration(
+                                                              color: const Color
+                                                                  .fromRGBO(15,
+                                                                  39, 127, 1),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
                                                           child: Padding(
                                                             padding:
                                                                 const EdgeInsets
                                                                     .all(10.0),
                                                             child: Text(
                                                               "${data['discount']}%",
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                   color: Colors
                                                                       .white,
                                                                   fontSize: 17),
                                                             ),
                                                           ),
-                                                          decoration: BoxDecoration(
-                                                              color: Color
-                                                                  .fromRGBO(
-                                                                      15,
-                                                                      39,
-                                                                      127,
-                                                                      1),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
                                                         ),
                                                       ),
                                                     ),

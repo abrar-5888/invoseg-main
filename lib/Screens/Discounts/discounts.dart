@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/Discounts/All.dart';
 import 'package:testapp/Screens/Discounts/education.dart';
+import 'package:testapp/Screens/Discounts/fitness.dart';
 import 'package:testapp/Screens/Discounts/food.dart';
 import 'package:testapp/Screens/Discounts/health.dart';
-import 'package:testapp/Screens/Notifications.dart';
-import 'package:testapp/Screens/drawer.dart';
+import 'package:testapp/Screens/Discounts/lifestyle.dart';
+import 'package:testapp/Screens/main/Notifications.dart';
+import 'package:testapp/Screens/main/drawer.dart';
 import 'package:testapp/global.dart';
 
 class Discounts extends StatefulWidget {
@@ -37,7 +39,7 @@ class _DiscountsState extends State<Discounts> {
     return DefaultTabController(
       length: 6,
       child: Scaffold(
-        drawer: DrawerWidg(),
+        drawer: const DrawerWidg(),
         key: _key,
         appBar: AppBar(
           centerTitle: true,
@@ -47,7 +49,7 @@ class _DiscountsState extends State<Discounts> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios_new,
               color: Colors.black,
             ),
@@ -64,7 +66,7 @@ class _DiscountsState extends State<Discounts> {
             IconButton(
               icon: Stack(
                 children: <Widget>[
-                  Icon(
+                  const Icon(
                     Icons.notifications,
                     color: Colors.black,
                   ),
@@ -73,18 +75,18 @@ class _DiscountsState extends State<Discounts> {
                       right: 0,
                       top: 0,
                       child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.red,
                         ),
-                        constraints: BoxConstraints(
+                        constraints: const BoxConstraints(
                           minWidth: 15,
                           minHeight: 15,
                         ),
                         child: Text(
                           notification_count.toString(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                           ),
@@ -100,7 +102,7 @@ class _DiscountsState extends State<Discounts> {
                   PageTransition(
                     duration: const Duration(milliseconds: 700),
                     type: PageTransitionType.rightToLeftWithFade,
-                    child: Notifications(),
+                    child: const Notifications(),
                   ),
                 );
                 setState(() {
@@ -111,7 +113,7 @@ class _DiscountsState extends State<Discounts> {
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.menu,
                   color: Colors.black,
                 ),
@@ -126,12 +128,12 @@ class _DiscountsState extends State<Discounts> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
+              child: SizedBox(
                 height: 50,
                 child: TabBar(
                   isScrollable: true,
                   indicator: BoxDecoration(
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.grey,
                         offset: Offset(0, 2),
@@ -139,14 +141,14 @@ class _DiscountsState extends State<Discounts> {
                       ),
                     ],
                     borderRadius: BorderRadius.circular(15),
-                    color: Color.fromARGB(186, 226, 228, 233),
+                    color: const Color.fromARGB(186, 226, 228, 233),
                     border: Border.all(
-                      color: Color.fromARGB(197, 255, 0, 0),
+                      color: const Color.fromRGBO(15, 39, 127, 1),
                       width: 1,
                     ),
                   ),
-                  unselectedLabelColor: Color.fromARGB(255, 158, 158, 158),
-                  labelColor: const Color.fromARGB(255, 255, 255, 255),
+                  unselectedLabelColor: const Color.fromARGB(255, 0, 0, 0),
+                  labelColor: const Color.fromARGB(255, 0, 0, 0),
                   tabs: [
                     for (int i = 0; i < 6; i++)
                       Container(
@@ -154,17 +156,18 @@ class _DiscountsState extends State<Discounts> {
                         child: Tab(
                           child: Text(
                             i == 0
-                                ? "ALL"
+                                ? "All"
                                 : i == 1
-                                    ? "HEALTH"
+                                    ? "Health"
                                     : i == 2
-                                        ? "FITNESS"
+                                        ? "Fitness"
                                         : i == 3
-                                            ? "FOOD"
+                                            ? "Food"
                                             : i == 4
-                                                ? "EDUCATION"
-                                                : "LIFESTYLE",
-                            style: TextStyle(color: Colors.black),
+                                                ? "Education"
+                                                : "LifeStyle",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 6, 6, 6)),
                           ),
                         ),
                       ),
@@ -172,15 +175,15 @@ class _DiscountsState extends State<Discounts> {
                 ),
               ),
             ),
-            Expanded(
+            const Expanded(
               child: TabBarView(
                 children: [
                   All(),
                   Health(),
+                  Fitness(),
                   Food(),
                   Education(),
-                  Container(child: Text("LIFESTYLE")),
-                  Container(child: Text("Another Tab")),
+                  LifeStyle(),
                 ],
               ),
             ),

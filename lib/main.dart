@@ -1,26 +1,21 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Models/firebase_api.dart';
-import 'package:testapp/Providers/NotificationCounterProvider.dart';
-import 'package:testapp/Screens/AddFamilyMembers.dart';
-import 'package:testapp/Screens/Complaint.dart';
-import 'package:testapp/Screens/Dashboard.dart';
-import 'package:testapp/Screens/E-Reciept.dart';
-import 'package:testapp/Screens/History.dart';
-import 'package:testapp/Screens/LoginPage.dart';
-import 'package:testapp/Screens/Notifications.dart';
-import 'package:testapp/Screens/Prescription.dart';
-import 'package:testapp/Screens/Profile.dart';
-import 'package:testapp/Screens/RequestLogin.dart';
-import 'package:testapp/Screens/Tab.dart';
-
 // Step 1
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testapp/Models/firebase_api.dart';
+import 'package:testapp/Screens/main/AddFamilyMembers.dart';
+import 'package:testapp/Screens/main/Complaint.dart';
+import 'package:testapp/Screens/main/Dashboard.dart';
+import 'package:testapp/Screens/main/E-Reciept.dart';
+import 'package:testapp/Screens/main/History.dart';
+import 'package:testapp/Screens/main/LoginPage.dart';
+import 'package:testapp/Screens/main/Notifications.dart';
+import 'package:testapp/Screens/main/Prescription.dart';
+import 'package:testapp/Screens/main/Profile.dart';
+import 'package:testapp/Screens/main/RequestLogin.dart';
 import 'package:testapp/global.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -32,7 +27,7 @@ void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((value) => runApp(MyApp()));
+  ]).then((value) => runApp(const MyApp()));
   // runApp(MyApp());
 }
 // void main() {
@@ -41,6 +36,8 @@ void main() {
 // }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -81,7 +78,7 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
+        home: const Scaffold(
           body: AlertDialog(
             content: Text('Something went wrong. Please restart the app.'),
           ),
@@ -89,7 +86,7 @@ class _MyAppState extends State<MyApp> {
       );
     }
     if (!_initialized) {
-      return MaterialApp(
+      return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(
@@ -113,15 +110,16 @@ class _MyAppState extends State<MyApp> {
           future: SharedPreferences.getInstance(),
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return snapshot.data.containsKey("token")
-                  ? snapshot.data.getBool("token")
-                      ? TabsScreen(
-                          index: 0,
-                        )
-                      : LoginScreen()
-                  : LoginScreen();
+              // return snapshot.data.containsKey("token")
+              //     ? snapshot.data.getBool("token")
+              //         ? TabsScreen1(
+              //             index: 0,
+              //           )
+              //         : const LoginScreen()
+              //     : const LoginScreen();
+              return const LoginScreen();
             } else {
-              return Scaffold(
+              return const Scaffold(
                 body: Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -131,12 +129,12 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       routes: {
-        LoginScreen.routename: (ctx) => LoginScreen(),
-        requestLoginPage.route: (ctx) => requestLoginPage(),
-        Home.routeName: (ctx) => Home(),
-        UserProfile.routename: (ctx) => UserProfile(),
-        ButtonsHistory.routename: (ctx) => ButtonsHistory(),
-        ViewEReciept.routename: (ctx) => ViewEReciept(
+        LoginScreen.routename: (ctx) => const LoginScreen(),
+        requestLoginPage.route: (ctx) => const requestLoginPage(),
+        Home.routeName: (ctx) => const Home(),
+        UserProfile.routename: (ctx) => const UserProfile(),
+        ButtonsHistory.routename: (ctx) => const ButtonsHistory(),
+        ViewEReciept.routename: (ctx) => const ViewEReciept(
               value: true,
               id: "",
               status: "",
@@ -146,9 +144,12 @@ class _MyAppState extends State<MyApp> {
             ),
         FamilyMembers.routename: (ctx) => FamilyMembers(
               id: "",
+              emailss: "",
+              ownerss: "",
+              addresss: "",
             ),
-        Complainform.routename: (ctx) => Complainform(),
-        '/notification': (ctx) => Notifications()
+        Complainform.routename: (ctx) => const Complainform(),
+        '/notification': (ctx) => const Notifications()
       },
     );
   }

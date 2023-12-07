@@ -1,17 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
 
-class Education extends StatefulWidget {
-  const Education({super.key});
+class LifeStyle extends StatefulWidget {
+  const LifeStyle({super.key});
 
   @override
-  State<Education> createState() => _EducationState();
+  State<LifeStyle> createState() => _LifeStyleState();
 }
 
-class _EducationState extends State<Education> {
+class _LifeStyleState extends State<LifeStyle> {
   final List<String> listPics = [
     'assets/Images/d2.jpg',
     'assets/Images/d1.jpg',
@@ -67,7 +66,7 @@ class _EducationState extends State<Education> {
                 child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection("discounts")
-                        // .where("category", isEqualTo: 'Education')
+                        // .where("category", isEqualTo: 'LifeStyle')
                         .get(),
                     builder: (context, discountSnapshot) {
                       if (discountSnapshot.connectionState ==
@@ -82,7 +81,7 @@ class _EducationState extends State<Education> {
                         return Text("Error: ${discountSnapshot.error}");
                       } else {
                         final discounts = discountSnapshot.data!.docs;
-                        print("Data=$discounts");
+                        print("Data=${discounts.length}");
                         // var data=discounts;
 
                         // Check if 'title' field exists and is not null before accessing it
@@ -90,17 +89,15 @@ class _EducationState extends State<Education> {
                         return ListView.builder(
                             itemCount: discounts.length,
                             itemBuilder: (context, index) {
-                              EasyLoading.show();
                               final data = discounts[index].data()
                                   as Map<String, dynamic>;
                               final mediaUrls =
                                   data['mediaUrls'] as List<dynamic>;
                               print("Media = ${mediaUrls[0]}");
                               final logo = data['logo'];
-                              print(logo[0]);
+                              print(logo);
                               print(data);
                               String id = data['id'];
-                              EasyLoading.dismiss();
                               return Flex(
                                 direction: Axis.vertical,
                                 children: [
