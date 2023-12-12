@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 // import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -429,7 +432,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
                                   onPressed: () {
                                     print(Status);
                                     if (isButtonEnabled == true) {
-                                      alertme("edit-button");
+                                      alertme("button-three");
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -476,7 +479,29 @@ class _ViewERecieptState extends State<ViewEReciept> {
     );
   }
 
+  String generateRandomFourDigitCode() {
+    Random random = Random();
+    int code = random.nextInt(10000);
+
+    // Ensure the code is four digits long (pad with leading zeros if necessary)
+    return code.toString().padLeft(4, '0');
+  }
+
   void alertme(String collect) async {
+    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    String FCMtoken = "";
+    bool btnOnOff = false;
+    DateTime now = DateTime.now();
+    String documentId;
+    String formattedDate = "${now.year}-${now.month}-${now.day}";
+    String formattedTime = DateFormat('hh:mm:ss a').format(now);
+    String fmName = "", fmphoneNo = "";
+    String fmName1 = "", fmphoneNo1 = "";
+    String fourDigitCode = generateRandomFourDigitCode();
+
+    setState(() {
+      btnOnOff = false;
+    });
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -485,41 +510,178 @@ class _ViewERecieptState extends State<ViewEReciept> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Are you sure you want to send a request?',
+          'Are you sure you want to send Edit request?',
         ),
         actions: <Widget>[
           ElevatedButton(
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
-              final userinfo =
-                  json.decode(prefs.getString('userinfo') as String);
-              await FirebaseFirestore.instance.collection(collect).add({
-                "name": userinfo["name"],
-                "phoneNo": userinfo["phoneNo"],
-                "pressedTime": FieldValue.serverTimestamp(),
-                "type": collect,
-                "uid": userinfo["uid"],
-                "email": userinfo["email"]
-              });
-              Navigator.of(ctx).pop(true);
-              FirebaseFirestore.instance.collection("EditButtonRequest").add({
-                "type": collect,
-                "uid": userinfo["uid"],
-                "pressedTime": FieldValue.serverTimestamp(),
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text(
-                    "Your Request is sent",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  action: SnackBarAction(
-                      label: 'OK', textColor: Colors.black, onPressed: () {}),
-                  backgroundColor: Colors.grey[400],
-                ),
-              );
+              if (btnOnOff == false) {
+                final prefs = await SharedPreferences.getInstance();
+                final userinfo =
+                    json.decode(prefs.getString('userinfo') as String);
+                await firebaseMessaging.getToken().then((String? token) async {
+                  if (token != null) {
+                    setState(() {
+                      FCMtoken = token;
+                      btnOnOff = true;
+                    });
+                    final mainCollectionQuery = await FirebaseFirestore.instance
+                        .collection(
+                            "UserRequest") // Replace with your main collection
+                        .where("email", isEqualTo: userinfo['email'])
+                        .get();
+
+                    if (mainCollectionQuery.docs.isNotEmpty) {
+                      mainCollectionQuery.docs.forEach((mainDoc) async {
+                        final subcollectionRef =
+                            mainDoc.reference.collection("FMData");
+
+                        final subcollectionQuery = await subcollectionRef
+                            .where("owner", isEqualTo: userinfo['owner'])
+                            .get();
+
+                        if (subcollectionQuery.docs.isNotEmpty) {
+                          // Process the first document
+                          var data = subcollectionQuery.docs[0].data();
+                          setState(() {
+                            fmName = data['Name'];
+                            fmphoneNo = data['Phoneno'];
+                            print(
+                                "Document 1 - Name: $fmName, Phone No: $fmphoneNo");
+                          });
+
+                          // Process the second document if it exists
+                          if (subcollectionQuery.docs.length > 1) {
+                            var data1 = subcollectionQuery.docs[1].data();
+                            setState(() {
+                              fmName1 = data1['Name'];
+                              fmphoneNo1 = data1['Phoneno'];
+                              print(
+                                  "Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
+                            });
+                          }
+
+                          await FirebaseFirestore.instance
+                              .collection(collect)
+                              .add({
+                            "edit": true,
+                            "name": userinfo["name"],
+                            "phoneNo": userinfo["phoneNo"],
+                            "address": userinfo["address"],
+                            "fmphoneNo": fmphoneNo,
+                            "fmphoneNo1": fmphoneNo1,
+                            "fname": userinfo['fname'],
+                            "fPhoneNo": userinfo['fphoneNo'],
+                            "fmName": fmName,
+                            "fmName1": fmName1,
+                            "designation": userinfo["designation"],
+                            "age": userinfo["age"],
+                            "pressedTime": FieldValue.serverTimestamp(),
+                            "type": collect,
+                            "isProcessed": false,
+                            "time": formattedTime,
+                            "date": formattedDate,
+                            // "FM${num}": userinfo["FM${num}"],
+                            "uid": userinfo["uid"],
+                            "owner": userinfo["owner"],
+                            "email": userinfo["email"],
+                            "noti": true,
+                            "residentID": "Invoseg$fourDigitCode",
+                            "FCMtoken": FCMtoken
+                          }).then((DocumentReference document) => {
+                                    documentId = document.id,
+                                    print("DOCUMENT ID +++++++ $documentId"),
+                                  });
+                          FirebaseFirestore.instance
+                              .collection("UserButtonRequest")
+                              .add({
+                            "type": collect,
+                            "uid": userinfo["uid"],
+                            "pressedTime": FieldValue.serverTimestamp(),
+                          });
+                          Navigator.of(ctx).pop(true);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                "Your Request is sent",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              action: SnackBarAction(
+                                  label: 'OK',
+                                  textColor: Colors.black,
+                                  onPressed: () {}),
+                              backgroundColor: Colors.grey[400],
+                            ),
+                          );
+                        } else {
+                          print(
+                              "No matching documents found in the Sub collection.");
+                          await FirebaseFirestore.instance
+                              .collection(collect)
+                              .add({
+                            "name": userinfo["name"],
+                            "phoneNo": userinfo["phoneNo"],
+                            "address": userinfo["address"],
+                            "fmphoneNo": "",
+                            "fname": userinfo['fname'],
+                            "fPhoneNo": userinfo['fphoneNo'],
+                            "fmName": "",
+                            "designation": userinfo["designation"],
+                            "age": userinfo["age"],
+                            "pressedTime": FieldValue.serverTimestamp(),
+                            "type": collect,
+                            "isProcessed": false,
+                            "time": formattedTime,
+                            "date": formattedDate,
+                            // "FM${num}": userinfo["FM${num}"],
+                            "uid": userinfo["uid"],
+                            "owner": userinfo["owner"],
+                            "email": userinfo["email"],
+                            "noti": true,
+                            "residentID": "Invoseg$fourDigitCode",
+                            "FCMtoken": FCMtoken
+                          }).then((DocumentReference document) => {
+                                    documentId = document.id,
+                                    print("DOCUMENT ID +++++++ $documentId")
+                                  });
+                          FirebaseFirestore.instance
+                              .collection("UserButtonRequest")
+                              .add({
+                            "type": collect,
+                            "uid": userinfo["uid"],
+                            "pressedTime": FieldValue.serverTimestamp(),
+                          });
+                          Navigator.of(ctx).pop(true);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                "Your Request is sent",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              action: SnackBarAction(
+                                  label: 'OK',
+                                  textColor: Colors.black,
+                                  onPressed: () {}),
+                              backgroundColor: Colors.grey[400],
+                            ),
+                          );
+                        }
+                      });
+                    } else {
+                      print(
+                          "No matching documents found in the main collection.");
+                    }
+
+                    print("FCM Token: $FCMtoken");
+                  } else {
+                    print("Unable to get FCM token");
+                  }
+                });
+              } else {}
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),

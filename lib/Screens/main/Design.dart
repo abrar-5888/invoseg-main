@@ -70,8 +70,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
         // print("Fetched Link: $link");
       } else {
-       DateTime dateTime= DateTime.now();
-       String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+        DateTime dateTime = DateTime.now();
+        String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
 
         setState(() {
           nh = false;
@@ -303,7 +303,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fmName = "", fmphoneNo = "";
     String fmName1 = "", fmphoneNo1 = "";
     String fourDigitCode = generateRandomFourDigitCode();
-    SharedPreferences addFm = await SharedPreferences.getInstance();
     setState(() {
       btnOnOff = false;
     });
@@ -371,6 +370,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           await FirebaseFirestore.instance
                               .collection(collect)
                               .add({
+                            "edit": false,
                             "name": userinfo["name"],
                             "phoneNo": userinfo["phoneNo"],
                             "address": userinfo["address"],
@@ -384,7 +384,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -397,8 +396,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           }).then((DocumentReference document) => {
                                     documentId = document.id,
                                     print("DOCUMENT ID +++++++ $documentId"),
-                                    addFm.setString('fmName', fmName),
-                                    addFm.setString('fmphoneNo', fmphoneNo)
                                   });
                           FirebaseFirestore.instance
                               .collection("UserButtonRequest")
@@ -435,11 +432,11 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "fname": userinfo['fname'],
                             "fPhoneNo": userinfo['fphoneNo'],
                             "fmName": "",
+                            "edit": false,
                             "designation": userinfo["designation"],
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -574,7 +571,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fmName = "", fmphoneNo = "";
     String fmName1 = "", fmphoneNo1 = "";
     String fourDigitCode = generateRandomFourDigitCode();
-    SharedPreferences addFm = await SharedPreferences.getInstance();
     setState(() {
       btnOnOff = false;
     });
@@ -642,6 +638,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           await FirebaseFirestore.instance
                               .collection(collect)
                               .add({
+                            "edit": false,
+
                             "name": userinfo["name"],
                             "phoneNo": userinfo["phoneNo"],
                             "address": userinfo["address"],
@@ -655,7 +653,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -668,8 +665,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           }).then((DocumentReference document) => {
                                     documentId = document.id,
                                     print("DOCUMENT ID +++++++ $documentId"),
-                                    addFm.setString('fmName', fmName),
-                                    addFm.setString('fmphoneNo', fmphoneNo)
                                   });
                           FirebaseFirestore.instance
                               .collection("UserButtonRequest")
@@ -710,7 +705,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
+                            "edit": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -841,7 +836,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fmName = "", fmphoneNo = "";
     String fmName1 = "", fmphoneNo1 = "";
     String fourDigitCode = generateRandomFourDigitCode();
-    SharedPreferences addFm = await SharedPreferences.getInstance();
 
     setState(() {
       btnOnOff = false;
@@ -923,7 +917,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
+                            "edit": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -936,8 +930,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           }).then((DocumentReference document) => {
                                     documentId = document.id,
                                     print("DOCUMENT ID +++++++ $documentId"),
-                                    addFm.setString('fmName', fmName),
-                                    addFm.setString('fmphoneNo', fmphoneNo)
                                   });
                           FirebaseFirestore.instance
                               .collection("UserButtonRequest")
@@ -978,7 +970,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
                             "type": collect,
-                            "isProcessed": false,
+                            "edit": false,
                             "time": formattedTime,
                             "date": formattedDate,
                             // "FM${num}": userinfo["FM${num}"],
@@ -1139,6 +1131,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
   String video = "";
   @override
   void initState() {
+    fetchPlots();
     DateTime currentTime = DateTime.now();
 
     // Format the time with AM/PM indicator
@@ -2411,7 +2404,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     'FCMtoken': FCMtoken,
                                                                                     'time': DateTime.now(),
                                                                                     'nh': false,
-                                                                                    "isProcessed": false,
+                                                                                    "edit": false,
                                                                                     "fmName": fmName,
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
@@ -2726,7 +2719,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     'FCMtoken': FCMtoken,
                                                                                     'time': DateTime.now(),
                                                                                     'nh': false,
-                                                                                    "isProcessed": false,
+                                                                                    "edit": false,
                                                                                     "fmName": fmName,
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
@@ -2871,76 +2864,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                             const Text(''),
                                                             const SizedBox(
                                                                 height: 10),
-                                                            // TextFormField(
-                                                            //   controller:
-                                                            //       currentdate,
-                                                            //   readOnly:
-                                                            //       true,
-                                                            //   decoration:
-                                                            //       InputDecoration(
-                                                            //     labelText:
-                                                            //         'From',
-                                                            //   ),
-                                                            // ),
-                                                            // SizedBox(
-                                                            //     height:
-                                                            //         25),
-                                                            // TextFormField(
-                                                            //   controller:
-                                                            //       _dateController,
-                                                            //   readOnly:
-                                                            //       true,
-                                                            // onTap: () {
-                                                            //   if (newSelectedDate ==
-                                                            //           DateTime
-                                                            //               .now() ||
-                                                            //       status ==
-                                                            //           false) {
-                                                            //     print(
-                                                            //         "New Selected Date    ${newSelectedDate}");
-                                                            //     _selectDate(
-                                                            //         context);
-                                                            //   } else {
-                                                            //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                            //         content:
-                                                            //             Text("You can not send another request")));
-                                                            //   }
-                                                            // },
-                                                            // decoration:
-                                                            //     InputDecoration(
-                                                            //   labelText:
-                                                            //'To',
-                                                            // suffixIcon:
-                                                            //     IconButton(
-                                                            //   icon: Icon(
-                                                            //       Icons.calendar_today),
-                                                            //   onPressed:
-                                                            //       () {
-                                                            //     if (newSelectedDate == DateTime.now() ||
-                                                            //         status == false) {
-                                                            //       print("New Selected Date    ${newSelectedDate}");
-                                                            //       _selectDate(context);
-                                                            //     } else {
-                                                            //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You can not send another request")));
-                                                            //     }
-                                                            //   },
-                                                            // ),
-                                                            // ),
-                                                            // ),
-                                                            // Align(
-                                                            //     alignment:
-                                                            //         Alignment
-                                                            //             .bottomRight,
-                                                            //     child: TextButton(
-                                                            //         onPressed: () async {
-
-                                                            //         },
-                                                            //         child: Icon(
-                                                            //           Icons.delete,
-                                                            //           color:
-                                                            //               Colors.red,
-                                                            //         )))
-
                                                             SizedBox(
                                                               width: MediaQuery.of(
                                                                           context)
@@ -3069,129 +2992,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                           ],
                                                         ),
                                                         actions: <Widget>[
-                                                          // TextButton(
-                                                          //   onPressed:
-                                                          //       () {
-                                                          //     Navigator.of(
-                                                          //             context)
-                                                          //         .pop();
-                                                          // if (DateTime.now() !=
-                                                          //         toField ||
-                                                          //     status ==
-                                                          //         true) {
-                                                          //   print(
-                                                          //       "feild == ${toField}");
-                                                          //   // Uncomment this code to show the confirmation dialog
-                                                          //   showDialog(
-                                                          //     context:
-                                                          //         context,
-                                                          //     builder:
-                                                          //         (context) {
-                                                          //       return AlertDialog(
-                                                          //         title:
-                                                          //             const Text(
-                                                          //           'Confirmation',
-                                                          //           style: TextStyle(fontWeight: FontWeight.bold),
-                                                          //         ),
-                                                          //         content:
-                                                          //             Text(
-                                                          //           'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
-                                                          //         ),
-                                                          //         actions: <Widget>[
-                                                          //           ElevatedButton(
-                                                          //             child: const Text('Yes', style: TextStyle(color: Colors.white)),
-                                                          //             style: ButtonStyle(
-                                                          //               backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                          //             ),
-                                                          //             onPressed: () async {
-                                                          //               final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-                                                          //               String FCMtoken = "";
-                                                          //               await _firebaseMessaging.getToken().then((String? token) {
-                                                          //                 if (token != null) {
-                                                          //                   setState(() {
-                                                          //                     FCMtoken = token;
-                                                          //                   });
-
-                                                          //                   print("FCM Token: $FCMtoken");
-                                                          //                 } else {
-                                                          //                   print("Unable to get FCM token");
-                                                          //                 }
-                                                          //               });
-
-                                                          //               await FirebaseFirestore.instance.collection("not_Home").add({
-                                                          //                 'FCMtoken': FCMtoken,
-                                                          //                 'time': DateTime.now(),
-                                                          //                 'nh': false,
-                                                          //                 'from': '${currentdate.text}',
-                                                          //                 'to': '${_dateController.text}',
-                                                          //                 "days": _daysDifference,
-                                                          //                 'Name': '${userinfo['name']}',
-                                                          //                 'Email': '${userinfo['email']}',
-                                                          //                 'ID': '${userinfo["uid"]}',
-                                                          //                 'PhoneNo': '${userinfo["phoneNo"]}',
-                                                          //                 'Address': '${userinfo["address"]}',
-                                                          //                 'FPhoneNo': '${userinfo["fphoneNo"]}',
-                                                          //                 'FName': '${userinfo["fname"]}',
-                                                          //                 'Designation': '${userinfo["designation"]}',
-                                                          //                 'Age': '${userinfo["age"]}',
-                                                          //                 'Owner': '${userinfo["owner"]}',
-                                                          //                 'noti': true,
-                                                          //                 'Status': true,
-                                                          //                 'cancelled': false,
-                                                          //               }).then((DocumentReference document) async {
-                                                          //                 print("ID= ${document.id}");
-
-                                                          //                 String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
-                                                          //                 await FirebaseFirestore.instance.collection("notifications").add({
-                                                          //                   'isRead': false,
-                                                          //                   'id': document.id,
-                                                          //                   'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                          //                   'description': "Not at Home is on !",
-                                                          //                   'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                          //                   'time': formattedTime,
-                                                          //                   'title': 'Not at Home'
-                                                          //                 });
-                                                          //               });
-
-                                                          //               Navigator.push(
-                                                          //                   context,
-                                                          //                   MaterialPageRoute(
-                                                          //                     builder: (context) => TabsScreen(
-                                                          //                       index: 0,
-                                                          //                     ),
-                                                          //                   ));
-
-                                                          //               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                          //                   action: SnackBarAction(
-                                                          //                     label: "Ok",
-                                                          //                     onPressed: () {},
-                                                          //                   ),
-                                                          //                   content: Text("Your Details has been sent ")));
-                                                          //             },
-                                                          //           ),
-                                                          //           ElevatedButton(
-                                                          //             child: const Text('No', style: TextStyle(color: Colors.white)),
-                                                          //             style: ButtonStyle(
-                                                          //               backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                          //             ),
-                                                          //             onPressed: () {
-                                                          //               Navigator.of(context).pop(); // Close the confirmation dialog
-                                                          //             },
-                                                          //           ),
-                                                          //         ],
-                                                          //       );
-                                                          //     },
-                                                          //   );
-                                                          // } else {
-                                                          //   ScaffoldMessenger.of(
-                                                          //           context)
-                                                          //       .showSnackBar(
-                                                          //           SnackBar(content: Text("You can not send another request")));
-                                                          // }
-                                                          //   },
-                                                          //   child: Text(
-                                                          //       'OK'),
-                                                          // ),
                                                           TextButton(
                                                             onPressed: () {
                                                               Navigator.pop(
@@ -3205,44 +3005,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                     }),
                                               ),
                                             ));
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (context) {
-                                    //     return Center(
-                                    //       child: Container(
-                                    //           child: Column(
-                                    //         children: [
-                                    //           Text("Not Home"),
-                                    //           SizedBox(
-                                    //             height: 10,
-                                    //           ),
-                                    //           Text(
-                                    //               "Security will look after your house for the next ${Fdays! + 1} days"),
-                                    //           SizedBox(
-                                    //             height: 20,
-                                    //           ),
-                                    //           TextFormField(
-                                    //             controller: FfromDate,
-                                    //             readOnly: true,
-                                    //             decoration:
-                                    //                 InputDecoration(
-                                    //               labelText: 'From',
-                                    //             ),
-                                    //           ),
-                                    //           SizedBox(height: 20),
-                                    //           TextFormField(
-                                    //             controller: FtoDate,
-                                    //             readOnly: true,
-                                    //             decoration:
-                                    //                 InputDecoration(
-                                    //               labelText: 'To',
-                                    //             ),
-                                    //           ),
-                                    //         ],
-                                    //       )),
-                                    //     );
-                                    //   },
-                                    // );
                                   }
                                 }),
                           ), //
@@ -3280,7 +3042,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             // color: Colors.amber,
                             height: MediaQuery.of(context).size.width / 2.5,
                             child: ListView.builder(
-                              itemCount: 4,
+                              itemCount: plotsDetails.length,
                               scrollDirection: Axis.horizontal,
                               itemBuilder: (context, index) {
                                 return Padding(
@@ -3323,8 +3085,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                             child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(15),
-                                              child: Image.asset(
-                                                "assets/Images/plot4.jpeg",
+                                              child: Image.network(
+                                                plotsDetails[index]['image'],
                                                 height: 140,
                                                 width: MediaQuery.of(context)
                                                         .size
@@ -3351,7 +3113,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         .size
                                                         .width /
                                                     3,
-                                                child: const ListTile(
+                                                child: ListTile(
                                                   title: Column(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
@@ -3360,37 +3122,39 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        ' Phase 1 house 68',
-                                                        style: TextStyle(
+                                                        plotsDetails[index]
+                                                            ['price'],
+                                                        style: const TextStyle(
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold),
                                                       ),
-                                                      SizedBox(
+                                                      const SizedBox(
                                                         height: 5,
                                                       ),
                                                       Text(
-                                                        'House no 61 street no 3',
-                                                        style: TextStyle(
+                                                        plotsDetails[index]
+                                                            ['address'],
+                                                        style: const TextStyle(
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             color:
                                                                 Colors.black45),
                                                       ),
-                                                      SizedBox(
+                                                      const SizedBox(
                                                         height: 5,
                                                       ),
                                                       Text(
-                                                        '3 bedroom 4 washroom 2 kitchens garage double story',
-                                                        style: TextStyle(
+                                                        "${plotsDetails[index]['area']},${plotsDetails[index]['room']},${plotsDetails[index]['bath']}",
+                                                        style: const TextStyle(
                                                           fontSize: 12,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                         ),
                                                       ),
-                                                      SizedBox(
+                                                      const SizedBox(
                                                         height: 5,
                                                       )
                                                     ],
@@ -3399,38 +3163,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                 ),
                                               ),
                                             ]),
-
-                                            //         Column(
-                                            // mainAxisAlignment:
-                                            //     MainAxisAlignment
-                                            //         .spaceBetween,
-                                            //  children: [
-                                            // ListTile(
-                                            //   title: Text(
-                                            //       'Phase 1 house 68'),
-                                            // )
-                                            // Text("Brookline",
-                                            //     style: TextStyle(
-                                            //         fontSize:
-                                            //             7) // Limit to one line of text
-                                            //     ),
-                                            // Text("4.5")
-                                            //    ],
-                                            //  ),
                                           ),
-                                          // Padding(
-                                          //   padding:
-                                          //       const EdgeInsets.only(),
-                                          //   //child:
-                                          //   //Align(
-                                          //   child: Text(
-                                          //       "Wiley's Cottage",
-                                          //       style: TextStyle(
-                                          //           fontSize: 6)),
-                                          //   //alignment: Alignment
-                                          //   //  .centerLeft,
-                                          //   // )
-                                          // )
                                         ],
                                       ),
                                     ),
@@ -3444,6 +3177,42 @@ class _HomeDesign1State extends State<HomeDesign1> {
                     ]),
               );
     // ));
+  }
+
+  List plotsDetails = [];
+
+  Future<void> fetchPlots() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('plots').get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+          var data = documentSnapshot.data() as Map<String, dynamic>;
+          var media = data['mediaUrls'] as List<dynamic>;
+          var image = media[0];
+          var price = data['price'];
+          var address = data['address'];
+          var area = data['area'];
+          var bath = data['bath'];
+          var room = data['room'];
+          setState(() {
+            plotsDetails.add({
+              'image': image,
+              'area': area,
+              'address': address,
+              'price': price,
+              'room': room,
+              'bath': bath,
+            });
+          });
+        }
+      } else {
+        print('No documents found in the "plots" collection.');
+      }
+    } catch (e) {
+      print('Error fetching plots: $e');
+    }
   }
 
   Future<void> fetchSubcollectionDocuments(

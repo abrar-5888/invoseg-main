@@ -278,11 +278,11 @@ class _ComplainformState extends State<Complainform> {
                                         'designation':
                                             '${userinfo["designation"]}',
                                         'age': '${userinfo["age"]}',
-                                        'time': DateTime.now(),
+                                        'pressedTime': DateTime.now(),
                                         'owner': '${userinfo["owner"]}',
                                         'complainStatus': 'pending',
                                         'FCMtoken': FCMtoken,
-                                        "isProcessed": false,
+                                        "edit": false,
                                       }).then((value) {
                                         print("Complain Added");
                                         complian.clear();
