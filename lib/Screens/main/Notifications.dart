@@ -28,6 +28,41 @@ class _NotificationsState extends State<Notifications> {
     updateAllIsReadStatus(true);
   }
 
+  String notiImage = "";
+  String notiName = "";
+  String notiPurpose = "";
+  String notiVehicle = "";
+  Future<void> fetchNotiInfo(String ids) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('entryUser')
+          .where('id', isEqualTo: ids)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Access the first document in the query result
+        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+
+        // Extract and print the data from the document
+        var data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          notiImage = data['photo'];
+          notiName = data['firstName'];
+          notiPurpose = data['purpose'];
+          notiVehicle = data['vehicleNo'];
+        });
+
+        print(notiImage);
+
+        print('Document Data: $data');
+      } else {
+        print('No documents found for the specified ID.');
+      }
+    } catch (e) {
+      print('Error fetching notification info: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final id = _auth.currentUser!.uid;
@@ -55,13 +90,15 @@ class _NotificationsState extends State<Notifications> {
           ),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
+      body: FutureBuilder<QuerySnapshot>(
+        future: _firestore
             .collection('notifications')
+            // .where('description',arrayContains: "identity")
             // .limit(30)
             // .where("uid", isEqualTo: id)
-            .orderBy('time', descending: true)
-            .snapshots(),
+            .where('uid', isEqualTo: id)
+            // .orderBy('timestamp', descending: true)
+            .get(),
         builder: (context, snapshot) {
           print(id);
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -69,7 +106,9 @@ class _NotificationsState extends State<Notifications> {
           }
 
           if (snapshot.hasError) {
-            return const Text('Error fetching data');
+            return const Center(
+              child: Text('No notifications available'),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -125,17 +164,6 @@ class _NotificationsState extends State<Notifications> {
     }).toList();
   }
 
-  // DateTime _parseTime(String timeString) {
-  //   DateFormat format = DateFormat.jm();
-  //   try {
-  //     return format.parse(timeString);
-  //   } catch (e) {
-  //     // Handle the exception, e.g., return the current time
-  //     print('Error parsing time: $e');
-  //     return DateTime.now();
-  //   }
-  // }
-
   DateTime _parseTime(String dateString, String timeString) {
     try {
       String dateTimeString = '$dateString $timeString';
@@ -176,6 +204,7 @@ class _NotificationsState extends State<Notifications> {
             var des = document['description'];
             var image = document['image'];
             var ids = document['id'];
+            var docid = document.id;
 
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
@@ -186,9 +215,263 @@ class _NotificationsState extends State<Notifications> {
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(10),
-                  onTap: () {
-                    if (des.isNotEmpty && des.toString().contains("friend")) {
-                      // Show Alert Box
+                  onTap: () async {
+                    if (des.isNotEmpty &&
+                        (des.toString().contains("Person") ||
+                            des.toString().contains('identity'))) {
+                      if (des.toString().contains("approved") ||
+                          des.toString().contains("rejected")) {
+                        await fetchNotiInfo(ids);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height / 3.1,
+                                // child: DrawerHeader(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 100,
+                                      width: 100,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 3,
+                                              color: Colors.grey,
+                                              spreadRadius: 1)
+                                        ],
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(notiImage),
+                                        radius: 52,
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 10,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Name : $notiName',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Purpose : $notiPurpose',
+                                        // ${userinfo["email"]}'
+
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Vehicle No & Type : $notiVehicle',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                  ],
+                                ),
+                                // ),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height / 3.1,
+                                // child: DrawerHeader(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 100,
+                                      width: 100,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 3,
+                                              color: Colors.grey,
+                                              spreadRadius: 1)
+                                        ],
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(notiImage),
+                                        radius: 52,
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 10,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Name : $notiName',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Purpose : $notiPurpose ',
+                                        // ${userinfo["email"]}'
+
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Vehicle No & type : $notiVehicle',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                  ],
+                                ),
+                                // ),
+                              ),
+                              content: const Text(
+                                'Please confirm identity of your visitor',
+                              ),
+                              actions: <Widget>[
+                                ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                  ),
+                                  onPressed: () async {
+                                    DateTime dateTime = DateTime.now();
+                                    String formattedDate =
+                                        DateFormat('dd/MM/yyyy')
+                                            .format(dateTime);
+                                    print(formattedDate);
+
+                                    // Format time as "h:mm:ss a"
+                                    String formattedTime =
+                                        DateFormat('h:mm:ss a')
+                                            .format(dateTime);
+                                    print(formattedTime);
+                                    String description =
+                                        "You Have approved your freinds / relative identity";
+
+                                    await FirebaseFirestore.instance
+                                        .collection('entryUser')
+                                        .doc(ids)
+                                        .update({
+                                      'status': 'Approved',
+                                      'date': formattedDate,
+                                      'time': formattedTime
+                                    });
+                                    await FirebaseFirestore.instance
+                                        .collection('notifications')
+                                        .doc(docid)
+                                        .update({'description': description});
+
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('confirm',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                                ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                  ),
+                                  onPressed: () async {
+                                    DateTime dateTime = DateTime.now();
+                                    String formattedDate =
+                                        DateFormat('dd/MM/yyyy')
+                                            .format(dateTime);
+                                    print(formattedDate);
+
+                                    // Format time as "h:mm:ss a"
+                                    String formattedTime =
+                                        DateFormat('h:mm:ss a')
+                                            .format(dateTime);
+                                    print(formattedTime);
+                                    String description =
+                                        "You Have rejected a Person";
+
+                                    await FirebaseFirestore.instance
+                                        .collection('entryUser')
+                                        .doc(ids)
+                                        .update({
+                                      'status': 'Rejected',
+                                      'date': formattedDate,
+                                      'time': formattedTime
+                                    });
+                                    await FirebaseFirestore.instance
+                                        .collection('notifications')
+                                        .doc(docid)
+                                        .update({'description': description});
+
+                                    Navigator.pop(context);
+                                    // Close the confirmation dialog
+                                  },
+                                  child: const Text('reject',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     }
                     if (des.isNotEmpty &&
                         des.toString().contains("Prescription")) {

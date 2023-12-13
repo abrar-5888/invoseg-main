@@ -208,49 +208,49 @@ class _PlotsDetailState extends State<PlotsDetail> {
                             style: const TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.w900),
                           ),
-                          Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: const Color(0xffd9d9d9),
+                          // Row(
+                          //   children: [
+                          //     Container(
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //           color: const Color(0xffd9d9d9),
 
-                                    //    color: Color.fromARGB(255, 189, 183, 183),
-                                    border: Border.all(
-                                        width: 1,
-                                        color: const Color(0xffd9d9d9))),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.favorite_outline,
-                                    size: 19,
-                                    color: Color(0xff2824e5),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: const Color(0xffd9d9d9),
+                          //           //    color: Color.fromARGB(255, 189, 183, 183),
+                          //           border: Border.all(
+                          //               width: 1,
+                          //               color: const Color(0xffd9d9d9))),
+                          //       child: const Padding(
+                          //         padding: EdgeInsets.all(8.0),
+                          //         child: Icon(
+                          //           Icons.favorite_outline,
+                          //           size: 19,
+                          //           color: Color(0xff2824e5),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     const SizedBox(
+                          //       width: 10,
+                          //     ),
+                          //     Container(
+                          //       decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //           color: const Color(0xffd9d9d9),
 
-                                    //    color: Color.fromARGB(255, 189, 183, 183),
-                                    border: Border.all(
-                                        width: 1,
-                                        color: const Color(0xffd9d9d9))),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.share,
-                                    size: 19,
-                                    color: Color(0xff2824e5),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
+                          //           //    color: Color.fromARGB(255, 189, 183, 183),
+                          //           border: Border.all(
+                          //               width: 1,
+                          //               color: const Color(0xffd9d9d9))),
+                          //       child: const Padding(
+                          //         padding: EdgeInsets.all(8.0),
+                          //         child: Icon(
+                          //           Icons.share,
+                          //           size: 19,
+                          //           color: Color(0xff2824e5),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // )
                         ],
                       ),
                     ),
