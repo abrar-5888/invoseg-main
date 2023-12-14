@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
+import 'package:testapp/global.dart';
 
 class All extends StatefulWidget {
   const All({super.key});
@@ -12,47 +13,6 @@ class All extends StatefulWidget {
 }
 
 class _AllState extends State<All> {
-  final List<String> listPics = [
-    'assets/Images/d2.jpg',
-    'assets/Images/d1.jpg',
-    'assets/Images/ripha.jpg',
-    'assets/Images/gym.jpg',
-    'assets/Images/d3.jpg',
-    'assets/Images/amessa.jpg',
-  ];
-  final List<String> listlogo = [
-    'assets/Images/l1.jpg',
-    'assets/Images/l2.jpg',
-    'assets/Images/l3.jpg',
-    'assets/Images/l1.jpg',
-    'assets/Images/l1.jpg',
-    'assets/Images/l1.jpg',
-  ];
-  final List<String> destext = [
-    'outlet open',
-    'outlet open',
-    'Thokar Campus',
-    'outlet open',
-    'outlet open',
-    'outlet open'
-  ];
-  final List<String> titletext = [
-    'Indigo Rooms',
-    'Hafsaz',
-    'Riphah International College',
-    'Indigo Gym',
-    'The Skye',
-    'La Messa',
-  ];
-  final List<String> discount = [
-    '20%',
-    '20%',
-    '50% ',
-    '20%',
-    '20%',
-    '20%',
-  ];
-
   @override
   Widget build(BuildContext context) {
     bool iconChange = false;
@@ -65,7 +25,7 @@ class _AllState extends State<All> {
                 height: MediaQuery.of(context).size.height / 1.23,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance
+                    future: FirebaseFirestore.instanceFor(app: secondApp)
                         .collection("discounts")
                         .get(),
                     builder: (context, discountSnapshot) {
@@ -95,7 +55,8 @@ class _AllState extends State<All> {
                               final mediaUrls =
                                   data['mediaUrls'] as List<dynamic>;
                               print("Media = ${mediaUrls[0]}");
-                              final logo = data['logo'];
+                              final logo = data['logo'] as Map<String, dynamic>;
+
                               print(logo);
                               print(data);
                               String id = data['id'];
@@ -187,7 +148,7 @@ class _AllState extends State<All> {
                                                                       .circular(
                                                                           10)),
                                                           child: Image.network(
-                                                            logo,
+                                                            logo['logoUrl'],
                                                             // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
                                                           ),
                                                         ),

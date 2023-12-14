@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:testapp/global.dart';
 
 class DiscountDetails extends StatefulWidget {
   String ids;
@@ -34,7 +35,7 @@ class _DiscountDetailsState extends State<DiscountDetails> {
               )),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
+            future: FirebaseFirestore.instanceFor(app: secondApp)
                 .collection("discounts")
                 .doc(widget.ids)
                 .get(),
@@ -53,7 +54,7 @@ class _DiscountDetailsState extends State<DiscountDetails> {
                 var data = discounts.data() as Map<String, dynamic>;
                 var mediaUrls = data['mediaUrls'] as List<dynamic>;
                 print("Media = ${mediaUrls[0]}");
-                var logo = data['logo'];
+                final logo = data['logo'] as Map<String, dynamic>;
                 var name = data['Name'];
                 var address = data['address'];
                 var discount = data['discount'];
@@ -114,7 +115,7 @@ class _DiscountDetailsState extends State<DiscountDetails> {
                                               borderRadius:
                                                   BorderRadius.circular(10)),
                                           child: Image.network(
-                                            logo,
+                                            logo['logoUrl'],
                                             // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
                                           ),
                                         ),

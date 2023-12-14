@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,6 +49,15 @@ class _MyAppState extends State<MyApp> {
   void initializeFlutterFire() async {
     try {
       await Firebase.initializeApp();
+      print("1");
+      await Firebase.initializeApp(
+          name: 'CMS-All',
+          options: const FirebaseOptions(
+              appId: '1:338409219512:android:5000fb6deab76f80ac9b4d',
+              apiKey: 'AIzaSyD23Kr8eJoeJIPMGGnsDNuoahHuRBNyQMs',
+              messagingSenderId: '338409219512',
+              projectId: 'cms-all'));
+      print("Success +++++++++++++2");
       await FirebaseApi().inNotify();
       setState(() {
         _initialized = true;
@@ -68,7 +76,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     //  _fc.subscribeToTopic("Events");
     getAllIsReadStatus();
-    print("====================================$notification_count");
+    getLogo();
   }
 
   @override

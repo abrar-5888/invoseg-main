@@ -106,7 +106,7 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                 PageTransition(
                   duration: const Duration(milliseconds: 700),
                   type: PageTransitionType.rightToLeftWithFade,
-                  child: Notifications(),
+                  child: const Notifications(),
                 ),
               );
               // No need to manually reset the count here
@@ -217,10 +217,6 @@ class ButtonsHistoryBody extends StatefulWidget {
 
 class _ButtonsHistoryBodyState extends State<ButtonsHistoryBody> {
   String formatDateFromTimestamp(Timestamp timestamp) {
-    if (timestamp == null) {
-      return "N/A";
-    }
-
     DateTime date = timestamp.toDate();
     String formattedDate = DateFormat('yyyy-MM-dd')
         .format(date); // You can change the format as needed
@@ -228,10 +224,6 @@ class _ButtonsHistoryBodyState extends State<ButtonsHistoryBody> {
   }
 
   String formatTimeFromTimestamp(Timestamp timestamp) {
-    if (timestamp == null) {
-      return "N/A";
-    }
-
     DateTime date = timestamp.toDate();
     String formattedTime = DateFormat('HH:mm:ss')
         .format(date); // You can change the format as needed

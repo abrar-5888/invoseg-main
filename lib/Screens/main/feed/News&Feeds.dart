@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/main/Notifications.dart';
 import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/Screens/main/feed/commentSection.dart';
 import 'package:testapp/Screens/main/feed/feedsLikes.dart';
 import 'package:testapp/global.dart';
 import 'package:video_player/video_player.dart';
@@ -123,12 +122,15 @@ class _HomeState extends State<Newsandfeeds> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Image(
-            image: AssetImage('assets/Images/rehman.png'),
-            height: 60,
-            width: 60,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Image(
+              image: NetworkImage(logo),
+              height: 40,
+              width: 40,
+            ),
           ),
         ),
         title: const Text(
@@ -206,7 +208,9 @@ class _HomeState extends State<Newsandfeeds> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('feed').snapshots(),
+          stream: FirebaseFirestore.instanceFor(app: secondApp)
+              .collection('feed')
+              .snapshots(),
           builder: (context, snapshot) {
             // EasyLoading.show();
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -277,7 +281,7 @@ class _HomeState extends State<Newsandfeeds> {
                                 ],
                               ),
                             ),
-                            const Icon(Icons.more_vert_sharp)
+                            // const Icon(Icons.more_vert_sharp)
                           ],
                         ),
                         const SizedBox(
@@ -287,7 +291,7 @@ class _HomeState extends State<Newsandfeeds> {
                           options: CarouselOptions(
                             viewportFraction: 0.8,
                             initialPage: 0,
-                            enableInfiniteScroll: false,
+                            enableInfiniteScroll: true,
                             reverse: false,
                             enlargeFactor: 0.3,
                             scrollDirection: Axis.horizontal,
@@ -325,24 +329,28 @@ class _HomeState extends State<Newsandfeeds> {
                               splashColor: Colors.transparent,
                               onPressed: () async {
                                 if (data['fav'] == true) {
-                                  await FirebaseFirestore.instance
+                                  await FirebaseFirestore.instanceFor(
+                                          app: secondApp)
                                       .collection('feed')
                                       .doc(documentId)
                                       .update(
                                           {'fav': false, 'likes': likes - 1});
                                   print("IF  $documentId");
-                                } else {
-                                  await FirebaseFirestore.instance
+                                } else if (data['fav'] == false) {
+                                  await FirebaseFirestore.instanceFor(
+                                          app: secondApp)
                                       .collection('feed')
                                       .doc(documentId)
                                       .update({'fav': true});
                                   if (likes >= 0) {
-                                    await FirebaseFirestore.instance
+                                    await FirebaseFirestore.instanceFor(
+                                            app: secondApp)
                                         .collection('feed')
                                         .doc(documentId)
                                         .update({'likes': likes + 1});
                                   } else {
-                                    await FirebaseFirestore.instance
+                                    await FirebaseFirestore.instanceFor(
+                                            app: secondApp)
                                         .collection('feed')
                                         .doc(documentId)
                                         .update({'likes': 0});
@@ -356,7 +364,7 @@ class _HomeState extends State<Newsandfeeds> {
                                 // fav[index] = !fav[index];
                                 // });
                               },
-                              icon: favor == false
+                              icon: data['fav'] == false
                                   ? const Icon(
                                       Icons.favorite_border,
                                     )
@@ -365,17 +373,17 @@ class _HomeState extends State<Newsandfeeds> {
                                       color: Colors.red,
                                     ),
                             ),
-                            IconButton(
-                              splashColor: Colors.transparent,
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  builder: (context) => const CommentSheet(),
-                                );
-                              },
-                              icon: const Icon(Icons.mode_comment_outlined),
-                            ),
+                            // IconButton(
+                            //   splashColor: Colors.transparent,
+                            //   onPressed: () {
+                            //     showModalBottomSheet(
+                            //       context: context,
+                            //       isScrollControlled: true,
+                            //       builder: (context) => const CommentSheet(),
+                            //     );
+                            //   },
+                            //   icon: const Icon(Icons.mode_comment_outlined),
+                            // ),
                           ],
                         ),
                         Align(

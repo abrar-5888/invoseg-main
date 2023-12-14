@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Rider/rider.dart';
 import 'package:testapp/Screens/main/Tab.dart';
+import 'package:testapp/global.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routename = 'login';
@@ -18,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  int btn_disabled = 0;
   var logins = {"user": "", "pass": ""};
   final GlobalKey<FormState> _formKey = GlobalKey();
 
@@ -589,6 +591,32 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  String logos = "";
+  Future<void> getLogo1() async {
+    EasyLoading.show();
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('Logo').limit(1).get();
+    DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+    final data = documentSnapshot.data() as Map<String, dynamic>;
+    print(data['logoId']);
+
+    setState(() {
+      logos = data['logoId'];
+
+      EasyLoading.dismiss();
+    });
+
+    isLoading = false;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLogo1();
+    getLogo();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -606,6 +634,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
+              // color: Colors.white,
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -613,18 +642,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        color: Colors.white,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 25.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Container(
                             width: double.infinity,
-                            decoration: const BoxDecoration(),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                            ),
                             child: Column(
                               children: <Widget>[
-                                const Image(
-                                  image: AssetImage('assets/Images/rehman.png'),
-                                  height: 150,
-                                  width: 150,
-                                ),
+                                logos.isNotEmpty
+                                    ? Image(
+                                        image: NetworkImage(logos),
+                                        height: 150,
+                                        width: 150,
+                                      )
+                                    : const SizedBox(
+                                        height: 150,
+                                        width: 150,
+                                        child: Text("Failed to Load LOGO"),
+                                      ),
                                 // FittedBox(
                                 //   fit: BoxFit.fitWidth,
                                 //   child: Container(
@@ -641,6 +682,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 //     ),
                                 //   ),
                                 // ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -767,7 +811,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     child: Container(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          login();
+                                          if (btn_disabled >= 20) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    content: Text(
+                                                        "Sorry You can not login now ! \n Please try again later")));
+                                          } else {
+                                            login();
+                                          }
                                         },
                                         style: ButtonStyle(
                                             shape: MaterialStateProperty.all<
@@ -778,7 +829,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                             )),
                                             backgroundColor:
                                                 MaterialStateProperty.all(
-                                                    Colors.black),
+                                              const Color.fromRGBO(
+                                                  15, 39, 127, 1),
+                                            ),
                                             padding: MaterialStateProperty.all(
                                                 const EdgeInsets.symmetric(
                                                     vertical: 10,

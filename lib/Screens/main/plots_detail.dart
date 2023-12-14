@@ -123,7 +123,7 @@ class _PlotsDetailState extends State<PlotsDetail> {
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
+            future: FirebaseFirestore.instanceFor(app: secondApp)
                 .collection('plots')
                 .doc(widget.ids)
                 .get(),
@@ -300,40 +300,41 @@ class _PlotsDetailState extends State<PlotsDetail> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        InkWell(
-                          onTap: () {},
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: const Color.fromRGBO(15, 39, 127, 1)),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 6.5, horizontal: 20),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.mail,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    'Email',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        // InkWell(
+                        //   onTap: () async {},
+                        //   child: Container(
+                        //     decoration: BoxDecoration(
+                        //         borderRadius: BorderRadius.circular(5),
+                        //         color: const Color.fromRGBO(15, 39, 127, 1)),
+                        //     child: const Padding(
+                        //       padding: EdgeInsets.symmetric(
+                        //           vertical: 6.5, horizontal: 20),
+                        //       child: Row(
+                        //         children: [
+                        //           Icon(
+                        //             Icons.mail,
+                        //             color: Colors.white,
+                        //           ),
+                        //           SizedBox(
+                        //             width: 5,
+                        //           ),
+                        //           Text(
+                        //             'Email',
+                        //             style: TextStyle(color: Colors.white),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         InkWell(
                           onTap: () async {
-                            final url = 'tel:$phoneNumber';
-                            if (await canLaunch(url)) {
-                              await launch(url);
-                            } else {
-                              throw 'Could not launch $url';
+                            final Uri smsUri = Uri.parse('tel:$phoneNumber');
+
+                            try {
+                              await launch(smsUri.toString());
+                            } catch (e) {
+                              print('Error launching SMS: $e');
                             }
                           },
                           child: Container(
@@ -362,7 +363,15 @@ class _PlotsDetailState extends State<PlotsDetail> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () async {
+                            final Uri smsUri = Uri.parse('smsto:$phoneNumber');
+
+                            try {
+                              await launch(smsUri.toString());
+                            } catch (e) {
+                              print('Error launching SMS: $e');
+                            }
+                          },
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),

@@ -52,12 +52,15 @@ class _PlotsState extends State<Plots> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Image(
-            image: AssetImage('assets/Images/rehman.png'),
-            height: 60,
-            width: 60,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Image(
+              image: NetworkImage(logo),
+              height: 40,
+              width: 40,
+            ),
           ),
         ),
         title: const Text(
@@ -135,7 +138,9 @@ class _PlotsState extends State<Plots> {
         ],
       ),
       body: FutureBuilder<QuerySnapshot>(
-          future: FirebaseFirestore.instance.collection("plots").get(),
+          future: FirebaseFirestore.instanceFor(app: secondApp)
+              .collection("plots")
+              .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -358,7 +363,18 @@ class _PlotsState extends State<Plots> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               InkWell(
-                                                onTap: () {},
+                                                onTap: () async {
+                                                  final Uri smsUri = Uri.parse(
+                                                      'smsto:$phoneNumber');
+
+                                                  try {
+                                                    await launch(
+                                                        smsUri.toString());
+                                                  } catch (e) {
+                                                    print(
+                                                        'Error launching SMS: $e');
+                                                  }
+                                                },
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                       borderRadius:
@@ -402,12 +418,15 @@ class _PlotsState extends State<Plots> {
                                               ),
                                               InkWell(
                                                 onTap: () async {
-                                                  final url =
-                                                      'tel:$phoneNumber';
-                                                  if (await canLaunch(url)) {
-                                                    await launch(url);
-                                                  } else {
-                                                    throw 'Could not launch $url';
+                                                  final Uri smsUri = Uri.parse(
+                                                      'tel:$phoneNumber');
+
+                                                  try {
+                                                    await launch(
+                                                        smsUri.toString());
+                                                  } catch (e) {
+                                                    print(
+                                                        'Error launching SMS: $e');
                                                   }
                                                 },
                                                 child: Container(

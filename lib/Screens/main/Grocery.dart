@@ -55,12 +55,15 @@ class _GroceryState extends State<Grocery> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Image(
-            image: AssetImage('assets/Images/rehman.png'),
-            height: 50,
-            width: 50,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Image(
+              image: NetworkImage(logo),
+              height: 40,
+              width: 40,
+            ),
           ),
         ),
         title: const Text(

@@ -49,11 +49,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
   var y_controller;
 
   Future<void> getchNH() async {
+    print(FirebaseAuth.instance.currentUser!.uid);
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('not_Home') // Replace with your collection name
-          // .where('Email' == "oka1@gmail.com")
-          .orderBy('time', descending: true)
+
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          // .orderBy('time', descending: true)
           .limit(30)
           .get();
       // Initialize the link variable
@@ -67,7 +69,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           FfromDate.text = data['from'];
           FtoDate.text = data['to'];
         });
-        print("NH =$nh");
+        print("NH =$nh+$Fdays+${FfromDate.text}+${FtoDate.text}");
 
         // print("Fetched Link: $link");
       } else {
@@ -256,7 +258,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
       final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('not_Home') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
-          .orderBy('time', descending: true)
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          // .orderBy('time', descending: true)
           .limit(1)
           .get();
 
@@ -277,7 +280,10 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
             // fbToDate =  data['to'] as String;
             // fbFromDate = data['from'] as String;
+
             status = data["Status"];
+
+            print("$status+$toField+$docid+$fbToDate+$fbFromDate");
           });
 
           print(DateFormat('yyyy-MM-dd').format(fbToDate));
@@ -1141,8 +1147,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
     // Print the result
     print("Formatted time: $formattedTime");
     super.initState();
+    // getLogo();
     getchNH();
-    fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.email);
+    fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
     fetchYoutubeLink().then((value) {
       videoId = YoutubePlayer.convertUrlToId(link!) ??
           'https://www.youtube.com/watch?v=-jMrZI4IeJw';
@@ -1168,7 +1175,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
     // fetchDataAndUseLink();
 
     _controller = VideoPlayerController.asset("assets/video-demo.mp4");
-    if (_controller == null) {}
     _controller.addListener(() {
       if (startedPlaying && !_controller.value.isPlaying) {}
     });
@@ -1227,12 +1233,15 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   centerTitle: true,
-                  leading: const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Image(
-                      image: AssetImage('assets/Images/rehman.png'),
-                      height: 60,
-                      width: 60,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: Image(
+                        image: NetworkImage(logo),
+                        height: 40,
+                        width: 40,
+                      ),
                     ),
                   ),
                   title: const Text(
@@ -2126,6 +2135,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     'time': DateTime.now(),
                                                                                     'nh': false,
                                                                                     "edit": false,
+                                                                                    'pressedTime': DateTime.now(),
                                                                                     "fmName": fmName,
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
@@ -2145,6 +2155,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     'Owner': '${userinfo["owner"]}',
                                                                                     'noti': true,
                                                                                     'Status': true,
+                                                                                    'uid': userinfo['uid'],
                                                                                     'cancelled': false,
                                                                                   }).then((DocumentReference document) async {
                                                                                     print("ID= ${document.id}");
@@ -2445,6 +2456,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "uid": userinfo['uid'],
                                                                                     "edit": false,
                                                                                     "fmName": fmName,
+                                                                                    'pressedTime': DateTime.now(),
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
                                                                                     "fmphoneNo1": fmphoneNo1,
@@ -2547,7 +2559,10 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                             ));
 
                                     // _selectDate(context);
-                                  } else {
+                                  } else if (status == true) {
+                                    print(
+                                        "$status+$toField+$docid+$fbToDate+$fbFromDate");
+
                                     showDialog(
                                         context: context,
                                         builder: (context) => Center(
@@ -2572,14 +2587,15 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         userinfo["name"],
                                                         userinfo["phoneNo"],
                                                         userinfo["address"],
-                                                        userinfo["fphoneNo"],
-                                                        userinfo["fname"],
+                                                        userinfo["FphoneNo"],
+                                                        userinfo["Fname"],
                                                         userinfo["designation"],
                                                         userinfo["age"],
                                                         userinfo["uid"],
                                                         userinfo["owner"],
                                                         userinfo["email"]
                                                       ];
+                                                      print("$fbFromDate");
                                                       return AlertDialog(
                                                         title: const Text(
                                                             'Not Home'),
@@ -2738,7 +2754,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "uid": userinfo['uid'],
                                                                                     'timestamp': DateTime.now(),
                                                                                   });
-                                                                                  await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.email);
+                                                                                  await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
 
                                                                                   print("NOT HOMEE STATUS $status");
 
@@ -3159,7 +3175,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
   Future<void> fetchPlots() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('plots').get();
+          await FirebaseFirestore.instanceFor(app: secondApp)
+              .collection('plots')
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {

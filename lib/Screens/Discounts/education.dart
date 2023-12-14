@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
+import 'package:testapp/global.dart';
 
 class Education extends StatefulWidget {
   const Education({super.key});
@@ -65,9 +66,9 @@ class _EducationState extends State<Education> {
                 height: MediaQuery.of(context).size.height / 1.23,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance
+                    future: FirebaseFirestore.instanceFor(app: secondApp)
                         .collection("discounts")
-                        // .where("category", isEqualTo: 'Education')
+                        .where("category", isEqualTo: 'Education')
                         .get(),
                     builder: (context, discountSnapshot) {
                       if (discountSnapshot.connectionState ==
@@ -96,8 +97,8 @@ class _EducationState extends State<Education> {
                               final mediaUrls =
                                   data['mediaUrls'] as List<dynamic>;
                               print("Media = ${mediaUrls[0]}");
-                              final logo = data['logo'];
-                              print(logo[0]);
+                              final logo = data['logo'] as Map<String, dynamic>;
+                              print(logo);
                               print(data);
                               String id = data['id'];
                               EasyLoading.dismiss();
@@ -188,7 +189,7 @@ class _EducationState extends State<Education> {
                                                                       .circular(
                                                                           10)),
                                                           child: Image.network(
-                                                            logo,
+                                                            logo['logoUrl'],
                                                             // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
                                                           ),
                                                         ),

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 int notification_count = 0;
 int gro_count = 0;
@@ -6,7 +7,20 @@ int med_count = 0;
 int history_count = 0;
 int plot_count = 0;
 int feed_count = 0;
-String logo="";
+String logo = "";
+bool isLoading = false;
+FirebaseApp secondApp = Firebase.app('CMS-All');
+
+Future<void> getLogo() async {
+  isLoading = true;
+  QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance.collection('Logo').limit(1).get();
+  DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+  final data = documentSnapshot.data() as Map<String, dynamic>;
+  print(data['logoId']);
+  logo = data['logoId'];
+  isLoading = false;
+}
 
 Future<List<bool>> getAllIsReadStatus() async {
   List<bool> isReadList = [];

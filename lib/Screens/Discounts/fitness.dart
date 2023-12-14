@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/Discounts/discountDetails.dart';
+import 'package:testapp/global.dart';
 
 class Fitness extends StatefulWidget {
   const Fitness({super.key});
@@ -64,9 +65,9 @@ class _FitnessState extends State<Fitness> {
                 height: MediaQuery.of(context).size.height / 1.23,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance
+                    future: FirebaseFirestore.instanceFor(app: secondApp)
                         .collection("discounts")
-                        // .where("category", isEqualTo: 'Fitness')
+                        .where("category", isEqualTo: 'Fitness')
                         .get(),
                     builder: (context, discountSnapshot) {
                       if (discountSnapshot.connectionState ==
@@ -94,7 +95,7 @@ class _FitnessState extends State<Fitness> {
                               final mediaUrls =
                                   data['mediaUrls'] as List<dynamic>;
                               print("Media = ${mediaUrls[0]}");
-                              final logo = data['logo'];
+                              final logo = data['logo'] as Map<String, dynamic>;
                               print(logo[0]);
                               print(data);
                               String id = data['id'];
@@ -185,7 +186,7 @@ class _FitnessState extends State<Fitness> {
                                                                       .circular(
                                                                           10)),
                                                           child: Image.network(
-                                                            logo,
+                                                            logo['logoUrl'],
                                                             // "blob:http://localhost:3000/7daf2f8d-50bc-48d8-973a-2f851b201501"
                                                           ),
                                                         ),
