@@ -436,6 +436,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "phoneNo": userinfo["phoneNo"],
                             "address": userinfo["address"],
                             "fmphoneNo": "",
+                            "fmName1": "",
+                            "fmphoneNo1": "",
                             "fname": userinfo['fname'],
                             "fPhoneNo": userinfo['fphoneNo'],
                             "fmName": "",
@@ -705,6 +707,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "phoneNo": userinfo["phoneNo"],
                             "address": userinfo["address"],
                             "fmphoneNo": "",
+
+                            "fmName1": "",
+                            "fmphoneNo1": "",
                             "fname": userinfo['fname'],
                             "fPhoneNo": userinfo['fphoneNo'],
                             "fmName": "",
@@ -920,6 +925,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "fPhoneNo": userinfo['fphoneNo'],
                             "fmName": fmName,
                             "fmName1": fmName1,
+
                             "designation": userinfo["designation"],
                             "age": userinfo["age"],
                             "pressedTime": FieldValue.serverTimestamp(),
@@ -970,6 +976,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             "phoneNo": userinfo["phoneNo"],
                             "address": userinfo["address"],
                             "fmphoneNo": "",
+                            "fmName1": "",
+                            "fmphoneNo1": "",
                             "fname": userinfo['fname'],
                             "fPhoneNo": userinfo['fphoneNo'],
                             "fmName": "",
@@ -3113,8 +3121,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        plotsDetails[index]
-                                                            ['price'],
+                                                        "PKR " +
+                                                            plotsDetails[index]
+                                                                ['price'],
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             fontWeight:

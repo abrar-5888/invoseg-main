@@ -289,9 +289,9 @@ class _HomeState extends State<Newsandfeeds> {
                         ),
                         CarouselSlider(
                           options: CarouselOptions(
-                            viewportFraction: 0.8,
+                            viewportFraction: 1.0, // Set to 1.0 for full width
                             initialPage: 0,
-                            enableInfiniteScroll: true,
+                            enableInfiniteScroll: mediaUrls.length > 1,
                             reverse: false,
                             enlargeFactor: 0.3,
                             scrollDirection: Axis.horizontal,
@@ -314,6 +314,7 @@ class _HomeState extends State<Newsandfeeds> {
                             );
                           }).toList(),
                         ),
+
                         const SizedBox(height: 10),
                         // Text(
                         //   '${currentIndex + 1}/${mediaUrls.length}', // Displaying 1-indexed count

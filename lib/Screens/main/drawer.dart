@@ -13,7 +13,6 @@ import 'package:testapp/Screens/main/History.dart';
 import 'package:testapp/Screens/main/LoginPage.dart';
 import 'package:testapp/Screens/main/Profile.dart';
 import 'package:testapp/Screens/main/Tab.dart';
-import 'package:testapp/global.dart';
 
 class DrawerWidg extends StatefulWidget {
   const DrawerWidg({super.key});
@@ -422,7 +421,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                 //     builder: ((context) => const MainProfile()),
                                 //   ),
                                 // );
-                                getLogo();
+                                // getLogo();
                               },
                             ),
                             const SizedBox(

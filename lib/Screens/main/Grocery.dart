@@ -157,7 +157,8 @@ class _GroceryState extends State<Grocery> {
                   child: FutureBuilder<QuerySnapshot>(
                       future: FirebaseFirestore.instance
                           .collection("grocery")
-                          .orderBy("date", descending: true)
+                          // .orderBy("date", descending: true)
+                          .where('email', isEqualTo: userinfo['email'])
                           .limit(30)
                           .get(),
                       // .where('uid',isEqualTo:uid )
@@ -172,6 +173,8 @@ class _GroceryState extends State<Grocery> {
                           );
                         } else if (grocerySnapshot.hasError) {
                           return Text("Error: ${grocerySnapshot.error}");
+                        } else if (grocerySnapshot.data!.docs.isEmpty) {
+                          return const Center(child: Text("No data available"));
                         } else {
                           final groceryDocs = grocerySnapshot.data!.docs;
                           return ListView.builder(

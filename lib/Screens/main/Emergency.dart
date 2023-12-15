@@ -38,25 +38,17 @@ class _EmergencyState extends State<Emergency> {
         var consultationData =
             consultationSnapshot.data() as Map<String, dynamic>;
 
-        if (consultationData != null) {
-          // Access the "doctor" field and its nested fields
-          var doctorData = consultationData['doctor'] as Map<String, dynamic>;
+        // Access the "doctor" field and its nested fields
+        var doctorData = consultationData['doctor'] as Map<String, dynamic>;
 
-          if (doctorData != null) {
-            setState(() {
-              meetingId = doctorData['meetingId'];
-              status = consultationData['meetingStatus'];
-            });
+        setState(() {
+          meetingId = doctorData['meetingId'];
+          status = consultationData['meetingStatus'];
+        });
 
-            // Now you have the status and meetingId within the doctor's field
-            print('Status: $status');
-            print('Meeting ID: $meetingId');
-          } else {
-            print('Doctor data is null');
-          }
-        } else {
-          print('Consultation data is null');
-        }
+        // Now you have the status and meetingId within the doctor's field
+        print('Status: $status');
+        print('Meeting ID: $meetingId');
       } else {
         print('Consultation document does not exist');
       }
@@ -77,7 +69,7 @@ class _EmergencyState extends State<Emergency> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _launchUrl(String url) async {
+    Future<void> launchUrls(String url) async {
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url));
       } else {
@@ -200,7 +192,8 @@ class _EmergencyState extends State<Emergency> {
               child: FutureBuilder<QuerySnapshot>(
                 future: FirebaseFirestore.instance
                     .collection("consultation")
-                    .orderBy('time', descending: true)
+                    // .orderBy('time', descending: true)
+                    .where('email', isEqualTo: userinfo['email'])
                     .limit(30)
                     .get(),
                 builder: (context, consultationSnapshot) {
@@ -213,6 +206,8 @@ class _EmergencyState extends State<Emergency> {
                     );
                   } else if (consultationSnapshot.hasError) {
                     return Text("Error: ${consultationSnapshot.error}");
+                  } else if (consultationSnapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text("No data available"));
                   } else {
                     final consultationDocs = consultationSnapshot.data!.docs;
                     return ListView.builder(
