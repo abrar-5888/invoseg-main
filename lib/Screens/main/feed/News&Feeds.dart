@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:testapp/Screens/main/Notifications.dart';
@@ -23,59 +26,9 @@ class Newsandfeeds extends StatefulWidget {
 }
 
 class _HomeState extends State<Newsandfeeds> {
-  // final ScrollController _scrollController = ScrollController();
-  // String? link = "ddd";
-  // String videoId = "dd";
-  // var y_controller;
+  bool isProcessing = false;
+  Timer? debounceTimer;
 
-// Fetch Youtube Link from Firebase !
-  // Future<String?> fetchYoutubeLink() async {
-  //   try {
-  //     QuerySnapshot querySnapshot =
-  //         await FirebaseFirestore.instance.collection('VideoPanel').get();
-
-  //     if (querySnapshot.docs.isNotEmpty) {
-  //       Map<String, dynamic> data =
-  //           querySnapshot.docs.first.data() as Map<String, dynamic>;
-  //       setState(() {
-  //         link = data['Url'];
-  //       });
-
-  //       print("Linkdo=$link");
-  //     } else {
-  //       print("No documents found in the 'VideoPanel' collection.");
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching data: $e");
-  //     return null;
-  //   }
-  //   return null;
-  // }
-// InitState
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getAllIsReadStatus();
-  //   fetchYoutubeLink().then((value) {
-  //     videoId = YoutubePlayer.convertUrlToId(link!) ??
-  //         'https://www.youtube.com/watch?v=-jMrZI4IeJw';
-  //     y_controller = YoutubePlayerController(
-  //       initialVideoId: videoId,
-  //       flags: const YoutubePlayerFlags(
-  //         autoPlay: false, // Set to true if you want the video to auto-play
-  //         showLiveFullscreenButton: false,
-  //       ),
-  //     );
-  //   });
-  //   Future.delayed(const Duration(seconds: 1), () {
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   });
-  // }
-
-  bool isLoading = true;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   // List<String> icon = [
   //   "assets/Images/Invoseg.jpg",
@@ -328,43 +281,65 @@ class _HomeState extends State<Newsandfeeds> {
                           children: [
                             IconButton(
                               splashColor: Colors.transparent,
+
                               onPressed: () async {
-                                if (data['fav'] == true) {
-                                  await FirebaseFirestore.instanceFor(
-                                          app: secondApp)
-                                      .collection('feed')
-                                      .doc(documentId)
-                                      .update(
-                                          {'fav': false, 'likes': likes - 1});
-                                  print("IF  $documentId");
-                                } else if (data['fav'] == false) {
-                                  await FirebaseFirestore.instanceFor(
-                                          app: secondApp)
-                                      .collection('feed')
-                                      .doc(documentId)
-                                      .update({'fav': true});
-                                  if (likes >= 0) {
-                                    await FirebaseFirestore.instanceFor(
-                                            app: secondApp)
-                                        .collection('feed')
-                                        .doc(documentId)
-                                        .update({'likes': likes + 1});
-                                  } else {
-                                    await FirebaseFirestore.instanceFor(
-                                            app: secondApp)
-                                        .collection('feed')
-                                        .doc(documentId)
-                                        .update({'likes': 0});
-                                  }
-                                  print("ELSE  $documentId");
+                                if (isProcessing) {
+                                  return; // Do nothing if the button is already processing
                                 }
 
-                                // setState(() {
-                                //   favo = !favo;
+                                // Disable the button
+                                isProcessing = true;
 
-                                // fav[index] = !fav[index];
-                                // });
+                                try {
+                                  // Your Firestore logic here
+                                  if (data['fav'] == true) {
+                                    await FirebaseFirestore.instanceFor(
+                                            app: secondApp)
+                                        .collection('feed')
+                                        .doc(documentId)
+                                        .update({
+                                      'fav': false,
+                                      'likes': likes - 1,
+                                    });
+                                    print("IF $documentId");
+                                  } else if (data['fav'] == false) {
+                                    await FirebaseFirestore.instanceFor(
+                                            app: secondApp)
+                                        .collection('feed')
+                                        .doc(documentId)
+                                        .update({'fav': true});
+                                    if (likes >= 0) {
+                                      await FirebaseFirestore.instanceFor(
+                                              app: secondApp)
+                                          .collection('feed')
+                                          .doc(documentId)
+                                          .update({
+                                        'likes': likes + 1,
+                                        'post_likes_uid': FirebaseAuth
+                                            .instance.currentUser!.uid
+                                      });
+                                    } else {
+                                      await FirebaseFirestore.instanceFor(
+                                              app: secondApp)
+                                          .collection('feed')
+                                          .doc(documentId)
+                                          .update({'likes': 0});
+                                    }
+                                    print("ELSE $documentId");
+                                  }
+                                } catch (error) {
+                                  print("Error: $error");
+                                  // Handle errors if needed
+                                } finally {
+                                  // Set a debounce timer to enable the button after a delay (e.g., 1 second)
+                                  debounceTimer = Timer(
+                                      const Duration(milliseconds: 100), () {
+                                    isProcessing = false;
+                                    debounceTimer?.cancel();
+                                  });
+                                }
                               },
+
                               icon: data['fav'] == false
                                   ? const Icon(
                                       Icons.favorite_border,
@@ -373,18 +348,19 @@ class _HomeState extends State<Newsandfeeds> {
                                       Icons.favorite,
                                       color: Colors.red,
                                     ),
-                            ),
-                            // IconButton(
-                            //   splashColor: Colors.transparent,
-                            //   onPressed: () {
-                            //     showModalBottomSheet(
-                            //       context: context,
-                            //       isScrollControlled: true,
-                            //       builder: (context) => const CommentSheet(),
-                            //     );
-                            //   },
-                            //   icon: const Icon(Icons.mode_comment_outlined),
-                            // ),
+
+                              // IconButton(
+                              //   splashColor: Colors.transparent,
+                              //   onPressed: () {
+                              //     showModalBottomSheet(
+                              //       context: context,
+                              //       isScrollControlled: true,
+                              //       builder: (context) => const CommentSheet(),
+                              //     );
+                              //   },
+                              //   icon: const Icon(Icons.mode_comment_outlined),
+                              // ),
+                            )
                           ],
                         ),
                         Align(
