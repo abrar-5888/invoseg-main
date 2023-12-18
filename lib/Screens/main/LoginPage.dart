@@ -187,6 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "owner": info["owner"],
                                 "id": id,
                                 "email": info["email"],
+                                "parentID": info['parentID']
                                 // "FM${num}": info["FM${num}"]['FamilyName']
                                 // ? "test"
                                 // : info["FM${num}"]['FamilyName']
@@ -239,6 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     "uid": e.user!.uid,
                     "owner": info["owner"],
                     "email": info["email"],
+                    "parentID": info['parentID']
                     // "FM${num}": info["FM1"][0]['FamilyName']
                   });
                   // num++;
@@ -283,6 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 "owner": info["owner"],
                 "id": id,
                 "email": info["email"],
+                "parentID": info['parentID']
                 // "FM${num}": info["FM${num}"]['FamilyName']
                 // ? "test"
                 // : info["FM${num}"]['FamilyName']
@@ -365,6 +368,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       "owner": info["owner"],
                       "id": id,
                       "email": info["email"],
+                      "parentID": info['parentID']
                       // "FM${num}": info["FM${num}"]['FamilyName']
                       // ? "test"
                       // : info["FM${num}"]['FamilyName']
@@ -519,6 +523,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "owner": info["owner"],
                               "id": id,
                               "email": info["email"],
+                              "parentID": info['parentID']
                               // "FM${num}": info["FM${num}"]['FamilyName']
                               // ? "test"
                               // : info["FM${num}"]['FamilyName']

@@ -1,6 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:testapp/global.dart';
 
-class LikesPage extends StatelessWidget {
+class LikesPage extends StatefulWidget {
+  String documentId, userId;
+  LikesPage({super.key, required this.documentId, required this.userId});
+
+  @override
+  State<LikesPage> createState() => _LikesPageState();
+}
+
+class _LikesPageState extends State<LikesPage> {
+  Future<void> getLikesUsers() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instanceFor(app: secondApp)
+              .collection('likesUser')
+              .where('postId', isEqualTo: widget.documentId)
+              .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<dynamic> likesUserIdList =
+            querySnapshot.docs.first.data()['likesUserId'];
+
+        for (var likeUser in likesUserIdList) {
+          String uid = likeUser['uid'];
+          print('User ID: $uid');
+
+          
+        }
+      } else {}
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   final List<String> likedUsers = [
     'User1',
     'User2',
@@ -16,8 +49,6 @@ class LikesPage extends StatelessWidget {
     'User12',
     'User13',
   ];
-
-  LikesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +83,6 @@ class LikesPage extends StatelessWidget {
                 ),
               ),
               title: Text(likedUsers[index]),
-              // You can customize the ListTile as needed
             ),
           );
         },

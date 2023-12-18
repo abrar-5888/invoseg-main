@@ -96,8 +96,8 @@ class _NotificationsState extends State<Notifications> {
             // .where('description',arrayContains: "identity")
             // .limit(30)
             // .where("uid", isEqualTo: id)
-            // .where('uid', isEqualTo: id)
-            .orderBy('timestamp', descending: true)
+            .where('uid', isEqualTo: id)
+            // .orderBy('timestamp', descending: true)
             .get(),
         builder: (context, snapshot) {
           print(id);

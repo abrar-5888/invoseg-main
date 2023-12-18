@@ -210,13 +210,13 @@ class _HomeState extends State<Newsandfeeds> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => LikesPage(),
-                                    ));
-                              },
+                              // onTap: () {
+                              //   Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) => LikesPage(),
+                              //       ));
+                              // },
                               child: Row(
                                 children: [
                                   Container(
@@ -300,7 +300,20 @@ class _HomeState extends State<Newsandfeeds> {
                                         .update({
                                       'fav': false,
                                       'likes': likes - 1,
-                                    });
+                                    }).then((liks) => () async {
+                                              if (likes < 0) {
+                                                await FirebaseFirestore
+                                                        .instanceFor(
+                                                            app: secondApp)
+                                                    .collection('feed')
+                                                    .doc(documentId)
+                                                    .update({
+                                                  'fav': false,
+                                                  'likes': 0,
+                                                });
+                                              }
+                                            });
+
                                     print("IF $documentId");
                                   } else if (data['fav'] == false) {
                                     await FirebaseFirestore.instanceFor(
@@ -317,7 +330,23 @@ class _HomeState extends State<Newsandfeeds> {
                                         'likes': likes + 1,
                                         'post_likes_uid': FirebaseAuth
                                             .instance.currentUser!.uid
-                                      });
+                                      }).then((value) => () async {
+                                                await FirebaseFirestore
+                                                        .instanceFor(
+                                                            app: secondApp)
+                                                    .collection('likesUsers')
+                                                    .add({
+                                                  'postId': documentId,
+                                                  'likesUserId': [
+                                                    {
+                                                      'uid': FirebaseAuth
+                                                          .instance
+                                                          .currentUser!
+                                                          .uid
+                                                    }
+                                                  ]
+                                                });
+                                              });
                                     } else {
                                       await FirebaseFirestore.instanceFor(
                                               app: secondApp)
@@ -377,7 +406,10 @@ class _HomeState extends State<Newsandfeeds> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => LikesPage(),
+                                    builder: (context) => LikesPage(
+                                        documentId: documentId,
+                                        userId: FirebaseAuth
+                                            .instance.currentUser!.uid),
                                   ),
                                 );
                               },

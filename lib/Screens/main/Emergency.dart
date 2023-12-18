@@ -193,7 +193,7 @@ class _EmergencyState extends State<Emergency> {
                 future: FirebaseFirestore.instance
                     .collection("consultation")
                     // .orderBy('time', descending: true)
-                    .where('email', isEqualTo: userinfo['email'])
+                    .where('uid', isEqualTo: userinfo['uid'])
                     .limit(30)
                     .get(),
                 builder: (context, consultationSnapshot) {

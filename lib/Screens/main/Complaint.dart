@@ -28,10 +28,8 @@ class _ComplainformState extends State<Complainform> {
   void initState() {
     super.initState();
 
-    // Initialize and set up the timer in the initState method
     timer = Timer.periodic(const Duration(hours: 24), (timer) {
       if (DateTime.now().difference(lastUpdateTime).inHours >= 24) {
-        // Reset the variable to 0
         setState(() {
           myVariable = 0;
           lastUpdateTime = DateTime.now();
@@ -40,18 +38,13 @@ class _ComplainformState extends State<Complainform> {
       }
     });
 
-    // Simulate the passage of time (for testing purposes)
     simulatePassageOfTime(myVariable, lastUpdateTime);
   }
 
-  // Simulate the passage of time for testing purposes
   void simulatePassageOfTime(int myVariable, DateTime lastUpdateTime) {
-    // For testing, you can call this function and pass some time
-    // For example, simulate 23 hours and 30 minutes passing
     DateTime simulatedNow =
         lastUpdateTime.add(const Duration(hours: 23, minutes: 30));
 
-    // Update the variable and timestamp accordingly
     if (simulatedNow.difference(lastUpdateTime).inHours >= 24) {
       setState(() {
         myVariable = 0;
@@ -60,14 +53,12 @@ class _ComplainformState extends State<Complainform> {
       });
     }
 
-    // Print the current state
     print(
         "Current state: Variable=$myVariable, Last Update Time=$lastUpdateTime");
   }
 
   @override
   void dispose() {
-    // Cancel the timer when the widget is disposed
     timer.cancel();
     super.dispose();
   }
@@ -78,10 +69,11 @@ class _ComplainformState extends State<Complainform> {
         appBar: AppBar(
           centerTitle: true,
           leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back_ios_new)),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back_ios_new),
+          ),
           backgroundColor: Colors.white,
           elevation: 0,
           toolbarHeight: 70,
@@ -89,9 +81,10 @@ class _ComplainformState extends State<Complainform> {
           title: const Text(
             'Submit Complaints',
             style: TextStyle(
-                color: Color(0xff212121),
-                fontWeight: FontWeight.w700,
-                fontSize: 20),
+              color: Color(0xff212121),
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
           ),
         ),
         body: FutureBuilder(
@@ -124,16 +117,19 @@ class _ComplainformState extends State<Complainform> {
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       margin: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 20.0),
+                        vertical: 20.0,
+                        horizontal: 20.0,
+                      ),
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start, // Set it to start (top)
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Row(
                             children: <Widget>[
                               const Padding(
                                 padding: EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 15.0),
+                                  vertical: 10.0,
+                                  horizontal: 15.0,
+                                ),
                                 child: Icon(
                                   Icons.feedback_outlined,
                                   color: Colors.black,
@@ -144,7 +140,9 @@ class _ComplainformState extends State<Complainform> {
                                 width: 1.0,
                                 color: Colors.grey.withOpacity(0.5),
                                 margin: const EdgeInsets.only(
-                                    left: 00.0, right: 10.0),
+                                  left: 00.0,
+                                  right: 10.0,
+                                ),
                               ),
                               Expanded(
                                 child: TextFormField(
@@ -156,16 +154,18 @@ class _ComplainformState extends State<Complainform> {
                                   },
                                   keyboardType: TextInputType.name,
                                   maxLines: 5,
-                                  // textAlign: TextAlign.center,
                                   decoration: const InputDecoration(
                                     isDense: true,
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 20.0),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 20.0,
+                                    ),
                                     labelText: 'Enter Complaint',
                                     border: InputBorder.none,
                                     hintText: 'Enter your Complaint',
                                     hintStyle: TextStyle(
-                                        color: Colors.grey, fontSize: 10),
+                                      color: Colors.grey,
+                                      fontSize: 10,
+                                    ),
                                   ),
                                   validator: (value) {
                                     if (value!.isEmpty) {
@@ -197,8 +197,7 @@ class _ComplainformState extends State<Complainform> {
                                       "Please try again later or contact our support team for assistance.",
                                       style: TextStyle(fontSize: 16),
                                     ),
-                                    backgroundColor: Colors
-                                        .red, // Customize the background color if needed
+                                    backgroundColor: Colors.red,
                                   ),
                                 );
                               } else {
@@ -218,13 +217,12 @@ class _ComplainformState extends State<Complainform> {
                                     print("Unable to get FCM token");
                                   }
                                 });
-                                final mainCollectionQuery = await FirebaseFirestore
-                                    .instance
-                                    .collection(
-                                        "UserRequest") // Replace with your main collection
-                                    .where("email",
-                                        isEqualTo: userinfo['email'])
-                                    .get();
+                                final mainCollectionQuery =
+                                    await FirebaseFirestore.instance
+                                        .collection("UserRequest")
+                                        .where("parentID",
+                                            isEqualTo: userinfo['parentID'])
+                                        .get();
                                 if (mainCollectionQuery.docs.isNotEmpty) {
                                   mainCollectionQuery.docs
                                       .forEach((mainDoc) async {
@@ -238,26 +236,66 @@ class _ComplainformState extends State<Complainform> {
                                             .get();
 
                                     if (subcollectionQuery.docs.isNotEmpty) {
-                                      // Process the first document
                                       var data =
                                           subcollectionQuery.docs[0].data();
-                                      setState(() {
-                                        fmName = data['Name'];
-                                        fmphoneNo = data['Phoneno'];
-                                        print(
-                                            "Document 1 - Name: $fmName, Phone No: $fmphoneNo");
-                                      });
+                                      String parentId = data['parentID'];
+                                      DocumentSnapshot parentDoc =
+                                          await FirebaseFirestore.instance
+                                              .collection('UserRequest')
+                                              .doc(parentId)
+                                              .get();
+                                      if (parentDoc.exists) {
+                                        // Step 2: Access the subcollection
+                                        QuerySnapshot subcollectionSnapshot =
+                                            await parentDoc.reference
+                                                .collection('FMData')
+                                                .limit(2)
+                                                .get();
+                                        if (subcollectionSnapshot
+                                            .docs.isNotEmpty) {
+                                          // Access subcollection document data for the first document
+                                          Map<String, dynamic> firstDocData =
+                                              subcollectionSnapshot.docs[0]
+                                                      .data()
+                                                  as Map<String, dynamic>;
 
-                                      // Process the second document if it exists
-                                      if (subcollectionQuery.docs.length > 1) {
-                                        var data1 =
-                                            subcollectionQuery.docs[1].data();
-                                        setState(() {
-                                          fmName1 = data1['Name'];
-                                          fmphoneNo1 = data1['Phoneno'];
+                                          setState(() {
+                                            fmName = firstDocData['Name'];
+                                            fmphoneNo =
+                                                firstDocData['phonenumber'];
+                                          });
                                           print(
-                                              "Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
-                                        });
+                                              'First Subcollection Document Data: $firstDocData');
+
+                                          // Check if there is a second document before accessing
+                                          if (subcollectionSnapshot
+                                                  .docs.length >
+                                              1) {
+                                            // Access subcollection document data for the second document
+                                            Map<String, dynamic> secondDocData =
+                                                subcollectionSnapshot.docs[1]
+                                                        .data()
+                                                    as Map<String, dynamic>;
+                                            print(
+                                                'Second Subcollection Document Data: $secondDocData');
+                                            setState(() {
+                                              fmName1 = secondDocData['Name'];
+                                              fmphoneNo1 =
+                                                  secondDocData['phonenumber'];
+                                            });
+
+                                            print(
+                                                "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                          } else {
+                                            print(
+                                                'Subcollection has only one document.');
+                                          }
+                                        } else {
+                                          print('Subcollection is empty.');
+                                        }
+                                      } else {
+                                        print(
+                                            'Document with ID $parentId does not exist.');
                                       }
 
                                       String compla = complian.text.trim();
@@ -288,32 +326,81 @@ class _ComplainformState extends State<Complainform> {
                                         complian.clear();
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    "Your complain has been generated")));
-                                      }).catchError((error) => print(
-                                          "Failed to add Complaint : $error"));
+                                          content: Text(
+                                            "Your complain has been generated",
+                                          ),
+                                        ));
+                                      }).catchError(
+                                        (error) => print(
+                                            "Failed to add Complaint : $error"),
+                                      );
+                                    } else {
+                                      String compla = complian.text.trim();
+                                      complain.add({
+                                        'complain': compla,
+                                        'noti': true,
+                                        'fmName': fmName,
+                                        'fmphoneNo': fmphoneNo,
+                                        'fmName1': fmName1,
+                                        'fmphoneNo1': fmphoneNo1,
+                                        'name': '${userinfo['name']}',
+                                        'email': '${userinfo['email']}',
+                                        'uid': '${userinfo["uid"]}',
+                                        'phoneNo': '${userinfo["phoneNo"]}',
+                                        'address': '${userinfo["address"]}',
+                                        'fphoneNo': '${userinfo["fphoneNo"]}',
+                                        'fname': '${userinfo["fname"]}',
+                                        'designation':
+                                            '${userinfo["designation"]}',
+                                        'age': '${userinfo["age"]}',
+                                        'pressedTime': DateTime.now(),
+                                        'owner': '${userinfo["owner"]}',
+                                        'complainStatus': 'pending',
+                                        'FCMtoken': FCMtoken,
+                                        "edit": false,
+                                      }).then((value) {
+                                        print("Complain Added");
+                                        complian.clear();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text(
+                                            "Your complain has been generated",
+                                          ),
+                                        ));
+                                      }).catchError(
+                                        (error) => print(
+                                            "Failed to add Complaint : $error"),
+                                      );
                                     }
                                   });
                                 }
                               }
                             },
                             style: ButtonStyle(
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
-                                )),
-                                backgroundColor: MaterialStateProperty.all(
-                                  const Color.fromRGBO(15, 39, 127, 1),
                                 ),
-                                padding: MaterialStateProperty.all(
-                                    const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 20))),
-                            child: const Text('Submit',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white)),
+                              ),
+                              backgroundColor: MaterialStateProperty.all(
+                                const Color.fromRGBO(15, 39, 127, 1),
+                              ),
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 20,
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -332,11 +419,12 @@ class _ComplainformState extends State<Complainform> {
                                 const Padding(
                                   padding: EdgeInsets.all(15.0),
                                   child:
-                                      Text("Response to Previous Complians "),
+                                      Text("Response to Previous Complains "),
                                 ),
                                 Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 15.0),
+                                      vertical: 15.0,
+                                    ),
                                     child: Card(
                                         color: const Color.fromARGB(
                                             255, 245, 245, 245),
@@ -348,86 +436,109 @@ class _ComplainformState extends State<Complainform> {
                                         child: FutureBuilder(
                                           future: FirebaseFirestore.instance
                                               .collection('complian')
-                                              .limit(30)
-                                              .where('uid',
-                                                  isEqualTo: userinfo['uid'])
+                                              .limit(2)
+                                              .orderBy('pressedTime',
+                                                  descending: true)
                                               .get(),
                                           builder: (context,
                                               AsyncSnapshot<QuerySnapshot>
                                                   snapshot) {
                                             if (snapshot.connectionState ==
                                                 ConnectionState.waiting) {
-                                              return const CircularProgressIndicator(); // Display a loading indicator while fetching data
+                                              return const CircularProgressIndicator();
                                             }
+
                                             if (snapshot.hasError) {
                                               return Text(
                                                   'Error: ${snapshot.error}');
                                             }
+
                                             if (!snapshot.hasData ||
                                                 snapshot.data!.docs.isEmpty) {
                                               return const Text(
-                                                  'No data available'); // Display a message if there is no data
-                                            }
+                                                  'No complaints available');
+                                            } else {
+                                              List<DocumentSnapshot> documents =
+                                                  snapshot.data!.docs;
+                                              print(
+                                                  "documents: ${documents.length}");
 
-                                            // Create a list of documents
-                                            List<DocumentSnapshot> documents =
-                                                snapshot.data!.docs;
+                                              List<Widget> complaintWidgets =
+                                                  [];
 
-                                            // Create a list to store the "response" and "complainStatus" data
-                                            List<String> responses = [];
-                                            List<String> complainStatuses = [];
+                                              for (var document in documents) {
+                                                Map<String, dynamic>?
+                                                    documentData =
+                                                    document.data() as Map<
+                                                        String, dynamic>?;
 
-                                            for (var document in documents) {
-                                              Map<String, dynamic>?
-                                                  documentData = document.data()
-                                                      as Map<String, dynamic>?;
+                                                print(
+                                                    "Document data: $documentData");
 
-                                              // Check if the document has "response" and "complainStatus" fields
-                                              if (documentData == null) {
-                                                print("Documents data is null");
-                                              } else {
-                                                complainStatuses.add(
-                                                    documentData[
-                                                        "complainStatus"]);
-                                                if (documentData['response'] ==
-                                                    null) {
-                                                  responses.add(
-                                                      "Regretfully unable");
-                                                } else {
-                                                  responses.add(
-                                                      documentData["response"]);
+                                                if (documentData == null) {
+                                                  print(
+                                                      "Document data is null");
+                                                  continue; // Skip to the next iteration
                                                 }
 
-                                                return ListTile(
-                                                  title: const Padding(
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        Text("Response"),
-                                                        Text("Complain Status"),
-                                                      ],
+                                                complaintWidgets.add(
+                                                  Card(
+                                                    margin:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: ListTile(
+                                                      title: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Row(
+                                                          children: [
+                                                            const Text(
+                                                              "Response : ",
+                                                              style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              child: Text(
+                                                                documentData[
+                                                                        'response'] ??
+                                                                    'No response',
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                maxLines: 3,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      subtitle: Row(
+                                                        children: [
+                                                          const Text(
+                                                            "Complaint Status : ",
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          Text(documentData[
+                                                                  'complainStatus'] ??
+                                                              'No status'),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                  subtitle: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      Text(
-                                                          "${documentData['response']}"),
-                                                      Text(
-                                                          "${documentData['complainStatus']}")
-                                                    ],
                                                   ),
                                                 );
                                               }
-                                            }
 
-                                            return const ListTile();
+                                              return Column(
+                                                children: complaintWidgets,
+                                              );
+                                            }
                                           },
                                         )))
                               ],

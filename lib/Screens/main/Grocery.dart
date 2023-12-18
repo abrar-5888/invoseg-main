@@ -158,7 +158,7 @@ class _GroceryState extends State<Grocery> {
                       future: FirebaseFirestore.instance
                           .collection("grocery")
                           // .orderBy("date", descending: true)
-                          .where('email', isEqualTo: userinfo['email'])
+                          .where('uid', isEqualTo: userinfo['uid'])
                           .limit(30)
                           .get(),
                       // .where('uid',isEqualTo:uid )
