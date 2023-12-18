@@ -7,8 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/Screens/main/AddFamilyMembers.dart';
-import 'package:testapp/Screens/main/Bill.dart';
-import 'package:testapp/Screens/main/Complaint.dart';
 import 'package:testapp/Screens/main/LoginPage.dart';
 
 class UserProfile extends StatefulWidget {
@@ -403,84 +401,10 @@ class _UserProfileState extends State<UserProfile> {
                                                 )
                                               ],
                                             ),
-                                            const SizedBox(
-                                              height: 20.0,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Icon(
-                                                  Icons.currency_exchange,
-                                                  color: Colors.green[800],
-                                                  size: 35,
-                                                ),
-                                                // SizedBox(
-                                                //   width: 10.0,
-                                                // ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    TextButton(
-                                                      child: const Text(
-                                                        "Bills",
-                                                        style: TextStyle(
-                                                          fontSize: 15.0,
-                                                        ),
-                                                      ),
-                                                      onPressed: () async {
-                                                        await generatePDF();
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    PDFViewerPage(
-                                                                        pdfPath:
-                                                                            filePath)));
-                                                      },
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height: 20.0,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Icon(
-                                                  Icons.list_alt_sharp,
-                                                  color: Colors.yellow[800],
-                                                  size: 35,
-                                                ),
-                                                const SizedBox(
-                                                  width: 10.0,
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    TextButton(
-                                                      child: const Text(
-                                                        "Complaints",
-                                                        style: TextStyle(
-                                                          fontSize: 15.0,
-                                                        ),
-                                                      ),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pushNamed(
-                                                                Complainform
-                                                                    .routename);
-                                                      },
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
+
+                                            // SizedBox(
+                                            //   width: 10.0,
+                                            // ),
                                           ],
                                         ),
                                       ),

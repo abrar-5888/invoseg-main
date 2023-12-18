@@ -355,36 +355,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                             const SizedBox(
                               height: 7,
                             ),
-                            ListTile(
-                              dense: true,
-                              visualDensity: const VisualDensity(vertical: -3),
-                              leading: Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                    color:
-                                        const Color.fromRGBO(236, 238, 240, 1),
-                                    borderRadius: BorderRadius.circular(30)),
-                                child: const Icon(Icons.request_page,
-                                    color: Color(0xff3A1D8C)),
-                              ),
-                              title: const Text(
-                                ' Bills',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              onTap: () async {
-                                await generatePDF();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            PDFViewerPage(pdfPath: filePath)));
-                              },
-                            ),
+                            
                             const SizedBox(
                               height: 7,
                             ),

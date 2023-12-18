@@ -3259,7 +3259,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    6,
+                                                    7,
                                                 width: MediaQuery.of(context)
                                                         .size
                                                         .width /
@@ -3314,7 +3314,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         height: 5,
                                                       ),
                                                       Text(
-                                                        "${plotsDetails[index]['area']},${plotsDetails[index]['room']},${plotsDetails[index]['bath']}",
+                                                        "${plotsDetails[index]['area']} , ${plotsDetails[index]['room']} , ${plotsDetails[index]['bath']}",
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           fontWeight:
