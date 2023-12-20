@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:testapp/Screens/Discounts/discountDetails.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class All extends StatefulWidget {
   const All({super.key});

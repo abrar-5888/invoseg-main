@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class DiscountDetails extends StatefulWidget {
   String ids;

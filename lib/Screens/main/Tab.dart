@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:testapp/Screens/main/Design.dart';
-import 'package:testapp/Screens/main/Emergency.dart';
-import 'package:testapp/Screens/main/Grocery.dart';
-import 'package:testapp/Screens/main/feed/News&Feeds.dart';
-import 'package:testapp/Screens/main/plots.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/main/Design.dart';
+import 'package:com.invoseg.innovation/Screens/main/Emergency.dart';
+import 'package:com.invoseg.innovation/Screens/main/Grocery.dart';
+import 'package:com.invoseg.innovation/Screens/main/feed/News&Feeds.dart';
+import 'package:com.invoseg.innovation/Screens/main/plots.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class TabsScreen extends StatefulWidget {
   static const route = 'tabsScreen';
@@ -16,6 +19,77 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  String FCMtoken = "";
+  Future<void> addFcmToken() async {
+    await _firebaseMessaging.getToken().then((String? token) async {
+      if (token != null) {
+        setState(() {
+          FCMtoken = token;
+        });
+
+        QuerySnapshot querySnapshots = await FirebaseFirestore.instance
+            .collection('UserRequest')
+            .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .get();
+        if (querySnapshots.docs.isNotEmpty) {
+          String id = querySnapshots.docs.first.id;
+          await FirebaseFirestore.instance
+              .collection('UserRequest')
+              .doc(id)
+              .update({'FCMtoken': FCMtoken});
+          print("MainDoc++OKA");
+        } else {
+          print("elseWork");
+          QuerySnapshot querySnapshot =
+              await FirebaseFirestore.instance.collection('UserRequest').get();
+
+          if (querySnapshot.docs.isNotEmpty) {
+            // Iterate through each document in the main collection
+            for (var mainDocument in querySnapshot.docs) {
+              String mainDocumentId = mainDocument.id; // Main document ID
+
+              // Access the subcollection of each main document
+              QuerySnapshot subCollectionSnapshot = await FirebaseFirestore
+                  .instance
+                  .collection('UserRequest')
+                  .doc(mainDocumentId)
+                  .collection('FMData')
+                  .where('uid',
+                      isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                  .get();
+
+              // Check if the subcollection is not empty
+              if (subCollectionSnapshot.docs.isNotEmpty) {
+                // Process documents in the subcollection
+                for (var subDocument in subCollectionSnapshot.docs) {
+                  String subDocumentId = subDocument.id; // Subdocument ID
+
+                  // Do something with the subdocument data
+                  var subDocumentData = subDocument.data();
+                  await FirebaseFirestore.instance
+                      .collection('UserRequest')
+                      .doc(mainDocumentId)
+                      .collection('FMData')
+                      .doc(subDocumentId)
+                      .update({'FCMtoken': FCMtoken});
+                  print("SubDoc++OKA");
+                }
+              } else {
+                // Handle the case where the subcollection is empty for a specific main document
+                print(
+                    'Subcollection is empty for main document $mainDocumentId');
+              }
+            }
+          } else {
+            // Handle the case where the main collection is empty
+            print('Main collection is empty.');
+          }
+        }
+      }
+    });
+  }
+
   late List<Map<String, Object>> _pages;
   @override
   int _selectedPageIndex = 0;
@@ -53,6 +127,7 @@ class _TabsScreenState extends State<TabsScreen> {
     ];
     super.initState();
     // getAllIsReadStatus();
+    addFcmToken();
     getAllIsReadStatus();
     print("++++++++++++++++++++++++++++++++++++++$med_count");
     setState(() {

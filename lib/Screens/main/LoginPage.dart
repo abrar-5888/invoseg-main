@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Rider/rider.dart';
-import 'package:testapp/Screens/main/Tab.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Rider/rider.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routename = 'login';

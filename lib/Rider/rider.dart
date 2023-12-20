@@ -1,7 +1,7 @@
 import 'package:badges/badges.dart' as badge;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:testapp/Screens/main/E-Reciept.dart';
+import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 
 class Rider extends StatefulWidget {
   const Rider({super.key});

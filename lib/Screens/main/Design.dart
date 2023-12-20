@@ -13,14 +13,14 @@ import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Screens/Discounts/discounts.dart';
-import 'package:testapp/Screens/main/Complaint.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/Tab.dart';
-import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/Screens/main/plots_detail.dart';
-import 'package:testapp/Screens/main/visitors.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
+import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
+import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -164,7 +164,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
   }) async {
     // String name, email, subject, message;
     final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
-    var serviceId = 'service_wg70055';
+    var serviceId = 'service_s7hyzpr';
     var templateId = 'template_0yvlqvj';
     var userId = 'Jg-9ZFPX61IpyTv1w';
     final response = await http.post(url,
@@ -1327,12 +1327,12 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   centerTitle: true,
-                  leading: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                  leading: const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
                     child: Padding(
-                      padding: const EdgeInsets.all(3.0),
+                      padding: EdgeInsets.all(3.0),
                       child: Image(
-                        image: NetworkImage(logo),
+                        image: AssetImage("assets/Images/izmir.jpg"),
                         height: 40,
                         width: 40,
                       ),
@@ -2284,7 +2284,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                       'time': formattedTime,
                                                                                       'title': 'Not at Home',
                                                                                       'uid': userinfo['uid'],
-                                                                                      'timestamp': DateTime.now(),
+                                                                                      'pressedTime': DateTime.now(),
                                                                                     });
                                                                                   });
 
@@ -2343,7 +2343,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                       'time': formattedTime,
                                                                                       'title': 'Not at Home',
                                                                                       'uid': userinfo['uid'],
-                                                                                      'timestamp': DateTime.now(),
+                                                                                      'pressedTime': DateTime.now(),
                                                                                     });
                                                                                   });
 
@@ -2664,7 +2664,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                       'time': formattedTime,
                                                                                       'title': 'Not at Home',
                                                                                       "uid": userinfo['uid'],
-                                                                                      'timestamp': DateTime.now(),
+                                                                                      'pressedTime': DateTime.now(),
                                                                                     });
                                                                                   });
 
@@ -2917,6 +2917,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                   await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
                                                                                     'Status': false,
                                                                                     'cancelled': true,
+                                                                                    'pressedTime1': DateTime.now()
                                                                                   });
                                                                                   await FirebaseFirestore.instance.collection("notifications").add({
                                                                                     'isRead': false,
@@ -2927,7 +2928,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     'time': formattedTime,
                                                                                     'title': 'Not at Home',
                                                                                     "uid": userinfo['uid'],
-                                                                                    'timestamp': DateTime.now(),
+                                                                                    'pressedTime': DateTime.now(),
                                                                                   });
                                                                                   await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
 
@@ -3314,7 +3315,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         height: 5,
                                                       ),
                                                       Text(
-                                                        "${plotsDetails[index]['area']} , ${plotsDetails[index]['room']} , ${plotsDetails[index]['bath']}",
+                                                        "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']}, ${plotsDetails[index]['bath']}",
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           fontWeight:

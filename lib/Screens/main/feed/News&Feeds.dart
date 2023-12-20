@@ -6,11 +6,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/Screens/main/feed/feedsLikes.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/main/feed/feedsLikes.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class Newsandfeeds extends StatefulWidget {
   static const routeName = "Menu2";
@@ -28,59 +29,81 @@ class Newsandfeeds extends StatefulWidget {
 class _HomeState extends State<Newsandfeeds> {
   bool isProcessing = false;
   Timer? debounceTimer;
+  late String userUid; // Add this variable to store the current user UID
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  // List<String> icon = [
-  //   "assets/Images/Invoseg.jpg",
-  //   "assets/Images/Invoseg.jpg",
-  //   "assets/Images/Invoseg.jpg",
-  //   "assets/Images/Invoseg.jpg",
-  //   "assets/Images/Invoseg.jpg",
-  //   "assets/Images/Invoseg.jpg",
-  // ];
+  List<FeedData> feedDataList = [];
 
-  // List<String> title = [
-  //   "Indigo",
-  //   "Hafsaz",
-  //   "RIC",
-  //   "Indigo",
-  //   "Hafsaz",
-  //   "RIC",
-  // ];
-  // List<String> description = [
-  //   "IndiGoReach partnered with renowned eye care centers such as the Centre for Sight, Dr. Agarwals Eye Hospital, The Eye Foundation, ASG Eye Hospital, Vasan Eye Care, and others.",
-  //   "Hafsaz is a clothing brand defined by allure and grace.It is led by creative director, Beenish Azhar, a housewife who has finest sense of style and a passion for creating breathtaking designs.Every outfit is made with great attention to detail, exactness and delicateness.",
-  //   "Riphah International University, Lahore Thokar is a private University, chartered by the Federal Government of Pakistan.The University was established with a view to producing professionals with Islamic moral and ethical values. It is sponsored by a not-for-profit trust; namely Islamic International Medical College Trust (IIMCT)",
-  //   "IndiGoReach partnered with renowned eye care centers such as the Centre for Sight, Dr. Agarwals Eye Hospital, The Eye Foundation, ASG Eye Hospital, Vasan Eye Care, and others.",
-  //   "Hafsaz is a clothing brand defined by allure and grace.It is led by creative director, Beenish Azhar, a housewife who has finest sense of style and a passion for creating breathtaking designs.Every outfit is made with great attention to detail, exactness and delicateness.",
-  //   "Riphah International University, Lahore Thokar is a private University, chartered by the Federal Government of Pakistan.The University was established with a view to producing professionals with Islamic moral and ethical values. It is sponsored by a not-for-profit trust; namely Islamic International Medical College Trust (IIMCT)",
-  // ];
-  List<bool> fav = [false, false, false, false, false, false];
-  bool favo = false;
-  List<String> image = [
-    "assets/Images/d2.jpg",
-    "assets/Images/d1.jpg",
-    "assets/Images/ripha.jpg",
-    "assets/Images/d2.jpg",
-    "assets/Images/d1.jpg",
-    "assets/Images/ripha.jpg",
-  ];
+  int _currentIndex = 0;
+  int _currentIndexs = 0;
+  final CarouselController _carouselController = CarouselController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+    userUid = FirebaseAuth.instance.currentUser!.uid; // Initialize userUid
+  }
+
+  Future<void> fetchLikesAndUpdateList(
+      String documentId, FeedData feedData) async {
+    try {
+      final DocumentSnapshot docSnapshot =
+          await FirebaseFirestore.instanceFor(app: secondApp)
+              .collection('feed')
+              .doc(documentId)
+              .get();
+
+      int updatedLikes = docSnapshot['likes'];
+
+      // Update local state with the latest data
+      setState(() {
+        feedData.likes = updatedLikes;
+      });
+
+      print("Likes updated for documentId $documentId: $updatedLikes");
+    } catch (error) {
+      print("Error fetching likes: $error");
+    }
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final snapshot = await FirebaseFirestore.instanceFor(app: secondApp)
+          .collection('feed')
+          .orderBy('timestamp', descending: true)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          feedDataList.clear();
+          feedDataList = snapshot.docs.map((doc) {
+            final data = doc.data();
+            return FeedData.fromMap(doc.id, data);
+          }).toList();
+        });
+        print(feedDataList);
+      }
+    } catch (error) {
+      print("Error: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _key,
       drawer: const DrawerWidg(),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage("assets/Images/izmir.jpg"),
               height: 40,
               width: 40,
             ),
@@ -128,13 +151,9 @@ class _HomeState extends State<Newsandfeeds> {
               ],
             ),
             onPressed: () async {
-              // resetNotificationCount();
-
               setState(() {
                 notification_count = 0;
               });
-              updateAllIsReadStatus(true);
-              // Handle tapping on the notifications icon
               await Navigator.push(
                 context,
                 PageTransition(
@@ -143,7 +162,10 @@ class _HomeState extends State<Newsandfeeds> {
                   child: const Notifications(),
                 ),
               );
-              // No need to manually reset the count here
+              setState(() {
+                updateAllIsReadStatus(true);
+                notification_count = 0;
+              });
             },
           ),
           Padding(
@@ -160,326 +182,264 @@ class _HomeState extends State<Newsandfeeds> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instanceFor(app: secondApp)
-              .collection('feed')
-              .snapshots(),
-          builder: (context, snapshot) {
-            // EasyLoading.show();
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // EasyLoading.dismiss();
-              return const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                ),
-              );
-            } else if (snapshot.hasError) {
-              // EasyLoading.dismiss();
-              return Text("Error: ${snapshot.error}");
-            } else {
-              // EasyLoading.dismiss();
-              final feeds = snapshot.data!.docs;
-              print("Data=$feeds");
-              return ListView.builder(
-                itemCount: feeds.length, // Number of posts
-                itemBuilder: (context, index) {
-                  // EasyLoading.show();
-                  final documentId = feeds[index].id;
-                  final data = feeds[index].data() as Map<String, dynamic>;
-
-                  final mediaUrls = data['mediaUrls'] as List<dynamic>;
-                  for (int i = 0; i < mediaUrls.length; i++) {
-                    if (mediaUrls[i].toString().contains('mp4')) {
-                      print("Video Url at document $index at Media Urls $i");
-                    } else {
-                      print("Image Url at document $index at Media Urls $i");
-                    }
-                  }
-                  // int currentIndex=0;
-                  String logo = data['logo'];
-                  String titles = data['title'];
-                  int likes = data['likes'];
-                  String des = data['description'];
-                  bool favor = data['fav'];
-                  // EasyLoading.dismiss();
-                  return Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Container(
-                      child: Column(children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              // onTap: () {
-                              //   Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) => LikesPage(),
-                              //       ));
-                              // },
-                              child: Row(
-                                children: [
-                                  Container(
-                                      decoration: BoxDecoration(
-                                          // color: Colors.red,
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      height: 40,
-                                      width: 40,
-                                      child: Image.network(logo)),
-                                  Text(
-                                    titles,
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // const Icon(Icons.more_vert_sharp)
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        CarouselSlider(
-                          options: CarouselOptions(
-                            viewportFraction: 1.0, // Set to 1.0 for full width
-                            initialPage: 0,
-                            enableInfiniteScroll: mediaUrls.length > 1,
-                            reverse: false,
-                            enlargeFactor: 0.3,
-                            scrollDirection: Axis.horizontal,
-                            onPageChanged: (index, reason) {
-                              // setState(() {
-                              //   currentIndex = index;
-                              // });
-                            },
-                          ),
-                          items: mediaUrls.map((url) {
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: getUrlWidget(url),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-
-                        const SizedBox(height: 10),
-                        // Text(
-                        //   '${currentIndex + 1}/${mediaUrls.length}', // Displaying 1-indexed count
-                        //   style: const TextStyle(fontSize: 18),
-                        // ),
-                        // const SizedBox(
-                        //   height: 10,
-                        // ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              splashColor: Colors.transparent,
-
-                              onPressed: () async {
-                                if (isProcessing) {
-                                  return; // Do nothing if the button is already processing
-                                }
-
-                                // Disable the button
-                                isProcessing = true;
-
-                                try {
-                                  // Your Firestore logic here
-                                  if (data['fav'] == true) {
-                                    await FirebaseFirestore.instanceFor(
-                                            app: secondApp)
-                                        .collection('feed')
-                                        .doc(documentId)
-                                        .update({
-                                      'fav': false,
-                                      'likes': likes - 1,
-                                    }).then((liks) => () async {
-                                              if (likes < 0) {
-                                                await FirebaseFirestore
-                                                        .instanceFor(
-                                                            app: secondApp)
-                                                    .collection('feed')
-                                                    .doc(documentId)
-                                                    .update({
-                                                  'fav': false,
-                                                  'likes': 0,
-                                                });
-                                              }
-                                            });
-
-                                    print("IF $documentId");
-                                  } else if (data['fav'] == false) {
-                                    await FirebaseFirestore.instanceFor(
-                                            app: secondApp)
-                                        .collection('feed')
-                                        .doc(documentId)
-                                        .update({'fav': true});
-                                    if (likes >= 0) {
-                                      await FirebaseFirestore.instanceFor(
-                                              app: secondApp)
-                                          .collection('feed')
-                                          .doc(documentId)
-                                          .update({
-                                        'likes': likes + 1,
-                                        'post_likes_uid': FirebaseAuth
-                                            .instance.currentUser!.uid
-                                      }).then((value) => () async {
-                                                await FirebaseFirestore
-                                                        .instanceFor(
-                                                            app: secondApp)
-                                                    .collection('likesUsers')
-                                                    .add({
-                                                  'postId': documentId,
-                                                  'likesUserId': [
-                                                    {
-                                                      'uid': FirebaseAuth
-                                                          .instance
-                                                          .currentUser!
-                                                          .uid
-                                                    }
-                                                  ]
-                                                });
-                                              });
-                                    } else {
-                                      await FirebaseFirestore.instanceFor(
-                                              app: secondApp)
-                                          .collection('feed')
-                                          .doc(documentId)
-                                          .update({'likes': 0});
-                                    }
-                                    print("ELSE $documentId");
-                                  }
-                                } catch (error) {
-                                  print("Error: $error");
-                                  // Handle errors if needed
-                                } finally {
-                                  // Set a debounce timer to enable the button after a delay (e.g., 1 second)
-                                  debounceTimer = Timer(
-                                      const Duration(milliseconds: 100), () {
-                                    isProcessing = false;
-                                    debounceTimer?.cancel();
-                                  });
-                                }
-                              },
-
-                              icon: data['fav'] == false
-                                  ? const Icon(
-                                      Icons.favorite_border,
-                                    )
-                                  : const Icon(
-                                      Icons.favorite,
-                                      color: Colors.red,
-                                    ),
-
-                              // IconButton(
-                              //   splashColor: Colors.transparent,
-                              //   onPressed: () {
-                              //     showModalBottomSheet(
-                              //       context: context,
-                              //       isScrollControlled: true,
-                              //       builder: (context) => const CommentSheet(),
-                              //     );
-                              //   },
-                              //   icon: const Icon(Icons.mode_comment_outlined),
-                              // ),
-                            )
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: InkWell(
-                              child: Text(
-                                "$likes Likes",
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LikesPage(
-                                        documentId: documentId,
-                                        userId: FirebaseAuth
-                                            .instance.currentUser!.uid),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              des,
-                              style: const TextStyle(fontSize: 15),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              "2 days ago",
-                              style: TextStyle(
-                                  fontSize: 10, color: Colors.black54),
-                            ))
-                      ]),
-                    ),
-                  );
-                },
-              );
-            }
-          }),
-    );
-  }
-}
-
-Widget getUrlWidget(String url) {
-  if (url.contains('.mp4')) {
-    // Display video player for URLs ending with '.mp4'
-    return VideoPlayerWidget(videoUrl: url);
-  } else if (url.contains('.jpg') ||
-      url.contains('.jpeg') ||
-      url.contains('.png')) {
-    // Display Image for URLs ending with '.jpg', '.jpeg', or '.png'
-    return Image(
-      image: NetworkImage(url),
-      fit: BoxFit.cover,
-      height: double.infinity,
-      width: double.infinity,
-    );
-  } else {
-    // Handle other types of URLs
-    return Container(
-      color: Colors.grey,
-      child: const Center(
-        child: Text('Unsupported media type'),
+      body: ListView.builder(
+        itemCount: feedDataList.length,
+        itemBuilder: (context, index) {
+          return _buildFeedItem(feedDataList[index]);
+        },
       ),
     );
+  }
+
+  Widget _buildFeedItem(FeedData feedData) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Container(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          height: 40,
+                          width: 40,
+                          child: Image.network(feedData.logo),
+                        ),
+                        Text(
+                          feedData.title,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            CarouselSlider(
+              items: feedData.mediaUrls.map((url) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: getUrlWidget(url, feedData.mediaUrls.length),
+                    );
+                  },
+                );
+              }).toList(),
+              carouselController: _carouselController,
+              options: CarouselOptions(
+                viewportFraction: 1.0,
+                initialPage: 0,
+                enableInfiniteScroll: feedData.mediaUrls.length > 1,
+                reverse: false,
+                enlargeFactor: 0.3,
+                scrollDirection: Axis.horizontal,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentIndexs = index;
+                    _currentIndex = index;
+                    print(_currentIndexs);
+                  });
+
+                  // Additional logic based on page change if needed
+                  print("Page changed to index: $index, reason: $reason");
+                },
+                aspectRatio: 2.0,
+                enlargeCenterPage: true,
+                autoPlay: false,
+                autoPlayInterval: const Duration(days: 365),
+                autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                autoPlayCurve: Curves.fastOutSlowIn,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            // DotsIndicator(
+            //   dotsCount: feedData.mediaUrls.length,
+            //   position: _currentIndex != 1 ? _currentIndexs : _currentIndex,
+            //   decorator: DotsDecorator(
+            //     size: const Size.square(8.0),
+            //     activeSize: const Size(20.0, 8.0),
+            //     activeShape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(5.0),
+            //     ),
+            //   ),
+            // ),
+            const SizedBox(
+              height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    splashColor: Colors.transparent,
+                    onPressed: () async {
+                      if (isProcessing) {
+                        return;
+                      }
+
+                      isProcessing = true;
+
+                      try {
+                        DocumentSnapshot docSnapshot =
+                            await FirebaseFirestore.instanceFor(app: secondApp)
+                                .collection('feed')
+                                .doc(feedData.documentId)
+                                .get();
+
+                        int updatedLikes = docSnapshot['likes'];
+                        List<String>? updatedLikesuids =
+                            List<String>.from(docSnapshot['Likesuids'] ?? []);
+
+                        if (updatedLikesuids.contains(userUid)) {
+                          await FirebaseFirestore.instanceFor(app: secondApp)
+                              .collection('feed')
+                              .doc(feedData.documentId)
+                              .update({
+                            'likes': updatedLikes - 1,
+                            'Likesuids': FieldValue.arrayRemove([userUid]),
+                          });
+
+                          updatedLikesuids.remove(userUid);
+                          fetchLikesAndUpdateList(
+                              feedData.documentId, feedData);
+                        } else {
+                          await FirebaseFirestore.instanceFor(app: secondApp)
+                              .collection('feed')
+                              .doc(feedData.documentId)
+                              .update({
+                            'likes': updatedLikes + 1,
+                            'Likesuids': FieldValue.arrayUnion([userUid]),
+                          });
+
+                          updatedLikesuids.add(userUid);
+                          fetchLikesAndUpdateList(
+                              feedData.documentId, feedData);
+                        }
+
+                        // Update local state with the latest data
+                        setState(() {
+                          feedData.likes = updatedLikes;
+                          feedData.Likesuids = updatedLikesuids;
+                        });
+
+                        print("Likes and fav data updated: $feedDataList");
+                      } catch (error) {
+                        print("Error: $error");
+                      } finally {
+                        debounceTimer =
+                            Timer(const Duration(milliseconds: 100), () {
+                          isProcessing = false;
+                          debounceTimer?.cancel();
+                        });
+                      }
+                    },
+                    icon: feedData.Likesuids != null &&
+                            feedData.Likesuids!.contains(userUid)
+                        ? const Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          )
+                        : const Icon(
+                            Icons.favorite_border,
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: InkWell(
+                  child: Text(
+                    "${feedData.likes} Likes",
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            LikesPage(documentId: feedData.documentId),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  feedData.description,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "2 days ago",
+                  style: TextStyle(fontSize: 10, color: Colors.black54),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getUrlWidget(String url, count) {
+    // return
+    // child: count != 1 ? Text(count.toString()) : const Text("one"));
+    if (url.contains('.mp4')) {
+      return VideoPlayerWidget(videoUrl: url);
+    } else if (url.contains('.jpg') ||
+        url.contains('.jpeg') ||
+        url.contains('.png')) {
+      return Image(
+        image: NetworkImage(url),
+        fit: BoxFit.cover,
+        height: double.infinity,
+        width: double.infinity,
+      );
+    } else if (url.contains('youtube.com') || url.contains('youtu.be')) {
+      return YoutubePlayerWidget(videoUrl: url);
+    } else {
+      return Container(
+        color: Colors.grey,
+        child: const Center(
+          child: Text('Unsupported media type'),
+        ),
+      );
+    }
   }
 }
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
 
-  const VideoPlayerWidget({super.key, required this.videoUrl});
+  const VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -497,6 +457,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       videoPlayerController: _videoPlayerController,
       autoPlay: true,
       looping: true,
+      allowFullScreen: false,
     );
   }
 
@@ -512,5 +473,65 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _videoPlayerController.dispose();
     _chewieController.dispose();
     super.dispose();
+  }
+}
+
+class YoutubePlayerWidget extends StatelessWidget {
+  final String videoUrl;
+
+  const YoutubePlayerWidget({Key? key, required this.videoUrl})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String videoId = YoutubePlayer.convertUrlToId(videoUrl) ?? '';
+    return YoutubePlayer(
+        controller: YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(
+            autoPlay: false,
+            showLiveFullscreenButton: false,
+          ),
+        ),
+        bottomActions: [
+          const SizedBox(width: 8.0),
+          CurrentPosition(),
+          const SizedBox(width: 175.0),
+          RemainingDuration(),
+          const SizedBox(width: 10.0),
+          const PlaybackSpeedButton(),
+        ]);
+  }
+}
+
+class FeedData {
+  final String documentId;
+  final String logo;
+  final String title;
+  final List<String> mediaUrls;
+  int likes;
+  final String description;
+  List<String>? Likesuids;
+
+  FeedData({
+    required this.documentId,
+    required this.logo,
+    required this.title,
+    required this.mediaUrls,
+    required this.likes,
+    required this.description,
+    this.Likesuids,
+  });
+
+  factory FeedData.fromMap(String documentId, Map<String, dynamic> data) {
+    return FeedData(
+      documentId: documentId,
+      logo: data['logo'],
+      title: data['title'],
+      mediaUrls: List<String>.from(data['mediaUrls']),
+      likes: data['likes'],
+      description: data['description'],
+      Likesuids: List<String>.from(data['Likesuids'] ?? []),
+    );
   }
 }

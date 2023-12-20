@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Screens/main/E-Reciept.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class Grocery extends StatefulWidget {
   const Grocery({super.key});
@@ -55,12 +55,12 @@ class _GroceryState extends State<Grocery> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage("assets/Images/Invoseg.jpg"),
               height: 40,
               width: 40,
             ),

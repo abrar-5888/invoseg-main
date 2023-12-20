@@ -4,18 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Models/firebase_api.dart';
-import 'package:testapp/Screens/main/AddFamilyMembers.dart';
-import 'package:testapp/Screens/main/Complaint.dart';
-import 'package:testapp/Screens/main/Dashboard.dart';
-import 'package:testapp/Screens/main/E-Reciept.dart';
-import 'package:testapp/Screens/main/History.dart';
-import 'package:testapp/Screens/main/LoginPage.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/Prescription.dart';
-import 'package:testapp/Screens/main/Profile.dart';
-import 'package:testapp/Screens/main/RequestLogin.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Models/firebase_api.dart';
+import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
+import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
+import 'package:com.invoseg.innovation/Screens/main/Dashboard.dart';
+import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
+import 'package:com.invoseg.innovation/Screens/main/History.dart';
+import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
+import 'package:com.invoseg.innovation/Screens/main/Profile.dart';
+import 'package:com.invoseg.innovation/Screens/main/RequestLogin.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -118,14 +119,14 @@ class _MyAppState extends State<MyApp> {
           future: SharedPreferences.getInstance(),
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              // return snapshot.data.containsKey("token")
-              //     ? snapshot.data.getBool("token")
-              //         ? TabsScreen1(
-              //             index: 0,
-              //           )
-              //         : const LoginScreen()
-              //     : const LoginScreen();
-              return const LoginScreen();
+              return snapshot.data.containsKey("token")
+                  ? snapshot.data.getBool("token")
+                      ? TabsScreen(
+                          index: 0,
+                        )
+                      : const LoginScreen()
+                  : const LoginScreen();
+              // return const LoginScreen();
             } else {
               return const Scaffold(
                 body: Center(

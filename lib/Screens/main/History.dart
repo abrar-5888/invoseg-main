@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class ButtonsHistory extends StatefulWidget {
   static const routename = 'history';

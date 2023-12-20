@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:testapp/Screens/main/Notifications.dart';
-import 'package:testapp/Screens/main/drawer.dart';
-import 'package:testapp/Screens/main/plots_detail.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Plots extends StatefulWidget {
@@ -52,12 +52,12 @@ class _PlotsState extends State<Plots> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage("assets/Images/Invoseg.jpg"),
               height: 40,
               width: 40,
             ),
@@ -140,6 +140,7 @@ class _PlotsState extends State<Plots> {
       body: FutureBuilder<QuerySnapshot>(
           future: FirebaseFirestore.instanceFor(app: secondApp)
               .collection("plots")
+              .orderBy('timestamp', descending: true)
               .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {

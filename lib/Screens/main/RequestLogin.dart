@@ -3,8 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:testapp/Models/NewUsers.dart';
-import 'package:testapp/Screens/main/LoginPage.dart';
+import 'package:com.invoseg.innovation/Models/NewUsers.dart';
+import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
 
 class requestLoginPage extends StatefulWidget {
   static const route = '/RequestLogin';
@@ -126,8 +126,8 @@ class _requestLoginPageState extends State<requestLoginPage> {
                         FittedBox(
                           fit: BoxFit.fitWidth,
                           child: Container(
-                            padding:
-                                const EdgeInsets.only(left: 20, bottom: 20, top: 10),
+                            padding: const EdgeInsets.only(
+                                left: 20, bottom: 20, top: 10),
                             child: Text(
                               "Once Admin approve your request, you will get your\ncredentials via Email you provided.",
                               style: TextStyle(
@@ -648,9 +648,8 @@ class _requestLoginPageState extends State<requestLoginPage> {
                                         .resolveWith<Color?>((states) {
                                       if (states
                                           .contains(MaterialState.pressed)) {
-                                        return Colors.greenAccent[
-                                            100];
-                                      return null; // <-- Splash color
+                                        return Colors.greenAccent[100];
+                                        return null; // <-- Splash color
                                       }
                                       return null;
                                     }),
@@ -688,7 +687,8 @@ class _requestLoginPageState extends State<requestLoginPage> {
                                   Navigator.push(
                                       context,
                                       PageTransition(
-                                          duration: const Duration(milliseconds: 700),
+                                          duration:
+                                              const Duration(milliseconds: 700),
                                           type: PageTransitionType
                                               .leftToRightWithFade,
                                           child: const LoginScreen()));

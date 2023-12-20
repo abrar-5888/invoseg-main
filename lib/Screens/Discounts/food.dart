@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:testapp/Screens/Discounts/discountDetails.dart';
-import 'package:testapp/global.dart';
+import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
+import 'package:com.invoseg.innovation/global.dart';
 
 class Food extends StatefulWidget {
   const Food({super.key});
@@ -145,7 +145,7 @@ class _FoodState extends State<Food> {
                                                     height: 150,
                                                     decoration: BoxDecoration(
                                                         image: DecorationImage(
-                                                          image:  NetworkImage(
+                                                          image: NetworkImage(
                                                               mediaUrls[0]),
                                                           fit: BoxFit.cover,
                                                         ),

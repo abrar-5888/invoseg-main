@@ -8,11 +8,11 @@ import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testapp/Screens/main/Bill.dart';
-import 'package:testapp/Screens/main/History.dart';
-import 'package:testapp/Screens/main/LoginPage.dart';
-import 'package:testapp/Screens/main/Profile.dart';
-import 'package:testapp/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/main/History.dart';
+import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
+import 'package:com.invoseg.innovation/Screens/main/Profile.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/main/residentId.dart';
 
 class DrawerWidg extends StatefulWidget {
   const DrawerWidg({super.key});
@@ -355,7 +355,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                             const SizedBox(
                               height: 7,
                             ),
-                            
+
                             const SizedBox(
                               height: 7,
                             ),
@@ -369,7 +369,8 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                     color:
                                         const Color.fromRGBO(236, 238, 240, 1),
                                     borderRadius: BorderRadius.circular(30)),
-                                child: const Icon(Icons.settings,
+                                child: const Icon(
+                                    Icons.calendar_view_day_outlined,
                                     color: Color(0xff3A1D8C)),
                               ),
                               // const Icon(
@@ -378,7 +379,7 @@ class _DrawerWidgState extends State<DrawerWidg> {
                               //   size: 17,
                               // ),
                               title: const Text(
-                                ' Settings',
+                                ' Resident Id',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -386,13 +387,12 @@ class _DrawerWidgState extends State<DrawerWidg> {
                                 ),
                               ),
                               onTap: () {
-                                // Navigator.pushReplacement(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: ((context) => const MainProfile()),
-                                //   ),
-                                // );
-                                // getLogo();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: ((context) => const ResidentID()),
+                                  ),
+                                );
                               },
                             ),
                             const SizedBox(
