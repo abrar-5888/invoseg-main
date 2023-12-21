@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/global.dart'; // Import your NotificationCounterProvider
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/global.dart'; // Import your NotificationCounterProvider
 
 class Visitors extends StatefulWidget {
   const Visitors({super.key});
@@ -83,9 +83,12 @@ class _VisitorsState extends State<Visitors> {
         future: _firestore
             .collection('notifications')
             .where('description', whereIn: [
-          "You Have approved your freinds / relative identity",
-          "You Have rejected a Person",
-        ]).get(),
+              "You Have approved your freinds / relative identity",
+              "You Have rejected a Person",
+            ])
+            .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .orderBy('pressedTime', descending: true)
+            .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();

@@ -60,7 +60,7 @@ class _GroceryState extends State<Grocery> {
           child: Padding(
             padding: EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/Invoseg.jpg"),
+              image: AssetImage("assets/Images/TransparentLogo.png"),
               height: 40,
               width: 40,
             ),

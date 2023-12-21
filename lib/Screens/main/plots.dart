@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Plots extends StatefulWidget {
@@ -57,7 +57,7 @@ class _PlotsState extends State<Plots> {
           child: Padding(
             padding: EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/Invoseg.jpg"),
+              image: AssetImage("assets/Images/TransparentLogo.png"),
               height: 40,
               width: 40,
             ),

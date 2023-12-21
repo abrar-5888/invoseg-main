@@ -1,9 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
@@ -15,8 +9,13 @@ import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
 import 'package:com.invoseg.innovation/Screens/main/Profile.dart';
 import 'package:com.invoseg.innovation/Screens/main/RequestLogin.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/main/splashscreen.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -107,36 +106,14 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       builder: EasyLoading.init(),
-      title: 'Notify-App',
+      title: 'Invoseg Izmir',
       theme: ThemeData(
         fontFamily: 'Urbanist',
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
       ),
-      home: Scaffold(
-        body: FutureBuilder(
-          future: SharedPreferences.getInstance(),
-          builder: (context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return snapshot.data.containsKey("token")
-                  ? snapshot.data.getBool("token")
-                      ? TabsScreen(
-                          index: 0,
-                        )
-                      : const LoginScreen()
-                  : const LoginScreen();
-              // return const LoginScreen();
-            } else {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-          },
-        ),
-      ),
+      home: const SplashScreen(),
       routes: {
         LoginScreen.routename: (ctx) => const LoginScreen(),
         requestLoginPage.route: (ctx) => const requestLoginPage(),

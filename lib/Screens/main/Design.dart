@@ -3386,6 +3386,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instanceFor(app: secondApp)
               .collection('plots')
+              .orderBy('timestamp', descending: true)
               .get();
 
       if (querySnapshot.docs.isNotEmpty) {

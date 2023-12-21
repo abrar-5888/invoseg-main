@@ -63,6 +63,7 @@ class _ComplainformState extends State<Complainform> {
     super.dispose();
   }
 
+  bool btnDisable = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,191 +190,230 @@ class _ComplainformState extends State<Complainform> {
                         child: Container(
                           child: ElevatedButton(
                             onPressed: () async {
-                              if (myVariable == 5) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Sorry, you have reached the limit for submitting complaints. "
-                                      "Please try again later or contact our support team for assistance.",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              } else {
-                                final FirebaseMessaging firebaseMessaging =
-                                    FirebaseMessaging.instance;
-                                String FCMtoken = "";
-                                await firebaseMessaging
-                                    .getToken()
-                                    .then((String? token) {
-                                  if (token != null) {
-                                    setState(() {
-                                      FCMtoken = token;
-                                    });
-
-                                    print("FCM Token: $FCMtoken");
-                                  } else {
-                                    print("Unable to get FCM token");
-                                  }
+                              if (btnDisable == false) {
+                                setState(() {
+                                  btnDisable = true;
                                 });
-                                final mainCollectionQuery =
-                                    await FirebaseFirestore.instance
-                                        .collection("UserRequest")
-                                        .where("parentID",
-                                            isEqualTo: userinfo['parentID'])
-                                        .get();
-                                if (mainCollectionQuery.docs.isNotEmpty) {
-                                  mainCollectionQuery.docs
-                                      .forEach((mainDoc) async {
-                                    final subcollectionRef =
-                                        mainDoc.reference.collection("FMData");
-
-                                    final subcollectionQuery =
-                                        await subcollectionRef
-                                            .where("owner",
-                                                isEqualTo: userinfo['owner'])
+                                print(myVariable);
+                                if (myVariable == 5) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Sorry, you have reached the limit for submitting complaints. "
+                                        "Please try again later or contact our support team for assistance.",
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                } else {
+                                  if (complian.text.isNotEmpty) {
+                                    final FirebaseMessaging firebaseMessaging =
+                                        FirebaseMessaging.instance;
+                                    String FCMtoken = "";
+                                    await firebaseMessaging
+                                        .getToken()
+                                        .then((String? token) {
+                                      if (token != null) {
+                                        setState(() {
+                                          FCMtoken = token;
+                                        });
+                                        print("FCM Token: $FCMtoken");
+                                      } else {
+                                        print("Unable to get FCM token");
+                                      }
+                                    });
+                                    final mainCollectionQuery =
+                                        await FirebaseFirestore.instance
+                                            .collection("UserRequest")
+                                            .where("parentID",
+                                                isEqualTo: userinfo['parentID'])
                                             .get();
+                                    if (mainCollectionQuery.docs.isNotEmpty) {
+                                      mainCollectionQuery.docs
+                                          .forEach((mainDoc) async {
+                                        final subcollectionRef = mainDoc
+                                            .reference
+                                            .collection("FMData");
 
-                                    if (subcollectionQuery.docs.isNotEmpty) {
-                                      var data =
-                                          subcollectionQuery.docs[0].data();
-                                      String parentId = data['parentID'];
-                                      DocumentSnapshot parentDoc =
-                                          await FirebaseFirestore.instance
-                                              .collection('UserRequest')
-                                              .doc(parentId)
-                                              .get();
-                                      if (parentDoc.exists) {
-                                        // Step 2: Access the subcollection
-                                        QuerySnapshot subcollectionSnapshot =
-                                            await parentDoc.reference
-                                                .collection('FMData')
-                                                .limit(2)
+                                        final subcollectionQuery =
+                                            await subcollectionRef
+                                                .where("owner",
+                                                    isEqualTo:
+                                                        userinfo['owner'])
                                                 .get();
-                                        if (subcollectionSnapshot
+
+                                        if (subcollectionQuery
                                             .docs.isNotEmpty) {
-                                          // Access subcollection document data for the first document
-                                          Map<String, dynamic> firstDocData =
-                                              subcollectionSnapshot.docs[0]
-                                                      .data()
-                                                  as Map<String, dynamic>;
+                                          var data =
+                                              subcollectionQuery.docs[0].data();
+                                          String parentId = data['parentID'];
+                                          DocumentSnapshot parentDoc =
+                                              await FirebaseFirestore.instance
+                                                  .collection('UserRequest')
+                                                  .doc(parentId)
+                                                  .get();
+                                          if (parentDoc.exists) {
+                                            // Step 2: Access the subcollection
+                                            QuerySnapshot
+                                                subcollectionSnapshot =
+                                                await parentDoc.reference
+                                                    .collection('FMData')
+                                                    .limit(2)
+                                                    .get();
+                                            if (subcollectionSnapshot
+                                                .docs.isNotEmpty) {
+                                              // Access subcollection document data for the first document
+                                              Map<String, dynamic>
+                                                  firstDocData =
+                                                  subcollectionSnapshot.docs[0]
+                                                          .data()
+                                                      as Map<String, dynamic>;
 
-                                          setState(() {
-                                            fmName = firstDocData['Name'];
-                                            fmphoneNo =
-                                                firstDocData['phonenumber'];
-                                          });
-                                          print(
-                                              'First Subcollection Document Data: $firstDocData');
+                                              setState(() {
+                                                fmName = firstDocData['Name'];
+                                                fmphoneNo =
+                                                    firstDocData['phonenumber'];
+                                              });
+                                              print(
+                                                  'First Subcollection Document Data: $firstDocData');
 
-                                          // Check if there is a second document before accessing
-                                          if (subcollectionSnapshot
-                                                  .docs.length >
-                                              1) {
-                                            // Access subcollection document data for the second document
-                                            Map<String, dynamic> secondDocData =
-                                                subcollectionSnapshot.docs[1]
-                                                        .data()
-                                                    as Map<String, dynamic>;
-                                            print(
-                                                'Second Subcollection Document Data: $secondDocData');
-                                            setState(() {
-                                              fmName1 = secondDocData['Name'];
-                                              fmphoneNo1 =
-                                                  secondDocData['phonenumber'];
-                                            });
+                                              // Check if there is a second document before accessing
+                                              if (subcollectionSnapshot
+                                                      .docs.length >
+                                                  1) {
+                                                // Access subcollection document data for the second document
+                                                Map<String, dynamic>
+                                                    secondDocData =
+                                                    subcollectionSnapshot
+                                                            .docs[1]
+                                                            .data()
+                                                        as Map<String, dynamic>;
+                                                print(
+                                                    'Second Subcollection Document Data: $secondDocData');
+                                                setState(() {
+                                                  fmName1 =
+                                                      secondDocData['Name'];
+                                                  fmphoneNo1 = secondDocData[
+                                                      'phonenumber'];
+                                                });
 
-                                            print(
-                                                "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                                print(
+                                                    "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                              } else {
+                                                print(
+                                                    'Subcollection has only one document.');
+                                              }
+                                            } else {
+                                              print('Subcollection is empty.');
+                                            }
                                           } else {
                                             print(
-                                                'Subcollection has only one document.');
+                                                'Document with ID $parentId does not exist.');
                                           }
-                                        } else {
-                                          print('Subcollection is empty.');
-                                        }
-                                      } else {
-                                        print(
-                                            'Document with ID $parentId does not exist.');
-                                      }
+                                          await Future.delayed(
+                                              const Duration(seconds: 1));
 
-                                      String compla = complian.text.trim();
-                                      complain.add({
-                                        'complain': compla,
-                                        'noti': true,
-                                        'fmName': fmName,
-                                        'fmphoneNo': fmphoneNo,
-                                        'fmName1': fmName1,
-                                        'fmphoneNo1': fmphoneNo1,
-                                        'name': '${userinfo['name']}',
-                                        'email': '${userinfo['email']}',
-                                        'uid': '${userinfo["uid"]}',
-                                        'phoneNo': '${userinfo["phoneNo"]}',
-                                        'address': '${userinfo["address"]}',
-                                        'fphoneNo': '${userinfo["fphoneNo"]}',
-                                        'fname': '${userinfo["fname"]}',
-                                        'designation':
-                                            '${userinfo["designation"]}',
-                                        'age': '${userinfo["age"]}',
-                                        'pressedTime': DateTime.now(),
-                                        'owner': '${userinfo["owner"]}',
-                                        'complainStatus': 'pending',
-                                        'FCMtoken': FCMtoken,
-                                        "edit": false,
-                                      }).then((value) {
-                                        print("Complain Added");
-                                        complian.clear();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                          content: Text(
-                                            "Your complain has been generated",
-                                          ),
-                                        ));
-                                      }).catchError(
-                                        (error) => print(
-                                            "Failed to add Complaint : $error"),
-                                      );
-                                    } else {
-                                      String compla = complian.text.trim();
-                                      complain.add({
-                                        'complain': compla,
-                                        'noti': true,
-                                        'fmName': fmName,
-                                        'fmphoneNo': fmphoneNo,
-                                        'fmName1': fmName1,
-                                        'fmphoneNo1': fmphoneNo1,
-                                        'name': '${userinfo['name']}',
-                                        'email': '${userinfo['email']}',
-                                        'uid': '${userinfo["uid"]}',
-                                        'phoneNo': '${userinfo["phoneNo"]}',
-                                        'address': '${userinfo["address"]}',
-                                        'fphoneNo': '${userinfo["fphoneNo"]}',
-                                        'fname': '${userinfo["fname"]}',
-                                        'designation':
-                                            '${userinfo["designation"]}',
-                                        'age': '${userinfo["age"]}',
-                                        'pressedTime': DateTime.now(),
-                                        'owner': '${userinfo["owner"]}',
-                                        'complainStatus': 'pending',
-                                        'FCMtoken': FCMtoken,
-                                        "edit": false,
-                                      }).then((value) {
-                                        print("Complain Added");
-                                        complian.clear();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                          content: Text(
-                                            "Your complain has been generated",
-                                          ),
-                                        ));
-                                      }).catchError(
-                                        (error) => print(
-                                            "Failed to add Complaint : $error"),
-                                      );
+                                          String compla = complian.text.trim();
+                                          complain.add({
+                                            'complain': compla,
+                                            'noti': true,
+                                            'fmName': fmName,
+                                            'fmphoneNo': fmphoneNo,
+                                            'fmName1': fmName1,
+                                            'fmphoneNo1': fmphoneNo1,
+                                            'name': '${userinfo['name']}',
+                                            'email': '${userinfo['email']}',
+                                            'uid': '${userinfo["uid"]}',
+                                            'phoneNo': '${userinfo["phoneNo"]}',
+                                            'address': '${userinfo["address"]}',
+                                            'fphoneNo':
+                                                '${userinfo["fphoneNo"]}',
+                                            'fname': '${userinfo["fname"]}',
+                                            'designation':
+                                                '${userinfo["designation"]}',
+                                            'age': '${userinfo["age"]}',
+                                            'pressedTime': DateTime.now(),
+                                            'owner': '${userinfo["owner"]}',
+                                            'complainStatus': 'pending',
+                                            'FCMtoken': FCMtoken,
+                                            "edit": false,
+                                          }).then((value) {
+                                            myVariable++;
+                                            print("Complain Added");
+                                            complian.clear();
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                "Your complain has been generated",
+                                              ),
+                                            ));
+                                          }).catchError(
+                                            (error) => print(
+                                                "Failed to add Complaint : $error"),
+                                          );
+                                        } else {
+                                          await Future.delayed(
+                                              const Duration(seconds: 1));
+                                          String compla = complian.text.trim();
+                                          complain.add({
+                                            'complain': compla,
+                                            'noti': true,
+                                            'fmName': fmName,
+                                            'fmphoneNo': fmphoneNo,
+                                            'fmName1': fmName1,
+                                            'fmphoneNo1': fmphoneNo1,
+                                            'name': '${userinfo['name']}',
+                                            'email': '${userinfo['email']}',
+                                            'uid': '${userinfo["uid"]}',
+                                            'phoneNo': '${userinfo["phoneNo"]}',
+                                            'address': '${userinfo["address"]}',
+                                            'fphoneNo':
+                                                '${userinfo["fphoneNo"]}',
+                                            'fname': '${userinfo["fname"]}',
+                                            'designation':
+                                                '${userinfo["designation"]}',
+                                            'age': '${userinfo["age"]}',
+                                            'pressedTime': DateTime.now(),
+                                            'owner': '${userinfo["owner"]}',
+                                            'complainStatus': 'pending',
+                                            'FCMtoken': FCMtoken,
+                                            "edit": false,
+                                          }).then((value) {
+                                            myVariable++;
+                                            print("Complain Added");
+                                            complian.clear();
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                "Your complain has been generated",
+                                              ),
+                                            ));
+                                          }).catchError(
+                                            (error) => print(
+                                                "Failed to add Complaint : $error"),
+                                          );
+                                        }
+                                      });
                                     }
-                                  });
+                                    await Future.delayed(
+                                        const Duration(seconds: 5));
+                                    if (btnDisable) {
+                                      setState(() {
+                                        btnDisable =
+                                            false; // Re-enable the button
+                                      });
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "Please enter the complain first")));
+                                  }
                                 }
+                              } else {
+                                Future.delayed(
+                                    const Duration(minutes: 1), () {});
                               }
                             },
                             style: ButtonStyle(

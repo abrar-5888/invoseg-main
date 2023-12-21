@@ -103,7 +103,7 @@ class _HomeState extends State<Newsandfeeds> {
           child: Padding(
             padding: EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/izmir.jpg"),
+              image: AssetImage("assets/Images/TransparentLogo.png"),
               height: 40,
               width: 40,
             ),

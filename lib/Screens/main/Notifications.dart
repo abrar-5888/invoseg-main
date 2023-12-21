@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
 import 'package:com.invoseg.innovation/global.dart'; // Import your NotificationCounterProvider
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -86,9 +86,8 @@ class _NotificationsState extends State<Notifications> {
       body: FutureBuilder<QuerySnapshot>(
         future: _firestore
             .collection('notifications')
+            .where('uid', isEqualTo: id)
             .orderBy('pressedTime', descending: true)
-            // .where('uid', isEqualTo: id)
-            //
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -96,14 +95,14 @@ class _NotificationsState extends State<Notifications> {
           }
 
           if (snapshot.hasError) {
-            return const Center(
-              child: Text('No notifications available'),
+            return Center(
+              child: Text('No notifications available ${snapshot.error}'),
             );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text('No notifications available'),
+              child: Text('No notification available'),
             );
           }
 

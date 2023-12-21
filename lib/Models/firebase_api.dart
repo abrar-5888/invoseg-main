@@ -1,9 +1,10 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:com.invoseg.innovation/main.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FirebaseApi {
   String FCMtoken = "";
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  // final FirebaseMessaging firebaseMessaging2=FirebaseMessaging.instanceFor(app:secondApp);
 
   Future<void> inNotify() async {
     await firebaseMessaging.requestPermission();

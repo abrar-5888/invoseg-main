@@ -96,7 +96,7 @@ class _EmergencyState extends State<Emergency> {
           child: Padding(
             padding: EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/Invoseg.jpg"),
+              image: AssetImage("assets/Images/TransparentLogo.png"),
               height: 40,
               width: 40,
             ),

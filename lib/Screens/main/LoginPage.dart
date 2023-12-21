@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Rider/rider.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/Rider/rider.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
-import 'package:com.invoseg.innovation/global.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routename = 'login';
@@ -661,8 +661,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Column(
                               children: <Widget>[
                                 logos.isNotEmpty
-                                    ? Image(
-                                        image: NetworkImage(logos),
+                                    ? const Image(
+                                        image: AssetImage(
+                                            'assets/Images/izmir.jpg'),
+                                        // image: NetworkImage(logos),
                                         height: 150,
                                         width: 150,
                                       )
