@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/feed/feedsLikes.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -35,7 +35,7 @@ class _HomeState extends State<Newsandfeeds> {
   List<FeedData> feedDataList = [];
 
   int _currentIndex = 0;
-  int _currentIndexs = 0;
+  final int _currentIndexs = 0;
   final CarouselController _carouselController = CarouselController();
 
   @override
@@ -192,6 +192,32 @@ class _HomeState extends State<Newsandfeeds> {
   }
 
   Widget _buildFeedItem(FeedData feedData) {
+    Timestamp timestamp = feedData.timestamp;
+    var feedTimestamp = timestamp.toDate();
+    String timeagoText;
+
+    // Get the current timestamp
+    DateTime currentTimestamp = DateTime.now();
+
+    // Calculate the difference
+    Duration difference = currentTimestamp.difference(feedTimestamp);
+    int duration;
+
+    if (difference.inDays < 1) {
+      // If less than 24 hours, show the difference in hours
+
+      duration = difference.inHours;
+      timeagoText = "$duration hours ago";
+
+      print("The difference in hours is: $duration");
+    } else {
+      // If more than 24 hours, show the difference in days
+
+      duration = difference.inDays;
+
+      timeagoText = "$duration days ago";
+      print("The difference in days is: $duration");
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Container(
@@ -228,10 +254,11 @@ class _HomeState extends State<Newsandfeeds> {
               items: feedData.mediaUrls.map((url) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Container(
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height / 2.5,
                       width: MediaQuery.of(context).size.width,
-                      margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                      child: getUrlWidget(url, feedData.mediaUrls.length),
+                      child: getUrlWidget(
+                          url, feedData.mediaUrls.length, _currentIndex),
                     );
                   },
                 );
@@ -246,12 +273,8 @@ class _HomeState extends State<Newsandfeeds> {
                 scrollDirection: Axis.horizontal,
                 onPageChanged: (index, reason) {
                   setState(() {
-                    _currentIndexs = index;
                     _currentIndex = index;
-                    print(_currentIndexs);
                   });
-
-                  // Additional logic based on page change if needed
                   print("Page changed to index: $index, reason: $reason");
                 },
                 aspectRatio: 2.0,
@@ -262,103 +285,118 @@ class _HomeState extends State<Newsandfeeds> {
                 autoPlayCurve: Curves.fastOutSlowIn,
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            // DotsIndicator(
-            //   dotsCount: feedData.mediaUrls.length,
-            //   position: _currentIndex != 1 ? _currentIndexs : _currentIndex,
-            //   decorator: DotsDecorator(
-            //     size: const Size.square(8.0),
-            //     activeSize: const Size(20.0, 8.0),
-            //     activeShape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(5.0),
-            //     ),
-            //   ),
-            // ),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    splashColor: Colors.transparent,
-                    onPressed: () async {
-                      if (isProcessing) {
-                        return;
-                      }
-
-                      isProcessing = true;
-
-                      try {
-                        DocumentSnapshot docSnapshot =
-                            await FirebaseFirestore.instanceFor(app: secondApp)
-                                .collection('feed')
-                                .doc(feedData.documentId)
-                                .get();
-
-                        int updatedLikes = docSnapshot['likes'];
-                        List<String>? updatedLikesuids =
-                            List<String>.from(docSnapshot['Likesuids'] ?? []);
-
-                        if (updatedLikesuids.contains(userUid)) {
-                          await FirebaseFirestore.instanceFor(app: secondApp)
-                              .collection('feed')
-                              .doc(feedData.documentId)
-                              .update({
-                            'likes': updatedLikes - 1,
-                            'Likesuids': FieldValue.arrayRemove([userUid]),
-                          });
-
-                          updatedLikesuids.remove(userUid);
-                          fetchLikesAndUpdateList(
-                              feedData.documentId, feedData);
-                        } else {
-                          await FirebaseFirestore.instanceFor(app: secondApp)
-                              .collection('feed')
-                              .doc(feedData.documentId)
-                              .update({
-                            'likes': updatedLikes + 1,
-                            'Likesuids': FieldValue.arrayUnion([userUid]),
-                          });
-
-                          updatedLikesuids.add(userUid);
-                          fetchLikesAndUpdateList(
-                              feedData.documentId, feedData);
-                        }
-
-                        // Update local state with the latest data
-                        setState(() {
-                          feedData.likes = updatedLikes;
-                          feedData.Likesuids = updatedLikesuids;
-                        });
-
-                        print("Likes and fav data updated: $feedDataList");
-                      } catch (error) {
-                        print("Error: $error");
-                      } finally {
-                        debounceTimer =
-                            Timer(const Duration(milliseconds: 100), () {
-                          isProcessing = false;
-                          debounceTimer?.cancel();
-                        });
-                      }
-                    },
-                    icon: feedData.Likesuids != null &&
-                            feedData.Likesuids!.contains(userUid)
-                        ? const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          )
-                        : const Icon(
-                            Icons.favorite_border,
+// Custom dots
+            Center(
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: feedData.mediaUrls.length != 1
+                      ? SizedBox(
+                          width: MediaQuery.of(context).size.width / 3,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(feedData.mediaUrls.length,
+                                (index) {
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 700),
+                                curve: Curves.decelerate,
+                                width: _currentIndex == index ? 7.0 : 7.0,
+                                height: 7.0,
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 4.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape
+                                      .rectangle, // Set to circle for selected index
+                                  borderRadius: _currentIndex == index
+                                      ? const BorderRadius.all(Radius.circular(
+                                          6.0)) // Adjust the radius as needed
+                                      : const BorderRadius.all(
+                                          Radius.circular(8.0)),
+                                  color: _currentIndex == index
+                                      ? const Color.fromRGBO(15, 39, 127, 1)
+                                      : const Color(0xffC0C0C0),
+                                ),
+                              );
+                            }),
                           ),
-                  ),
-                ],
-              ),
+                        )
+                      : const SizedBox()),
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  splashColor: Colors.transparent,
+                  onPressed: () async {
+                    if (isProcessing) {
+                      return;
+                    }
+
+                    isProcessing = true;
+
+                    try {
+                      DocumentSnapshot docSnapshot =
+                          await FirebaseFirestore.instanceFor(app: secondApp)
+                              .collection('feed')
+                              .doc(feedData.documentId)
+                              .get();
+
+                      int updatedLikes = docSnapshot['likes'];
+                      List<String>? updatedLikesuids =
+                          List<String>.from(docSnapshot['Likesuids'] ?? []);
+
+                      if (updatedLikesuids.contains(userUid)) {
+                        await FirebaseFirestore.instanceFor(app: secondApp)
+                            .collection('feed')
+                            .doc(feedData.documentId)
+                            .update({
+                          'likes': updatedLikes - 1,
+                          'Likesuids': FieldValue.arrayRemove([userUid]),
+                        });
+
+                        updatedLikesuids.remove(userUid);
+                        fetchLikesAndUpdateList(feedData.documentId, feedData);
+                      } else {
+                        await FirebaseFirestore.instanceFor(app: secondApp)
+                            .collection('feed')
+                            .doc(feedData.documentId)
+                            .update({
+                          'likes': updatedLikes + 1,
+                          'Likesuids': FieldValue.arrayUnion([userUid]),
+                        });
+
+                        updatedLikesuids.add(userUid);
+                        fetchLikesAndUpdateList(feedData.documentId, feedData);
+                      }
+
+                      // Update local state with the latest data
+                      setState(() {
+                        feedData.likes = updatedLikes;
+                        feedData.Likesuids = updatedLikesuids;
+                      });
+
+                      print("Likes and fav data updated: $feedDataList");
+                    } catch (error) {
+                      print("Error: $error");
+                    } finally {
+                      debounceTimer =
+                          Timer(const Duration(milliseconds: 100), () {
+                        isProcessing = false;
+                        debounceTimer?.cancel();
+                      });
+                    }
+                  },
+                  icon: feedData.Likesuids != null &&
+                          feedData.Likesuids!.contains(userUid)
+                      ? const Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                        )
+                      : const Icon(
+                          Icons.favorite_border,
+                        ),
+                ),
+              ],
             ),
             Align(
               alignment: Alignment.topLeft,
@@ -393,13 +431,13 @@ class _HomeState extends State<Newsandfeeds> {
               ),
             ),
             const SizedBox(height: 5),
-            const Align(
+            Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "2 days ago",
-                  style: TextStyle(fontSize: 10, color: Colors.black54),
+                  timeagoText,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
               ),
             ),
@@ -409,7 +447,7 @@ class _HomeState extends State<Newsandfeeds> {
     );
   }
 
-  Widget getUrlWidget(String url, count) {
+  Widget getUrlWidget(String url, int count, int index) {
     // return
     // child: count != 1 ? Text(count.toString()) : const Text("one"));
     if (url.contains('.mp4')) {
@@ -512,6 +550,7 @@ class FeedData {
   int likes;
   final String description;
   List<String>? Likesuids;
+  Timestamp timestamp;
 
   FeedData({
     required this.documentId,
@@ -521,17 +560,18 @@ class FeedData {
     required this.likes,
     required this.description,
     this.Likesuids,
+    required this.timestamp,
   });
 
   factory FeedData.fromMap(String documentId, Map<String, dynamic> data) {
     return FeedData(
-      documentId: documentId,
-      logo: data['logo'],
-      title: data['title'],
-      mediaUrls: List<String>.from(data['mediaUrls']),
-      likes: data['likes'],
-      description: data['description'],
-      Likesuids: List<String>.from(data['Likesuids'] ?? []),
-    );
+        documentId: documentId,
+        logo: data['logo'],
+        title: data['title'],
+        mediaUrls: List<String>.from(data['mediaUrls']),
+        likes: data['likes'],
+        description: data['description'],
+        Likesuids: List<String>.from(data['Likesuids'] ?? []),
+        timestamp: data['timestamp']);
   }
 }

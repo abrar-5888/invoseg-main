@@ -3,6 +3,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
+import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
+import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
+import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -13,14 +21,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
-import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
-import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
-import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
-import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
-import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
-import 'package:com.invoseg.innovation/global.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -56,7 +56,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           // .orderBy('time', descending: true)
-          .limit(30)
+          .limit(1)
           .get();
       // Initialize the link variable
 
@@ -259,7 +259,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           .collection('not_Home') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-          // .orderBy('time', descending: true)
+          .where('Status', isEqualTo: true)
           .limit(1)
           .get();
 
@@ -270,21 +270,53 @@ class _HomeDesign1State extends State<HomeDesign1> {
         final data = document.data() as Map<String, dynamic>;
 
         if (data.containsKey('to')) {
-          setState(() {
-            toField = data['to'] as String;
-            docid = document.id;
-            newSelectedDate = DateTime.parse(data['to'] as String);
-            //  temTODte = data['to'].substring(0.11) as String;
-            fbToDate = DateTime.parse(data['to'] as String);
-            fbFromDate = DateTime.parse(data['from'] as String);
+          DateTime checkDate = DateTime.now();
+          var checkDateFormate = DateFormat('yyyy-MM-dd').format(checkDate);
 
-            // fbToDate =  data['to'] as String;
-            // fbFromDate = data['from'] as String;
+          if (checkDateFormate != data['to']) {
+            setState(() {
+              toField = data['to'] as String;
+              docid = document.id;
+              newSelectedDate = DateTime.parse(data['to'] as String);
+              //  temTODte = data['to'].substring(0.11) as String;
+              fbToDate = DateTime.parse(data['to'] as String);
+              fbFromDate = DateTime.parse(data['from'] as String);
 
-            status = data["Status"];
+              // fbToDate =  data['to'] as String;
+              // fbFromDate = data['from'] as String;
 
-            print("$status+$toField+$docid+$fbToDate+$fbFromDate");
-          });
+              status = data["Status"];
+
+              print("$status+$toField+$docid+$fbToDate+$fbFromDate");
+
+              print('if worksssssssssssssssssss $docid');
+            });
+          } else {
+            print("else work");
+            setState(() async {
+              await FirebaseFirestore.instance
+                  .collection("not_Home")
+                  .doc(docid)
+                  .update({
+                'Status': false,
+                // 'cancelled': true,
+                'pressedTime1': DateTime.now()
+              });
+              toField = data['to'] as String;
+              docid = document.id;
+              newSelectedDate = DateTime.parse(data['to'] as String);
+              //  temTODte = data['to'].substring(0.11) as String;
+              fbToDate = DateTime.parse(data['to'] as String);
+              fbFromDate = DateTime.parse(data['from'] as String);
+
+              // fbToDate =  data['to'] as String;
+              // fbFromDate = data['from'] as String;
+
+              status = false;
+
+              print("$status+$toField+$docid+$fbToDate+$fbFromDate");
+            });
+          }
 
           print(DateFormat('yyyy-MM-dd').format(fbToDate));
           print("fbFromDate = $fbFromDate");
@@ -2913,7 +2945,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                   backgroundColor: MaterialStateProperty.all(Colors.black),
                                                                                 ),
                                                                                 onPressed: () async {
-                                                                                  print(docid);
+                                                                                  print("KDDDDDDDDDDDDDDDDDD$docid");
                                                                                   await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
                                                                                     'Status': false,
                                                                                     'cancelled': true,
@@ -2930,7 +2962,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "uid": userinfo['uid'],
                                                                                     'pressedTime': DateTime.now(),
                                                                                   });
-                                                                                  await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
+                                                                                  // await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
 
                                                                                   print("NOT HOMEE STATUS $status");
 
