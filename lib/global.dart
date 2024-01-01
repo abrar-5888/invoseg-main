@@ -7,36 +7,99 @@ int med_count = 0;
 int history_count = 0;
 int plot_count = 0;
 int feed_count = 0;
+String logo = "";
+bool isLoading = false;
+FirebaseApp secondApp = Firebase.app('CMS-All');
+
+Future<void> getLogo() async {
+  isLoading = true;
+  QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance.collection('Logo').limit(1).get();
+  DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+  final data = documentSnapshot.data() as Map<String, dynamic>;
+  print(data['logoId']);
+  logo = data['logoId'];
+  isLoading = false;
+}
 
 Future<List<bool>> getAllIsReadStatus() async {
   List<bool> isReadList = [];
+  List<bool> groList = [];
+  List<bool> medList = [];
+  // List<bool> isReadList = [];
+  // List<bool> isReadList = [];
+
   try {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('notifications')
         .where('isRead', isEqualTo: false)
         .get();
+
     for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
       final data = documentSnapshot.data() as Map<String, dynamic>;
       final isRead = data['isRead'] ?? false;
-      final des = data['description'];
-      if (des.toString().contains("Order") && isRead == false) {
-        gro_count = gro_count + 1;
-      }
-      if ((des.toString()).contains("Prescription") ||
-          (des.toString()).contains("generated") && isRead == false) {
-        med_count = med_count + 1;
-      }
 
       isReadList.add(isRead);
+      // if (isRead == false && data['description'].toString().contains("Order")) {
+      //   gro_count = gro_count + 1;
+      // } else if (isRead == false &&
+      //     data['description'].toString().contains("Meet ID")) {
+      //   med_count = med_count + 1;
+      // }
     }
-    print("ISREAD ++ ${isReadList}");
+
     notification_count = isReadList.length;
-    print("noti count== ${notification_count}");
+
+    QuerySnapshot med = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .where('title', isEqualTo: 'DOCTOR')
+        .get();
+
+    for (QueryDocumentSnapshot documentSnapshot in med.docs) {
+      final data = documentSnapshot.data() as Map<String, dynamic>;
+      final isRead = data['isRead'] ?? false;
+
+      medList.add(isRead);
+      // if (isRead == false && data['description'].toString().contains("Order")) {
+      //   gro_count = gro_count + 1;
+      // } else if (isRead == false &&
+      //     data['description'].toString().contains("Meet ID")) {
+      //   med_count = med_count + 1;
+      // }
+    }
+
+    med_count = medList.length;
+    QuerySnapshot gro = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .where('title', isEqualTo: 'GROCERY')
+        .get();
+
+    for (QueryDocumentSnapshot documentSnapshot in gro.docs) {
+      final data = documentSnapshot.data() as Map<String, dynamic>;
+      final isRead = data['isRead'] ?? false;
+
+      groList.add(isRead);
+      // if (isRead == false && data['description'].toString().contains("Order")) {
+      //   gro_count = gro_count + 1;
+      // } else if (isRead == false &&
+      //     data['description'].toString().contains("Meet ID")) {
+      //   med_count = med_count + 1;
+      // }
+    }
+
+    gro_count = groList.length;
+
+    // Notify listeners about the change
   } catch (e) {
     print('Error fetching isRead status: $e');
-    // Handle errors gracefully
   }
   return isReadList;
+}
+
+void resetNotificationCount() {
+  notification_count = 0;
 }
 
 Future<void> updateAllIsReadStatus(bool isRead) async {
@@ -52,6 +115,41 @@ Future<void> updateAllIsReadStatus(bool isRead) async {
     await batch.commit();
   } catch (e) {
     print('Error updating isRead status for all documents: $e');
-    // Handle errors gracefully
+  }
+}
+
+Future<void> updateGroisReadbool(bool isRead) async {
+  try {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where("title", isEqualTo: 'GROCERY')
+        .get();
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      batch.update(documentSnapshot.reference, {'isRead': isRead});
+    }
+
+    await batch.commit();
+  } catch (e) {
+    print('Error updating isRead status for all documents: $e');
+  }
+}
+
+Future<void> updateMedisRead(bool isRead) async {
+  try {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where("title", isEqualTo: "DOCTOR")
+        .get();
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      batch.update(documentSnapshot.reference, {'isRead': isRead});
+    }
+
+    await batch.commit();
+  } catch (e) {
+    print('Error updating isRead status for all documents: $e');
   }
 }

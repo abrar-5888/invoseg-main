@@ -43,11 +43,11 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.usman"
+        applicationId "com.invoseg.innovation"
         multiDexEnabled true
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -60,6 +60,17 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    // packagingOptions {
+    //     pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+    // }
+    packagingOptions {
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+    }
+
 }
 
 flutter {
@@ -69,5 +80,6 @@ flutter {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    // implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth")
+    
 }

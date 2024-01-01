@@ -1,8 +1,7 @@
+import 'package:badges/badges.dart' as badge;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:testapp/Screens/E-Reciept.dart';
-
-import 'package:badges/badges.dart' as badge;
+import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 
 class Rider extends StatefulWidget {
   const Rider({super.key});
@@ -16,7 +15,7 @@ class _RiderState extends State<Rider> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Riders'),
+          title: const Text('Riders'),
           centerTitle: true,
           leading: Container(),
         ),
@@ -32,7 +31,7 @@ class _RiderState extends State<Rider> {
                 builder: (context, grocerySnapshot) {
                   if (grocerySnapshot.connectionState ==
                       ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                       ),
@@ -42,7 +41,7 @@ class _RiderState extends State<Rider> {
                   } else {
                     final groceryDocs = grocerySnapshot.data!.docs;
                     return ListView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.zero,
                         itemCount: groceryDocs.length,
                         itemBuilder: (BuildContext context, int index) {
@@ -55,7 +54,7 @@ class _RiderState extends State<Rider> {
                             padding: const EdgeInsets.all(8.0),
                             child: Material(
                               color: Colors.white,
-                              shadowColor: Color(0xffBDBDBD),
+                              shadowColor: const Color(0xffBDBDBD),
                               elevation: 5,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
@@ -69,7 +68,7 @@ class _RiderState extends State<Rider> {
                                       children: [
                                         Text(
                                           "${groceryData['date']} ",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.black,
                                               fontWeight: FontWeight.w700),
                                         ),
@@ -78,8 +77,9 @@ class _RiderState extends State<Rider> {
                                             shape: badge.BadgeShape.square,
                                             badgeColor: groceryData['Status'] ==
                                                     'Deliverd'
-                                                ? Color.fromRGBO(15, 39, 127, 1)
-                                                : Color.fromRGBO(
+                                                ? const Color.fromRGBO(
+                                                    15, 39, 127, 1)
+                                                : const Color.fromRGBO(
                                                     15, 39, 127, 1),
                                             borderRadius:
                                                 BorderRadius.circular(8),
@@ -89,7 +89,7 @@ class _RiderState extends State<Rider> {
                                                       horizontal: 5.0),
                                               child: Text(
                                                 groceryData['Status'],
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
                                                     fontWeight:
@@ -99,10 +99,10 @@ class _RiderState extends State<Rider> {
                                       ],
                                     ),
                                   ),
-                                  ListTile(
+                                  const ListTile(
                                     title: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5.0),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 5.0),
                                       child: Text(
                                         'name',
                                         style: TextStyle(
@@ -142,41 +142,34 @@ class _RiderState extends State<Rider> {
                                                       .width /
                                                   2.7,
                                               child: ElevatedButton(
-                                                child: Text('Edit Order',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: Colors.black)),
                                                 onPressed: () {
                                                   if (true == true) {
                                                     showModalBottomSheet(
                                                         context: context,
                                                         shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.only(
-                                                              topLeft:
-                                                                  const Radius
+                                                            const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
                                                                       .circular(
-                                                                      25.0),
-                                                              topRight:
-                                                                  const Radius
+                                                                          25.0),
+                                                                  topRight: Radius
                                                                       .circular(
-                                                                      25.0)),
+                                                                          25.0)),
                                                         ),
                                                         builder: (BuildContext
                                                             context) {
                                                           return Container(
-                                                            decoration: BoxDecoration(
+                                                            decoration: const BoxDecoration(
                                                                 color: Colors
                                                                     .white,
                                                                 borderRadius: BorderRadius.only(
-                                                                    topLeft: const Radius
+                                                                    topLeft: Radius
                                                                         .circular(
-                                                                        25.0),
-                                                                    topRight: const Radius
+                                                                            25.0),
+                                                                    topRight: Radius
                                                                         .circular(
-                                                                        25.0))),
+                                                                            25.0))),
                                                             height: MediaQuery.of(
                                                                         context)
                                                                     .size
@@ -184,9 +177,8 @@ class _RiderState extends State<Rider> {
                                                                 2.4,
                                                             child: Column(
                                                               children: [
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .symmetric(
+                                                                const Padding(
+                                                                  padding: EdgeInsets.symmetric(
                                                                       horizontal:
                                                                           8.0,
                                                                       vertical:
@@ -203,11 +195,11 @@ class _RiderState extends State<Rider> {
                                                                             24),
                                                                   ),
                                                                 ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
+                                                                const Padding(
+                                                                  padding: EdgeInsets
                                                                       .symmetric(
-                                                                      horizontal:
-                                                                          16),
+                                                                          horizontal:
+                                                                              16),
                                                                   child:
                                                                       Divider(
                                                                     thickness:
@@ -216,9 +208,8 @@ class _RiderState extends State<Rider> {
                                                                         0xffEEEEEE),
                                                                   ),
                                                                 ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .symmetric(
+                                                                const Padding(
+                                                                  padding: EdgeInsets.symmetric(
                                                                       horizontal:
                                                                           8.0,
                                                                       vertical:
@@ -238,9 +229,8 @@ class _RiderState extends State<Rider> {
                                                                             24),
                                                                   ),
                                                                 ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .symmetric(
+                                                                const Padding(
+                                                                  padding: EdgeInsets.symmetric(
                                                                       horizontal:
                                                                           8.0,
                                                                       vertical:
@@ -281,8 +271,6 @@ class _RiderState extends State<Rider> {
                                                                               MediaQuery.of(context).size.width / 2.4,
                                                                           child:
                                                                               ElevatedButton(
-                                                                            child:
-                                                                                Text('Cancel', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)),
                                                                             onPressed:
                                                                                 () {
                                                                               Navigator.of(context).pop();
@@ -291,8 +279,10 @@ class _RiderState extends State<Rider> {
                                                                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                                                                   borderRadius: BorderRadius.circular(100),
                                                                                 )),
-                                                                                backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 216, 225, 235)),
-                                                                                padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 20))),
+                                                                                backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 216, 225, 235)),
+                                                                                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 20))),
+                                                                            child:
+                                                                                const Text('Cancel', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -307,8 +297,6 @@ class _RiderState extends State<Rider> {
                                                                               MediaQuery.of(context).size.width / 2.4,
                                                                           child:
                                                                               ElevatedButton(
-                                                                            child:
-                                                                                Text('Yes, Send Request', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                                                                             onPressed:
                                                                                 () {
                                                                               // alertme("edit");
@@ -316,10 +304,12 @@ class _RiderState extends State<Rider> {
                                                                             style: ButtonStyle(
                                                                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                                                                   borderRadius: BorderRadius.circular(100),
-                                                                                  side: BorderSide(color: Colors.black, width: 2.0),
+                                                                                  side: const BorderSide(color: Colors.black, width: 2.0),
                                                                                 )),
                                                                                 backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                                                padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 20))),
+                                                                                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 20))),
+                                                                            child:
+                                                                                const Text('Yes, Send Request', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
                                                                           ),
                                                                         ),
                                                                       ),
@@ -335,7 +325,7 @@ class _RiderState extends State<Rider> {
                                                             context)
                                                         .showSnackBar(
                                                       SnackBar(
-                                                        content: Text(
+                                                        content: const Text(
                                                             "Sorry! You can't edit your order now!"),
                                                         action: SnackBarAction(
                                                           label: "OK",
@@ -352,7 +342,7 @@ class _RiderState extends State<Rider> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               100),
-                                                      side: BorderSide(
+                                                      side: const BorderSide(
                                                           color: Colors.black,
                                                           width: 2.0),
                                                     )),
@@ -361,10 +351,17 @@ class _RiderState extends State<Rider> {
                                                             .all(Colors.white),
                                                     padding:
                                                         MaterialStateProperty
-                                                            .all(EdgeInsets
-                                                                .symmetric(
+                                                            .all(
+                                                                const EdgeInsets
+                                                                    .symmetric(
                                                                     horizontal:
                                                                         20))),
+                                                child: const Text('Edit Order',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.black)),
                                               ),
                                             ),
                                           ),
@@ -383,12 +380,6 @@ class _RiderState extends State<Rider> {
                                                         .width /
                                                     2.7,
                                             child: ElevatedButton(
-                                              child: Text('View E-Reciept',
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.white)),
                                               onPressed: () {
                                                 setState(() {
                                                   // GroceryId =
@@ -396,8 +387,8 @@ class _RiderState extends State<Rider> {
                                                   //         .id;
                                                 });
                                                 // fetchStatus(groceryData['status']);
-                                                print(
-                                                    "ID =  ${groceryDocs[index].id}");
+                                                // print(
+                                                //     "ID =  ${groceryDocs[index].id}");
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -418,9 +409,8 @@ class _RiderState extends State<Rider> {
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             100),
-                                                    side: BorderSide(
-                                                        color: const Color
-                                                            .fromRGBO(
+                                                    side: const BorderSide(
+                                                        color: Color.fromRGBO(
                                                             15, 39, 127, 1),
                                                         width: 0.0),
                                                   )),
@@ -430,8 +420,16 @@ class _RiderState extends State<Rider> {
                                                               15, 39, 127, 1)),
                                                   padding:
                                                       MaterialStateProperty.all(
-                                                          EdgeInsets.symmetric(
+                                                          const EdgeInsets
+                                                              .symmetric(
                                                               horizontal: 20))),
+                                              child: const Text(
+                                                  'View E-Reciept',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.white)),
                                             ),
                                           ),
                                         )
