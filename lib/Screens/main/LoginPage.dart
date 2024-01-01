@@ -865,15 +865,45 @@ class _LoginScreenState extends State<LoginScreen> {
                                               const TextStyle(fontSize: 10),
                                         ),
                                         onPressed: () {
-                                          // Navigator.push(
-                                          //     context,
-                                          //     PageTransition(
-                                          //         duration: Duration(
-                                          //             milliseconds: 700),
-                                          //         type: PageTransitionType
-                                          //             .rightToLeftWithFade,
-                                          //         child:
-                                          //             PhoneVerificationScreen()));
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                    'Forgot Password'),
+                                                content: const Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                        'Please contact our admin at:'),
+                                                    SizedBox(height: 8),
+                                                    Text(
+                                                      'info@invoseg.com',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors
+                                                            .blue, // Adjust the color as needed
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      // Add any actions or logic you want here
+                                                      Navigator.of(context)
+                                                          .pop(); // Close the alert box
+                                                    },
+                                                    child: const Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
                                         },
                                         child: const Text(
                                           'Forgot Password ?',

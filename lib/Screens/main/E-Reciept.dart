@@ -21,6 +21,21 @@ class ViewEReciept extends StatefulWidget {
 }
 
 class _ViewERecieptState extends State<ViewEReciept> {
+  String date = "", time = "";
+  Future<void> fetchDateAndTime() async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('grocery')
+        .doc(widget.id)
+        .get();
+
+    var data = documentSnapshot.data() as Map<String, dynamic>;
+    print("Datatatatatattatatatatatatata===========$data");
+    setState(() {
+      date = data['date'];
+      time = data['time'];
+    });
+  }
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String manuallySpecifiedUID = "";
@@ -32,6 +47,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     super.initState();
     manuallySpecifiedUID = widget.id;
     Status = widget.status;
+    fetchDateAndTime();
   }
 
   @override
@@ -158,44 +174,44 @@ class _ViewERecieptState extends State<ViewEReciept> {
                                     ],
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0, vertical: 8),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Order Date',
                                         style: TextStyle(
                                             color: Color(0xff616161),
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        'December 23, 2024',
-                                        style: TextStyle(
+                                        date,
+                                        style: const TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
                                       )
                                     ],
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0, vertical: 8),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Order Hours',
                                         style: TextStyle(
                                             color: Color(0xff616161),
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        '10:00 AM',
-                                        style: TextStyle(
+                                        time,
+                                        style: const TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
                                       )

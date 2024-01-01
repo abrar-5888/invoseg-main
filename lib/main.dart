@@ -117,7 +117,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         LoginScreen.routename: (ctx) => const LoginScreen(),
         requestLoginPage.route: (ctx) => const requestLoginPage(),
-        Home.routeName: (ctx) => const Home(),
+        // Home.routeName: (ctx) => const Home(),
         UserProfile.routename: (ctx) => const UserProfile(),
         ButtonsHistory.routename: (ctx) => const ButtonsHistory(),
         ViewEReciept.routename: (ctx) => const ViewEReciept(

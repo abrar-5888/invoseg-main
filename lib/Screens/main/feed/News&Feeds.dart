@@ -196,28 +196,35 @@ class _HomeState extends State<Newsandfeeds> {
     var feedTimestamp = timestamp.toDate();
     String timeagoText;
 
-    // Get the current timestamp
+// Get the current timestamp
     DateTime currentTimestamp = DateTime.now();
 
-    // Calculate the difference
+// Calculate the difference
     Duration difference = currentTimestamp.difference(feedTimestamp);
     int duration;
 
-    if (difference.inDays < 1) {
-      // If less than 24 hours, show the difference in hours
-
-      duration = difference.inHours;
-      timeagoText = "$duration hours ago";
-
-      print("The difference in hours is: $duration");
-    } else {
+    if (difference.inDays > 0) {
       // If more than 24 hours, show the difference in days
-
       duration = difference.inDays;
-
       timeagoText = "$duration days ago";
       print("The difference in days is: $duration");
+    } else if (difference.inHours > 0) {
+      // If less than 24 hours but more than 1 hour, show the difference in hours
+      duration = difference.inHours;
+      timeagoText = "$duration hours ago";
+      print("The difference in hours is: $duration");
+    } else if (difference.inMinutes > 0) {
+      // If less than 1 hour but more than 1 minute, show the difference in minutes
+      duration = difference.inMinutes;
+      timeagoText = "$duration minutes ago";
+      print("The difference in minutes is: $duration");
+    } else {
+      // If less than 1 minute, show the difference in seconds
+      duration = difference.inSeconds;
+      timeagoText = "$duration seconds ago";
+      print("The difference in seconds is: $duration");
     }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Container(

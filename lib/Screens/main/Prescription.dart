@@ -15,6 +15,22 @@ class Prescription extends StatefulWidget {
 }
 
 class _PrescriptionState extends State<Prescription> {
+  String date = "", time = "", doctorName = "";
+  Future<void> fetchDateAndTime() async {
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('consultation')
+        .doc(widget.id)
+        .get();
+
+    var data = documentSnapshot.data() as Map<String, dynamic>;
+    print("Datatatatatattatatatatatatata===========$data");
+    setState(() {
+      date = data['date'];
+      time = data['time'];
+      doctorName = data['doctorName'];
+    });
+  }
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String manuallySpecifiedUID = "";
@@ -22,6 +38,7 @@ class _PrescriptionState extends State<Prescription> {
   void initState() {
     super.initState();
     manuallySpecifiedUID = widget.id;
+    fetchDateAndTime();
   }
 
   @override
@@ -136,66 +153,66 @@ class _PrescriptionState extends State<Prescription> {
                                     ],
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0, vertical: 8),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Doctor Name',
                                         style: TextStyle(
                                             color: Color(0xff616161),
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        'Dr. Zahid Mehmood',
-                                        style: TextStyle(
+                                        doctorName,
+                                        style: const TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
                                       )
                                     ],
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0, vertical: 8),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Consultation Date',
                                         style: TextStyle(
                                             color: Color(0xff616161),
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        'December 23, 2024',
-                                        style: TextStyle(
+                                        date,
+                                        style: const TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
                                       )
                                     ],
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0, vertical: 8),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Consultation Hours',
                                         style: TextStyle(
                                             color: Color(0xff616161),
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        '10:00 AM',
-                                        style: TextStyle(
+                                        time,
+                                        style: const TextStyle(
                                             color: Color(0xff212121),
                                             fontWeight: FontWeight.w700),
                                       )

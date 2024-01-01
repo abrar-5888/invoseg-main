@@ -251,6 +251,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
   String toField = "";
   String docid = "";
   bool status = false;
+  String guardName = "";
+  String guardEmail = "";
+  String guardPhone = "";
 
   Future<String> fetchToFieldForLatestDocument(String? currentUserEmail) async {
     try {
@@ -268,6 +271,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
         // The first document in the result will be the latest one that matches the conditions
         final DocumentSnapshot document = querySnapshot.docs.first;
         final data = document.data() as Map<String, dynamic>;
+
+        print("data+++++++++++++++++++++===================$data");
+        setState(() {
+          guardPhone = data['guardPhone'] ?? "";
+          guardEmail = data['guardEmail'] ?? "";
+          guardName = data['guardName'] ?? "";
+        });
 
         if (data.containsKey('to')) {
           DateTime checkDate = DateTime.now();
@@ -1553,7 +1563,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             //     child:
 
                             SizedBox(
-                          height: 130,
+                          height: MediaQuery.of(context).size.height / 6.8,
                           width: double.infinity,
                           child: Column(
                             // mainAxisAlignment:
@@ -1869,13 +1879,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                         // ),
                       ),
                       // ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 3),
-                            child: InkWell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 0, vertical: 3),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            InkWell(
                               onTap: () async {
                                 //  await generatePDF();
                                 Navigator.push(
@@ -1888,7 +1898,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                               child: SizedBox(
                                 // color: Colors.green,
                                 // height: 80,
-                                width: MediaQuery.of(context).size.width / 5,
+                                width: MediaQuery.of(context).size.width / 4,
                                 child: Column(
                                   children: [
                                     Container(
@@ -1910,7 +1920,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                         'Visitors',
                                         // "Bills",
                                         style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 11,
+                                            // ),
                                             fontWeight: FontWeight.w600),
                                       ),
                                     )
@@ -1918,11 +1929,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 3),
-                            child: InkWell(
+                            InkWell(
                               onTap: () {
                                 Navigator.push(
                                     context,
@@ -1933,7 +1940,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                               child: SizedBox(
                                 // color: Colors.green,
                                 // height: 80,
-                                width: MediaQuery.of(context).size.width / 5,
+                                width: MediaQuery.of(context).size.width / 4,
                                 child: Column(
                                   children: [
                                     Container(
@@ -1961,11 +1968,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 3),
-                            child: InkWell(
+                            InkWell(
                               onTap: () {
                                 Navigator.push(
                                     context,
@@ -1979,7 +1982,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                               child: SizedBox(
                                 // color: Colors.green,
                                 // height: 80,
-                                width: MediaQuery.of(context).size.width / 4.8,
+                                width: MediaQuery.of(context).size.width / 4,
                                 child: Column(
                                   children: [
                                     Container(
@@ -2001,7 +2004,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                       child: Text(
                                         "Complaint",
                                         style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w600),
                                       ),
                                     )
@@ -2009,16 +2012,12 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                 ),
                               ),
                             ),
-                          ),
 
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 3),
-                            child: InkWell(
+                            InkWell(
                                 child: SizedBox(
                                   // color: Colors.green,
                                   // height: 80,
-                                  width: MediaQuery.of(context).size.width / 5,
+                                  width: MediaQuery.of(context).size.width / 4,
                                   child: Column(
                                     children: [
                                       Container(
@@ -3020,6 +3019,89 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     )),
                                                               ),
                                                             ),
+                                                            // const SizedBox(
+                                                            //   height: 10,
+                                                            // ),
+                                                            // const Padding(
+                                                            //   padding:
+                                                            //       EdgeInsets
+                                                            //           .all(8.0),
+                                                            //   child: Text(
+                                                            //       "Your Assigned gaurd details",
+                                                            //       style: TextStyle(
+                                                            //           fontSize:
+                                                            //               20,
+                                                            //           fontWeight:
+                                                            //               FontWeight
+                                                            //                   .bold)),
+                                                            // ),
+                                                            // const SizedBox(
+                                                            //     height: 10),
+                                                            // Align(
+                                                            //   alignment: Alignment
+                                                            //       .centerLeft,
+                                                            //   child: Padding(
+                                                            //     padding:
+                                                            //         const EdgeInsets
+                                                            //             .all(
+                                                            //             8.0),
+                                                            //     child: Text(
+                                                            //         "Name : ${guardName ?? ""}"),
+                                                            //   ),
+                                                            // ),
+                                                            // Align(
+                                                            //   alignment: Alignment
+                                                            //       .centerLeft,
+                                                            //   child: Padding(
+                                                            //     padding:
+                                                            //         const EdgeInsets
+                                                            //             .all(
+                                                            //             8.0),
+                                                            //     child: Text(
+                                                            //         "Email : ${guardEmail ?? ""}"),
+                                                            //   ),
+                                                            // ),
+                                                            // Align(
+                                                            //   alignment: Alignment
+                                                            //       .centerLeft,
+                                                            //   child: Padding(
+                                                            //     padding:
+                                                            //         const EdgeInsets
+                                                            //             .all(
+                                                            //             8.0),
+                                                            //     child: Row(
+                                                            //       mainAxisAlignment:
+                                                            //           MainAxisAlignment
+                                                            //               .spaceBetween,
+                                                            //       children: [
+                                                            //         Text(
+                                                            //             "Phone No : ${guardPhone ?? ""}"),
+                                                            //         if (guardPhone
+                                                            //             .isNotEmpty)
+                                                            //           IconButton(
+                                                            //               onPressed:
+                                                            //                   () async {
+                                                            //                 final Uri
+                                                            //                     uri =
+                                                            //                     Uri.parse('tel:$guardPhone');
+                                                            //                 if (await canLaunchUrl(uri)) {
+                                                            //                   await launchUrl(uri);
+                                                            //                 } else {
+                                                            //                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                            //                     content: const Text("can not call right now ! please try again later"),
+                                                            //                     action: SnackBarAction(
+                                                            //                       label: 'ok',
+                                                            //                       onPressed: () {},
+                                                            //                     ),
+                                                            //                   ));
+                                                            //                 }
+                                                            //               },
+                                                            //               icon:
+                                                            //                   const Icon(Icons.call))
+                                                            //       ],
+                                                            //     ),
+                                                            //   ),
+                                                            // )
                                                           ],
                                                         ),
                                                         actions: <Widget>[
@@ -3198,9 +3280,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     //   },
                                     // );
                                   }
-                                }),
-                          ), //
-                        ],
+                                }), //
+                          ],
+                        ),
                       ),
                       const Row(
                         children: [
@@ -3224,7 +3306,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           onTap: () {},
                           child: SizedBox(
                             // color: Colors.amber,
-                            height: MediaQuery.of(context).size.width / 2.5,
+                            height: MediaQuery.of(context).size.width / 3,
                             child: ListView.builder(
                               itemCount: plotsDetails.length,
                               scrollDirection: Axis.horizontal,
@@ -3259,24 +3341,16 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                           // padding:
                                           // const EdgeInsets.all(8.0),
                                           // child:
-                                          Container(
-                                            // height: 100,
-                                            // width:
-                                            //     MediaQuery.of(context)
-                                            //             .size
-                                            //             .width /
-                                            //         3.3,
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              child: Image.network(
-                                                plotsDetails[index]['image'],
-                                                height: 140,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    3.3,
-                                              ),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.network(
+                                              plotsDetails[index]['image'],
+                                              // height: 140,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3.3,
                                             ),
                                           ),
                                           // ),
@@ -3284,7 +3358,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                             padding: const EdgeInsets.only(
                                               left: 2,
                                               right: 2,
-                                              top: 5,
+                                              top: 3,
                                               // bottom: 2,
                                             ),
                                             child: Column(children: [
@@ -3292,7 +3366,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    7,
+                                                    9,
                                                 width: MediaQuery.of(context)
                                                         .size
                                                         .width /
@@ -3325,7 +3399,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                             plotsDetails[index]
                                                                 ['price'],
                                                         style: const TextStyle(
-                                                            fontSize: 12,
+                                                            fontSize: 10,
                                                             fontWeight:
                                                                 FontWeight
                                                                     .bold),
@@ -3337,7 +3411,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         plotsDetails[index]
                                                             ['address'],
                                                         style: const TextStyle(
-                                                            fontSize: 12,
+                                                            fontSize: 10,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             color:
@@ -3349,14 +3423,11 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                       Text(
                                                         "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']}, ${plotsDetails[index]['bath']}",
                                                         style: const TextStyle(
-                                                          fontSize: 12,
+                                                          fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                        height: 5,
-                                                      )
                                                     ],
                                                   ),
                                                   //subtitle: ,
