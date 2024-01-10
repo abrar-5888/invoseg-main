@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:com.invoseg.innovation/Screens/main/Design.dart';
 import 'package:com.invoseg.innovation/Screens/main/Emergency.dart';
 import 'package:com.invoseg.innovation/Screens/main/Grocery.dart';
 import 'package:com.invoseg.innovation/Screens/main/feed/News&Feeds.dart';
 import 'package:com.invoseg.innovation/Screens/main/plots.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
 class TabsScreen extends StatefulWidget {
   static const route = 'tabsScreen';
@@ -126,8 +126,10 @@ class _TabsScreenState extends State<TabsScreen> {
       }
     ];
     super.initState();
+
     // getAllIsReadStatus();
     addFcmToken();
+    addCount();
     getAllIsReadStatus();
     print("++++++++++++++++++++++++++++++++++++++$med_count");
     setState(() {
@@ -158,6 +160,9 @@ class _TabsScreenState extends State<TabsScreen> {
         setState(() {
           med_count = 0;
         });
+      }
+      if (_selectedPageIndex == 0) {
+        updateTabs();
       }
     });
   }

@@ -22,7 +22,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class HomeDesign1 extends StatefulWidget {
@@ -381,6 +380,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                         FCMtoken = token;
                         btnOnOff = true;
                       });
+                      updateButtonOne();
 
                       // Step 1: Query the main collection based on parentID
                       final mainCollectionQuery = await FirebaseFirestore
@@ -664,6 +664,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                       FCMtoken = token;
                       btnOnOff = true;
                     });
+                    updateButtonThree();
                     final mainCollectionQuery = await FirebaseFirestore.instance
                         .collection(
                             "UserRequest") // Replace with your main collection
@@ -973,6 +974,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                       FCMtoken = token;
                       btnOnOff = true;
                     });
+                    updateButtonTwo();
                     final mainCollectionQuery = await FirebaseFirestore.instance
                         .collection(
                             "UserRequest") // Replace with your main collection
@@ -1269,11 +1271,16 @@ class _HomeDesign1State extends State<HomeDesign1> {
     super.didChangeDependencies();
   }
 
-  late VideoPlayerController _controller;
-  bool startedPlaying = false;
+  // late VideoPlayerController _controller;
+  // bool startedPlaying = false;
   String video = "";
   @override
   void initState() {
+    Future.delayed(const Duration(seconds: 2), () {
+      const CircularProgressIndicator(
+        color: Color.fromRGBO(15, 39, 127, 1),
+      );
+    });
     fetchPlots();
     DateTime currentTime = DateTime.now();
 
@@ -1300,7 +1307,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
         ),
       );
     });
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
       });
@@ -1310,10 +1317,10 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
     // fetchDataAndUseLink();
 
-    _controller = VideoPlayerController.asset("assets/video-demo.mp4");
-    _controller.addListener(() {
-      if (startedPlaying && !_controller.value.isPlaying) {}
-    });
+    // _controller = VideoPlayerController.asset("assets/video-demo.mp4");
+    // _controller.addListener(() {
+    //   if (startedPlaying && !_controller.value.isPlaying) {}
+    // });
 
     print("OKA");
 
@@ -1324,16 +1331,16 @@ class _HomeDesign1State extends State<HomeDesign1> {
     );
   }
 
-  Future<bool> started() async {
-    await _controller.initialize();
-    await _controller.play();
-    startedPlaying = true;
-    return true;
-  }
+  // Future<bool> started() async {
+  //   await _controller.initialize();
+  //   await _controller.play();
+  //   startedPlaying = true;
+  //   return true;
+  // }
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 
@@ -1888,6 +1895,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             InkWell(
                               onTap: () async {
                                 //  await generatePDF();
+                                updateMainIcons();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -1931,6 +1939,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             ),
                             InkWell(
                               onTap: () {
+                                updateMainIcons();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -1970,6 +1979,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                             ),
                             InkWell(
                               onTap: () {
+                                updateMainIcons();
                                 Navigator.push(
                                     context,
                                     PageTransition(
@@ -2045,6 +2055,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                   ),
                                 ),
                                 onTap: () {
+                                  updateMainIcons();
                                   // status = false;
                                   if (status == false) {
                                     print(
@@ -3373,6 +3384,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                     3,
                                                 child: ListTile(
                                                   onTap: () {
+                                                    updateTrendingP();
                                                     Navigator.push(
                                                         context,
                                                         PageTransition(

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
+import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
-import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
 
 class UserProfile extends StatefulWidget {
   static const routename = 'userprofile';
@@ -19,6 +20,13 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    updateViewProf();
+  }
+
   String filePath = "";
   @override
   Widget build(BuildContext context) {
@@ -124,6 +132,7 @@ class _UserProfileState extends State<UserProfile> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               onPressed: () {
+                                updateAddFM();
                                 String docid = userinfo["uid"];
                                 Navigator.push(
                                     context,

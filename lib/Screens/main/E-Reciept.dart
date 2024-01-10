@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -47,6 +48,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     super.initState();
     manuallySpecifiedUID = widget.id;
     Status = widget.status;
+    print(manuallySpecifiedUID);
     fetchDateAndTime();
   }
 
@@ -448,6 +450,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
                                   onPressed: () {
                                     print(Status);
                                     if (isButtonEnabled == true) {
+                                      updateEditButton();
                                       alertme("button-three");
                                     } else {
                                       ScaffoldMessenger.of(context)

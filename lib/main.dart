@@ -1,7 +1,6 @@
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
-import 'package:com.invoseg.innovation/Screens/main/Dashboard.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 import 'package:com.invoseg.innovation/Screens/main/History.dart';
 import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
@@ -9,9 +8,11 @@ import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
 import 'package:com.invoseg.innovation/Screens/main/Profile.dart';
 import 'package:com.invoseg.innovation/Screens/main/RequestLogin.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
 import 'package:com.invoseg.innovation/Screens/main/splashscreen.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -58,7 +59,12 @@ class _MyAppState extends State<MyApp> {
               messagingSenderId: '338409219512',
               projectId: 'cms-all'));
       print("Success +++++++++++++2");
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+
       await FirebaseApi().inNotify();
+      await NamedFirebaseMessaging(secondApp).main1();
+
       setState(() {
         _initialized = true;
       });
@@ -68,6 +74,12 @@ class _MyAppState extends State<MyApp> {
         _error = true;
       });
     }
+  }
+
+  Future<void> _firebaseMessagingBackgroundHandler(
+      RemoteMessage message) async {
+    print("Handling a background message: $message");
+    // Handle the background message here
   }
 
   @override
@@ -114,6 +126,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
       home: const SplashScreen(),
+      navigatorKey: navigatorKey,
       routes: {
         LoginScreen.routename: (ctx) => const LoginScreen(),
         requestLoginPage.route: (ctx) => const requestLoginPage(),
@@ -134,8 +147,10 @@ class _MyAppState extends State<MyApp> {
               ownerss: "",
               addresss: "",
             ),
-        Complainform.routename: (ctx) => const Complainform(),
-        '/notification': (ctx) => const Notifications()
+        // Complainform.routename: (ctx) => const Complainform(),
+        '/notification': (ctx) => const Notifications(),
+        '/complaint': (ctx) => const Complainform(),
+        '/tabsScreen': (ctx) => TabsScreen(index: 0)
       },
     );
   }

@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
 
 class ResidentID extends StatefulWidget {
   const ResidentID({super.key});
@@ -50,6 +51,7 @@ class _ResidentIDState extends State<ResidentID> {
           style: TextStyle(color: Colors.white),
         ),
         onPressed: () async {
+          updateResidentIdCount();
           QuerySnapshot querySnapshot = await FirebaseFirestore.instance
               .collection('UserRequest')
               .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)

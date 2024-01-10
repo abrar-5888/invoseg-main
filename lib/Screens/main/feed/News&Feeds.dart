@@ -42,6 +42,7 @@ class _HomeState extends State<Newsandfeeds> {
   void initState() {
     super.initState();
     fetchData();
+    updateTabs();
     userUid = FirebaseAuth.instance.currentUser!.uid; // Initialize userUid
   }
 
@@ -71,6 +72,7 @@ class _HomeState extends State<Newsandfeeds> {
     try {
       final snapshot = await FirebaseFirestore.instanceFor(app: secondApp)
           .collection('feed')
+          .where('izmir', isEqualTo: true)
           .orderBy('timestamp', descending: true)
           .get();
       if (snapshot.docs.isNotEmpty) {

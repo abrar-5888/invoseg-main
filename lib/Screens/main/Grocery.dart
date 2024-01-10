@@ -32,6 +32,7 @@ class _GroceryState extends State<Grocery> {
     // This line was already there, updating notification count on page load
     // updateAllIsReadStatus(true);
     getAllIsReadStatus();
+    updateTabs();
 
     GroceryId = "";
     Timer(const Duration(minutes: 5), () {
@@ -413,6 +414,7 @@ class _GroceryState extends State<Grocery> {
                                                                                 width: MediaQuery.of(context).size.width / 2.4,
                                                                                 child: ElevatedButton(
                                                                                   onPressed: () {
+                                                                                    updateEditButton();
                                                                                     alertme("button-three");
                                                                                   },
                                                                                   style: ButtonStyle(
@@ -524,7 +526,6 @@ class _GroceryState extends State<Grocery> {
                                                               status:
                                                                   groceryData[
                                                                       'Status'],
-                                                                      
                                                             ),
                                                           ));
                                                     },

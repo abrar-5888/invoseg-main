@@ -24,6 +24,7 @@ class _NotificationsState extends State<Notifications> {
     setState(() {
       notification_count = 0;
     });
+    updateNoti();
     resetNotificationCount();
     updateAllIsReadStatus(true);
   }

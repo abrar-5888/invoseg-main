@@ -37,6 +37,7 @@ class _PlotsState extends State<Plots> {
   void initState() {
     // TODO: implement initState
     // plot_count = 0;
+    updateTabs();
 
     getAllIsReadStatus();
   }
