@@ -11,11 +11,15 @@ int feed_count = 0;
 String logo = "";
 bool isLoading = false;
 FirebaseApp secondApp = Firebase.app('CMS-All');
+FirebaseApp firstApp = Firebase.app('Usman');
 
 Future<void> getLogo() async {
   isLoading = true;
   QuerySnapshot querySnapshot =
-      await FirebaseFirestore.instance.collection('Logo').limit(1).get();
+      await FirebaseFirestore.instanceFor(app: firstApp)
+          .collection('Logo')
+          .limit(1)
+          .get();
   DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
   final data = documentSnapshot.data() as Map<String, dynamic>;
   print(data['logoId']);

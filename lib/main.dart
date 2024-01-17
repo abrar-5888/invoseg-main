@@ -47,18 +47,30 @@ class _MyAppState extends State<MyApp> {
   bool _initialized = false;
   bool _error = false;
 
-  void initializeFlutterFire() async {
+  Future<void> initializeFlutterFire() async {
     try {
-      await Firebase.initializeApp();
-      print("1");
       await Firebase.initializeApp(
-          name: 'CMS-All',
+          name: 'Usman',
           options: const FirebaseOptions(
-              appId: '1:338409219512:android:5000fb6deab76f80ac9b4d',
-              apiKey: 'AIzaSyD23Kr8eJoeJIPMGGnsDNuoahHuRBNyQMs',
-              messagingSenderId: '338409219512',
-              projectId: 'cms-all'));
-      print("Success +++++++++++++2");
+              apiKey: 'AIzaSyCiHb1GzSeC19Qz3kSuL1i6o7M9soXSxmk',
+              appId: '1:301480140457:android:e7ddae384174ac69c613b8',
+              messagingSenderId: '301480140457',
+              projectId: 'usman-a51d1')); // Initialize the default app
+
+      print('1');
+
+      await Firebase.initializeApp(
+        name: 'CMS-All',
+        options: const FirebaseOptions(
+          appId: '1:338409219512:android:5000fb6deab76f80ac9b4d',
+          apiKey: 'AIzaSyD23Kr8eJoeJIPMGGnsDNuoahHuRBNyQMs',
+          messagingSenderId: '338409219512',
+          projectId: 'cms-all',
+        ),
+      );
+
+      print("Firebase initialization successful");
+
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);
 
@@ -69,7 +81,7 @@ class _MyAppState extends State<MyApp> {
         _initialized = true;
       });
     } catch (e) {
-      print(e);
+      print("ERROR: $e");
       setState(() {
         _error = true;
       });
@@ -84,8 +96,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    initializeFlutterFire();
     super.initState();
+
+    initializeFlutterFire();
     //  _fc.subscribeToTopic("Events");
     getAllIsReadStatus();
     getLogo();
@@ -98,9 +111,10 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(
+        home: Scaffold(
           body: AlertDialog(
-            content: Text('Something went wrong. Please restart the app.'),
+            content:
+                Text('Something went wrong. Please restart the app.$_error'),
           ),
         ),
       );
