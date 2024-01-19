@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
+import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
 import 'package:com.invoseg.innovation/global.dart'; // Import your NotificationCounterProvider
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -379,8 +380,7 @@ class _NotificationsState extends State<Notifications> {
                             },
                           );
                         }
-                      }
-                      if (des.isNotEmpty &&
+                      } else if (des.isNotEmpty &&
                           des.toString().contains("Prescription")) {
                         Navigator.push(
                             context,
@@ -388,9 +388,8 @@ class _NotificationsState extends State<Notifications> {
                                 builder: (context) => Prescription(
                                       id: ids,
                                     )));
-                      }
-
-                      if (des.isNotEmpty && des.toString().contains("Order")) {
+                      } else if (des.isNotEmpty &&
+                          des.toString().contains("Order")) {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -399,13 +398,30 @@ class _NotificationsState extends State<Notifications> {
                                       status: "",
                                       id: ids,
                                     )));
-                      }
-                      if (des.isNotEmpty &&
+                      } else if (des.isNotEmpty &&
                           des.toString().contains("Complaint")) {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const Complainform(),
+                            ));
+                      } else if (des.isNotEmpty &&
+                          des.toString().contains("Meet ID")) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TabsScreen(
+                                index: 2,
+                              ),
+                            ));
+                      } else if (des.isNotEmpty &&
+                          des.toString().contains("Home")) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TabsScreen(
+                                index: 0,
+                              ),
                             ));
                       }
                     },

@@ -33,7 +33,7 @@ class FirebaseApi {
   RemoteMessage? message1;
   void handleMessage(RemoteMessage? message) {
     if (message != null) {
-      print("if working in handle message ${message1!.data['documentId']} ");
+      print("if working in handle message ");
       message1 = message;
       String? title = message1!.notification!.title;
       String? body = message1!.notification!.body;
@@ -51,7 +51,7 @@ class FirebaseApi {
         navigatorKey.currentState?.push(MaterialPageRoute(
             builder: (context) =>
                 ViewEReciept(value: false, id: data, status: "Delivered")));
-      } else if (title.toString().contains("Link")) {
+      } else if (title.toString().contains("Link Generated")) {
         print("firebase API `Message = ${message1!.notification!.title}");
         navigatorKey.currentState?.push(
             MaterialPageRoute(builder: (context) => TabsScreen(index: 2)));

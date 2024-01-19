@@ -2290,6 +2290,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                   } else {
                                                                                     print('Document with ID $parentId does not exist.');
                                                                                   }
+
                                                                                   await FirebaseFirestore.instance.collection("not_Home").add({
                                                                                     'FCMtoken': FCMtoken,
                                                                                     'time': DateTime.now(),
@@ -2300,7 +2301,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
                                                                                     "fmphoneNo1": fmphoneNo1,
-                                                                                    'from': currentdate.text,
+                                                                                    // 'from': currentdate.text,
+                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
                                                                                     'to': _dateController.text,
                                                                                     "days": _daysDifference,
                                                                                     'Name': '${userinfo['name']}',
@@ -2359,7 +2361,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "fmName1": "",
                                                                                     "fmphoneNo": "",
                                                                                     "fmphoneNo1": "",
-                                                                                    'from': currentdate.text,
+                                                                                    // 'from': currentdate.text,
+                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+
                                                                                     'to': _dateController.text,
                                                                                     "days": _daysDifference,
                                                                                     'Name': '${userinfo['name']}',
@@ -2681,7 +2685,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                     "fmName1": fmName1,
                                                                                     "fmphoneNo": fmphoneNo,
                                                                                     "fmphoneNo1": fmphoneNo1,
-                                                                                    'from': currentdate.text,
+                                                                                    // 'from': currentdate.text,
+                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+
                                                                                     'to': _dateController.text,
                                                                                     "days": _daysDifference,
                                                                                     'Name': '${userinfo['name']}',

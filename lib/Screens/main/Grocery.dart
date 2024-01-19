@@ -768,6 +768,7 @@ class _GroceryState extends State<Grocery> {
                             "pressedTime": FieldValue.serverTimestamp(),
                           });
                           Navigator.of(ctx).pop(true);
+                          Navigator.pop(context);
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
