@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
           _firebaseMessagingBackgroundHandler);
 
       await FirebaseApi().inNotify();
-      await NamedFirebaseMessaging(secondApp).main1();
+      // await NamedFirebaseMessaging(secondApp).main1();
 
       setState(() {
         _initialized = true;

@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Models/addFM.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/Models/addFM.dart';
 
 class FamilyMembers extends StatefulWidget {
   static const routename = 'Family-Members';
@@ -136,18 +136,11 @@ class _FamilyMembersState extends State<FamilyMembers> {
         _isloading = false;
       });
 
-      if (length.toString() == null) {
-        setState(() {
-          _isloading = false;
-          remaining = 8;
-        });
-      } else {
-        setState(() {
-          _isloading = false;
-          remaining = 7 - length;
-        });
-        // print("Remaining = $remaining");
-      }
+      setState(() {
+        _isloading = false;
+        remaining = 7 - length;
+      });
+      // print("Remaining = $remaining");
       _isloading = false;
     }
   }
@@ -176,15 +169,9 @@ class _FamilyMembersState extends State<FamilyMembers> {
         String? uid = userinfo.getString('uid');
         String? emailaaa = userinfo.getString('email');
         EasyLoading.show();
-        if (addFMmodel.email != null) {
-          setState(() {
-            email = addFMmodel.email;
-          });
-        } else {
-          setState(() {
-            email = "${addFMmodel.phoneNo}@gmail.com";
-          });
-        }
+        setState(() {
+          email = addFMmodel.email;
+        });
         pass = addFMmodel.password;
         print("Email = $email,password = $pass");
 
@@ -227,16 +214,10 @@ class _FamilyMembersState extends State<FamilyMembers> {
             // If the subcollection has 8 documents
             EasyLoading.showError("Maximum Logins Exceeded!");
           } else {
-            if (length.toString() == null) {
-              setState(() {
-                remaining = 8;
-              });
-            } else {
-              setState(() {
-                remaining = 7 - length;
-              });
-              // print("Remaining = $remaining");
-            }
+            setState(() {
+              remaining = 7 - length;
+            });
+            // print("Remaining = $remaining");
 
             Map<String, dynamic> fmData = {
               "remaining": remaining,

@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
-import 'package:com.invoseg.innovation/global.dart';
 
 class LifeStyle extends StatefulWidget {
   const LifeStyle({super.key});
@@ -65,8 +64,9 @@ class _LifeStyleState extends State<LifeStyle> {
                 height: MediaQuery.of(context).size.height / 1.23,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instanceFor(app: secondApp)
+                    future: FirebaseFirestore.instance
                         .collection("discounts")
+                        .orderBy('timestamp', descending: true)
                         .where("category", isEqualTo: 'Life Style')
                         .get(),
                     builder: (context, discountSnapshot) {

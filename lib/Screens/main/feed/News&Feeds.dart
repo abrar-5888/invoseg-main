@@ -49,11 +49,10 @@ class _HomeState extends State<Newsandfeeds> {
   Future<void> fetchLikesAndUpdateList(
       String documentId, FeedData feedData) async {
     try {
-      final DocumentSnapshot docSnapshot =
-          await FirebaseFirestore.instanceFor(app: secondApp)
-              .collection('feed')
-              .doc(documentId)
-              .get();
+      final DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('feed')
+          .doc(documentId)
+          .get();
 
       int updatedLikes = docSnapshot['likes'];
 
@@ -70,7 +69,7 @@ class _HomeState extends State<Newsandfeeds> {
 
   Future<void> fetchData() async {
     try {
-      final snapshot = await FirebaseFirestore.instanceFor(app: secondApp)
+      final snapshot = await FirebaseFirestore.instance
           .collection('feed')
           .where('izmir', isEqualTo: true)
           .orderBy('timestamp', descending: true)
@@ -344,18 +343,18 @@ class _HomeState extends State<Newsandfeeds> {
                     isProcessing = true;
 
                     try {
-                      DocumentSnapshot docSnapshot =
-                          await FirebaseFirestore.instanceFor(app: secondApp)
-                              .collection('feed')
-                              .doc(feedData.documentId)
-                              .get();
+                      DocumentSnapshot docSnapshot = await FirebaseFirestore
+                          .instance
+                          .collection('feed')
+                          .doc(feedData.documentId)
+                          .get();
 
                       int updatedLikes = docSnapshot['likes'];
                       List<String>? updatedLikesuids =
                           List<String>.from(docSnapshot['Likesuids'] ?? []);
 
                       if (updatedLikesuids.contains(userUid)) {
-                        await FirebaseFirestore.instanceFor(app: secondApp)
+                        await FirebaseFirestore.instance
                             .collection('feed')
                             .doc(feedData.documentId)
                             .update({
@@ -366,7 +365,7 @@ class _HomeState extends State<Newsandfeeds> {
                         updatedLikesuids.remove(userUid);
                         fetchLikesAndUpdateList(feedData.documentId, feedData);
                       } else {
-                        await FirebaseFirestore.instanceFor(app: secondApp)
+                        await FirebaseFirestore.instance
                             .collection('feed')
                             .doc(feedData.documentId)
                             .update({

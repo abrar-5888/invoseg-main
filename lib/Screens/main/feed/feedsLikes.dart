@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/global.dart';
 
 class LikesPage extends StatefulWidget {
   var documentId;
@@ -15,11 +14,10 @@ class _LikesPageState extends State<LikesPage> {
 
   Future<void> getLikesUsers() async {
     try {
-      DocumentSnapshot documentSnapshot =
-          await FirebaseFirestore.instanceFor(app: secondApp)
-              .collection('feed')
-              .doc(widget.documentId)
-              .get();
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('feed')
+          .doc(widget.documentId)
+          .get();
       if (documentSnapshot.exists) {
         // Get the likesuids array field from the document
         var data = documentSnapshot.data() as Map<String, dynamic>;
@@ -51,7 +49,7 @@ class _LikesPageState extends State<LikesPage> {
 
               //   // User not found in 'UserRequest', check in 'FMData' subcollection
               QuerySnapshot<Map<String, dynamic>> fmDataSnapshot =
-                  await FirebaseFirestore.instanceFor(app: secondApp)
+                  await FirebaseFirestore.instance
                       .collection('UserRequest')
                       .doc(userId)
                       .collection('FMData')

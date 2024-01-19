@@ -414,17 +414,14 @@ class _NotificationsState extends State<Notifications> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     leading: Container(
-                      height: 100,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffd9d9d9),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const Icon(
-                        Icons.image,
-                        color: Color(0xff2824e5),
-                      ),
-                    ),
+                        height: 100,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xffd9d9d9),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child:
+                            Image.asset('assets/Images/TransparentLogo.png')),
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

@@ -2011,11 +2011,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     ),
                                     const Padding(
                                       padding: EdgeInsets.all(5.0),
-                                      child: Text(
-                                        "Complaint",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600),
+                                      child: FittedBox(
+                                        child: Text(
+                                          "Complaint",
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600),
+                                        ),
                                       ),
                                     )
                                   ],
@@ -2044,11 +2046,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                       ),
                                       const Padding(
                                         padding: EdgeInsets.all(5.0),
-                                        child: Text(
-                                          "Not Home",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600),
+                                        child: FittedBox(
+                                          child: Text(
+                                            "Not Home",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -3331,9 +3335,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                   ),
                                   child: Container(
                                     height: MediaQuery.of(context).size.height /
-                                        2.8,
+                                        3.2,
                                     width:
-                                        MediaQuery.of(context).size.width / 1.4,
+                                        MediaQuery.of(context).size.width / 1.3,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(
                                           15.0), // Adjust the radius as needed
@@ -3357,11 +3361,11 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                 BorderRadius.circular(15),
                                             child: Image.network(
                                               plotsDetails[index]['image'],
-                                              // height: 140,
+                                              // height: 300,
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width /
-                                                  3.3,
+                                                  2.5,
                                             ),
                                           ),
                                           // ),
@@ -3372,80 +3376,98 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                               top: 3,
                                               // bottom: 2,
                                             ),
-                                            child: Column(children: [
-                                              SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    9,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    3,
-                                                child: ListTile(
-                                                  onTap: () {
-                                                    updateTrendingP();
-                                                    Navigator.push(
-                                                        context,
-                                                        PageTransition(
-                                                            duration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        700),
-                                                            type: PageTransitionType
-                                                                .rightToLeftWithFade,
-                                                            child: PlotsDetail(
-                                                                ids: plotsDetails[
-                                                                        index]
-                                                                    ['id'])));
-                                                  },
-                                                  title: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        "PKR " +
-                                                            plotsDetails[index]
-                                                                ['price'],
-                                                        style: const TextStyle(
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                            child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            9,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            3,
+                                                    child: ListTile(
+                                                      onTap: () {
+                                                        updateTrendingP();
+                                                        Navigator.push(
+                                                            context,
+                                                            PageTransition(
+                                                                duration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            700),
+                                                                type: PageTransitionType
+                                                                    .rightToLeftWithFade,
+                                                                child: PlotsDetail(
+                                                                    ids: plotsDetails[
+                                                                            index]
+                                                                        [
+                                                                        'id'])));
+                                                      },
+                                                      title: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          FittedBox(
+                                                            child: Text(
+                                                              "PKR " +
+                                                                  plotsDetails[
+                                                                          index]
+                                                                      ['price'],
+                                                              style: const TextStyle(
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          FittedBox(
+                                                            child: Text(
+                                                              plotsDetails[
+                                                                      index]
+                                                                  ['address'],
+                                                              style: const TextStyle(
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black45),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          FittedBox(
+                                                            child: Text(
+                                                              "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']},\n${plotsDetails[index]['bath']}",
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      const SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Text(
-                                                        plotsDetails[index]
-                                                            ['address'],
-                                                        style: const TextStyle(
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color:
-                                                                Colors.black45),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 5,
-                                                      ),
-                                                      Text(
-                                                        "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']}, ${plotsDetails[index]['bath']}",
-                                                        style: const TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                      //subtitle: ,
+                                                    ),
                                                   ),
-                                                  //subtitle: ,
-                                                ),
-                                              ),
-                                            ]),
+                                                ]),
                                           ),
                                         ],
                                       ),
@@ -3466,11 +3488,10 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
   Future<void> fetchPlots() async {
     try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instanceFor(app: secondApp)
-              .collection('plots')
-              .orderBy('timestamp', descending: true)
-              .get();
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('plots')
+          .orderBy('timestamp', descending: true)
+          .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {

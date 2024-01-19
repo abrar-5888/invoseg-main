@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/All.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/education.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/fitness.dart';
@@ -9,6 +7,8 @@ import 'package:com.invoseg.innovation/Screens/Discounts/lifestyle.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Discounts extends StatefulWidget {
   const Discounts({super.key});

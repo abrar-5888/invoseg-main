@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/global.dart';
 
 class DiscountDetails extends StatefulWidget {
   String ids;
@@ -35,7 +34,7 @@ class _DiscountDetailsState extends State<DiscountDetails> {
               )),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instanceFor(app: secondApp)
+            future: FirebaseFirestore.instance
                 .collection("discounts")
                 .doc(widget.ids)
                 .get(),

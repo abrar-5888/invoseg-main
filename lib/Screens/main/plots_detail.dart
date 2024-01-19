@@ -1,10 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PlotsDetail extends StatefulWidget {
@@ -35,6 +35,7 @@ class _PlotsDetailState extends State<PlotsDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       drawer: const DrawerWidg(),
       key: _key,
       appBar: AppBar(
@@ -123,7 +124,7 @@ class _PlotsDetailState extends State<PlotsDetail> {
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instanceFor(app: secondApp)
+            future: FirebaseFirestore.instance
                 .collection('plots')
                 .doc(widget.ids)
                 .get(),
@@ -151,6 +152,8 @@ class _PlotsDetailState extends State<PlotsDetail> {
                 var room = data['room'];
                 var price = data['price'];
                 var phoneNumber = data['phone'];
+                var category = data['category'];
+                var type = data['type'];
 
                 return Column(
                   children: [
@@ -430,17 +433,106 @@ class _PlotsDetailState extends State<PlotsDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: Alignment.center,
                             child: Text(
                               'Details',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w600),
                             ),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text('$description')
+                          const SizedBox(height: 15),
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width / 1.5,
+                              child: Card(
+                                elevation: 0,
+                                color: Colors.white,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            'Description',
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          FittedBox(
+                                            child: Text(
+                                              "$description" ?? "Luxury",
+                                              style:
+                                                  const TextStyle(fontSize: 15),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      Container(
+                                        height: 2,
+                                        color: Colors.grey,
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              'Payment Type',
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            FittedBox(
+                                              child: Text(
+                                                "$category" ?? "Full Pay",
+                                                style: const TextStyle(
+                                                    fontSize: 15),
+                                              ),
+                                            ),
+                                          ]),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      Container(
+                                        height: 2,
+                                        color: Colors.grey,
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              'Type',
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            FittedBox(
+                                              child: Text(
+                                                "$type" ?? "office",
+                                                style: const TextStyle(
+                                                    fontSize: 15),
+                                              ),
+                                            ),
+                                          ])
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     )

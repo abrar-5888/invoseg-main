@@ -139,7 +139,7 @@ class _PlotsState extends State<Plots> {
         ],
       ),
       body: FutureBuilder<QuerySnapshot>(
-          future: FirebaseFirestore.instanceFor(app: secondApp)
+          future: FirebaseFirestore.instance
               .collection("plots")
               .orderBy('timestamp', descending: true)
               .get(),
