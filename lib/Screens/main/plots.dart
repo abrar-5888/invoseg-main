@@ -288,57 +288,59 @@ class _PlotsState extends State<Plots> {
                                           const SizedBox(
                                             height: 2,
                                           ),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.bed,
-                                                size: 13,
-                                              ),
+                                          FittedBox(
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.bed,
+                                                  size: 13,
+                                                ),
 
-                                              // SizedBox(
-                                              //   width: 1,
-                                              // ),
+                                                // SizedBox(
+                                                //   width: 1,
+                                                // ),
 
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                '${data['room']}',
-                                                style: const TextStyle(
-                                                    fontSize: 11),
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              const Icon(
-                                                Icons.bathtub,
-                                                size: 13,
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                '${data['bath']}',
-                                                style: const TextStyle(
-                                                    fontSize: 11),
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  '${data['room']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 11),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                const Icon(
+                                                  Icons.bathtub,
+                                                  size: 13,
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  '${data['bath']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 11),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
 
-                                              const Icon(
-                                                Icons.tire_repair,
-                                                size: 13,
-                                              ),
-                                              Text(
-                                                ' ${data['area']}',
-                                                style: const TextStyle(
-                                                    fontSize: 11),
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                            ],
+                                                const Icon(
+                                                  Icons.tire_repair,
+                                                  size: 13,
+                                                ),
+                                                Text(
+                                                  ' ${data['area']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 11),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                           const SizedBox(
                                             height: 2,

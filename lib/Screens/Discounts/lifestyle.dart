@@ -61,7 +61,7 @@ class _LifeStyleState extends State<LifeStyle> {
         child: Column(
           children: [
             SizedBox(
-                height: MediaQuery.of(context).size.height / 1.23,
+                height: MediaQuery.of(context).size.height / 1.3,
                 width: MediaQuery.of(context).size.width,
                 child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
