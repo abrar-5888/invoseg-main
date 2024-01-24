@@ -354,10 +354,12 @@ class _UserProfileState extends State<UserProfile> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    const Text(
-                                                      "Other Family Member Name",
-                                                      style: TextStyle(
-                                                        fontSize: 15.0,
+                                                    const FittedBox(
+                                                      child: Text(
+                                                        "Other Family Member Name",
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                        ),
                                                       ),
                                                     ),
                                                     Text(
@@ -391,10 +393,12 @@ class _UserProfileState extends State<UserProfile> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    const Text(
-                                                      "Other Family Member Phone",
-                                                      style: TextStyle(
-                                                        fontSize: 15.0,
+                                                    const FittedBox(
+                                                      child: Text(
+                                                        "Other Family Member Phone",
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                        ),
                                                       ),
                                                     ),
                                                     Text(
