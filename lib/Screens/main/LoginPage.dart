@@ -124,8 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   final prefs =
                                       await SharedPreferences.getInstance();
                                   final userinfo = json.encode({
-                                    "Fname": info["Name"],
-                                    "FphoneNo": info["Phoneno"],
+                                    "Fnname": info["Name"],
+                                    "FpphoneNo": info["Phoneno"],
 
                                     // "FM${num}": info["FM1"][0]['FamilyName']
                                   });
@@ -468,8 +468,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final prefs =
                                     await SharedPreferences.getInstance();
                                 final userinfo = json.encode({
-                                  "Fname": info["Name"],
-                                  "FphoneNo": info["Phoneno"],
+                                  "Fnname": info["Name"],
+                                  "FpphoneNo": info["Phoneno"],
 
                                   // "FM${num}": info["FM1"][0]['FamilyName']
                                 });

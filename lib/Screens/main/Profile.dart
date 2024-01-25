@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
 import 'package:com.invoseg.innovation/global.dart';
@@ -28,6 +29,7 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   String filePath = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +75,7 @@ class _UserProfileState extends State<UserProfile> {
               userinfo["name"],
               userinfo["phoneNo"],
               userinfo["address"],
-              userinfo["FphoneNo"],
+              userinfo["fphoneNo"],
               userinfo["Fname"],
               userinfo["designation"],
               userinfo["age"],
@@ -81,6 +83,9 @@ class _UserProfileState extends State<UserProfile> {
               userinfo["owner"],
               userinfo["email"]
             ];
+            // setState(() {
+
+            // });
             print("uid = ${userinfo["uid"]}");
             return Stack(
               children: [
@@ -414,6 +419,37 @@ class _UserProfileState extends State<UserProfile> {
                                                 )
                                               ],
                                             ),
+                                            const SizedBox(
+                                              height: 20.0,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Icon(
+                                                  Icons.no_accounts_outlined,
+                                                  color: Colors.redAccent[400],
+                                                  size: 35,
+                                                ),
+                                                const SizedBox(
+                                                  width: 20,
+                                                ),
+                                                GestureDetector(
+                                                  child: const Text(
+                                                    "Deactivate My Account",
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  onTap: () async {
+                                                    print('working');
+                                                    showDeactivateConfirmationDialog(
+                                                        context, userinfo);
+                                                  },
+                                                )
+                                              ],
+                                            ),
 
                                             // SizedBox(
                                             //   width: 10.0,
@@ -469,6 +505,85 @@ class _UserProfileState extends State<UserProfile> {
               ],
             );
           }),
+    );
+  }
+
+  void showDeactivateConfirmationDialog(BuildContext context, userinfo) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Deactivate Account",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: RichText(
+            text: TextSpan(
+              style: DefaultTextStyle.of(context).style,
+              children: const [
+                TextSpan(
+                  text:
+                      "Note:\nYour request will be sent to the admin after 5 working days.\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: "Are you sure you want to deactivate your account?",
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await FirebaseFirestore.instance
+                      .collection('deActivated')
+                      .add({
+                    'pressedTime': DateTime.now(),
+                    'name': userinfo["name"] ?? "",
+                    'phoneNo': userinfo["phoneNo"] ?? "",
+                    'address': userinfo["address"] ?? "",
+                    'FphoneNo': userinfo["fphoneNo"] ?? "",
+                    'Fname': userinfo["fname"] ?? "",
+                    'designation': userinfo["designation"] ?? "",
+                    'age': userinfo["age"] ?? "",
+                    'uid': userinfo["uid"] ?? "",
+                    'owner': userinfo["owner"] ?? "",
+                    'email': userinfo["email"] ?? ""
+                  }).then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Deactivation request sent!'),
+                        action: SnackBarAction(
+                          label: 'Ok',
+                          onPressed: () {},
+                        ),
+                      ),
+                    );
+                  });
+
+                  // Get a QuerySnapshot to perform the update
+
+                  // Update each document
+
+                  // print(
+                  //     "User request deactivated successfully!");
+                } catch (error) {
+                  print("Error deactivating user request: $error");
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
     );
   }
 

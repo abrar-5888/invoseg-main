@@ -58,7 +58,7 @@ class _ExploreState extends State<Explore> {
               userinfo["name"],
               userinfo["phoneNo"],
               userinfo["address"],
-              userinfo["fphoneNo"],
+              userinfo["fphoneNo"] ,
               userinfo["fname"],
               userinfo["designation"],
               userinfo["age"],
