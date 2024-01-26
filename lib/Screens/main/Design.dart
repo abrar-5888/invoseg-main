@@ -359,8 +359,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
           'Confirmation',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: const Text(
-          'Are you sure you want to send a Security request?',
+        content: Text(
+          'Are you sure you want to send a ${buttonLabels[0]} request?',
         ),
         actions: <Widget>[
           ElevatedButton(
@@ -1842,7 +1842,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                   context);
                                                             },
                                                             child: const Text(
-                                                                'Send Security Message'),
+                                                                'Send Maintenance Message'),
                                                           ),
                                                         ]));
                                           } else {
@@ -1869,6 +1869,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                       },
                                       icon: const Icon(
                                         Icons.security,
+                                        // Icons.home_repair_service,
                                         color: Colors.white,
                                       ),
                                       label: Text('  ' + buttonLabels[0],
