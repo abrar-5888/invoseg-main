@@ -72,7 +72,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
           onPressed: () {
             setState(() {
               // Status="";
-              manuallySpecifiedUID = "";
+              // manuallySpecifiedUID = "";
               Navigator.pop(context);
             });
           },

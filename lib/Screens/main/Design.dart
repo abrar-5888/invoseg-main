@@ -368,242 +368,249 @@ class _HomeDesign1State extends State<HomeDesign1> {
               backgroundColor: MaterialStateProperty.all(Colors.black),
             ),
             onPressed: () async {
-              if (!btnOnOff) {
-                final prefs = await SharedPreferences.getInstance();
-                final userinfo = json.decode(prefs.getString('userinfo')!)
-                    as Map<String, dynamic>;
+              try {
+                if (!btnOnOff) {
+                  final prefs = await SharedPreferences.getInstance();
+                  final userinfo = json.decode(prefs.getString('userinfo')!)
+                      as Map<String, dynamic>;
 
-                await _firebaseMessaging.getToken().then(
-                  (String? token) async {
-                    if (token != null) {
-                      setState(() {
-                        FCMtoken = token;
-                        btnOnOff = true;
-                      });
-                      updateButtonOne();
+                  await _firebaseMessaging.getToken().then(
+                    (String? token) async {
+                      if (token != null) {
+                        setState(() {
+                          FCMtoken = token;
+                          btnOnOff = true;
+                        });
+                        updateButtonOne();
 
-                      // Step 1: Query the main collection based on parentID
-                      final mainCollectionQuery = await FirebaseFirestore
-                          .instance
-                          .collection("UserRequest")
-                          .where("parentID", isEqualTo: userinfo['parentID'])
-                          .get();
+                        // Step 1: Query the main collection based on parentID
+                        final mainCollectionQuery = await FirebaseFirestore
+                            .instance
+                            .collection("UserRequest")
+                            .where("parentID", isEqualTo: userinfo['parentID'])
+                            .get();
 
-                      if (mainCollectionQuery.docs.isNotEmpty) {
-                        mainCollectionQuery.docs.forEach(
-                          (mainDoc) async {
-                            // Step 2: Query the subcollection "FMData"
-                            final subcollectionRef =
-                                mainDoc.reference.collection("FMData");
+                        if (mainCollectionQuery.docs.isNotEmpty) {
+                          mainCollectionQuery.docs.forEach(
+                            (mainDoc) async {
+                              // Step 2: Query the subcollection "FMData"
+                              final subcollectionRef =
+                                  mainDoc.reference.collection("FMData");
 
-                            final subcollectionQuery = await subcollectionRef
-                                .where("parentID",
-                                    isEqualTo: userinfo['parentID'])
-                                .get();
+                              final subcollectionQuery = await subcollectionRef
+                                  .where("parentID",
+                                      isEqualTo: userinfo['parentID'])
+                                  .get();
 
-                            if (subcollectionQuery.docs.isNotEmpty) {
-                              // Process the first document
-                              var data = subcollectionQuery.docs[0].data();
-                              String parentId = data['parentID'];
-                              DocumentSnapshot parentDoc =
-                                  await FirebaseFirestore.instance
-                                      .collection('UserRequest')
-                                      .doc(parentId)
-                                      .get();
-                              if (parentDoc.exists) {
-                                // Step 2: Access the subcollection
-                                QuerySnapshot subcollectionSnapshot =
-                                    await parentDoc.reference
-                                        .collection('FMData')
-                                        .limit(2)
+                              if (subcollectionQuery.docs.isNotEmpty) {
+                                // Process the first document
+                                var data = subcollectionQuery.docs[0].data();
+                                String parentId = data['parentID'];
+                                DocumentSnapshot parentDoc =
+                                    await FirebaseFirestore.instance
+                                        .collection('UserRequest')
+                                        .doc(parentId)
                                         .get();
-                                if (subcollectionSnapshot.docs.isNotEmpty) {
-                                  // Access subcollection document data for the first document
-                                  Map<String, dynamic> firstDocData =
-                                      subcollectionSnapshot.docs[0].data()
-                                          as Map<String, dynamic>;
-
-                                  setState(() {
-                                    fmName = firstDocData['Name'];
-                                    fmphoneNo = firstDocData['phonenumber'];
-                                  });
-                                  print(
-                                      'First Subcollection Document Data: $firstDocData');
-
-                                  // Check if there is a second document before accessing
-                                  if (subcollectionSnapshot.docs.length > 1) {
-                                    // Access subcollection document data for the second document
-                                    Map<String, dynamic> secondDocData =
-                                        subcollectionSnapshot.docs[1].data()
+                                if (parentDoc.exists) {
+                                  // Step 2: Access the subcollection
+                                  QuerySnapshot subcollectionSnapshot =
+                                      await parentDoc.reference
+                                          .collection('FMData')
+                                          .limit(2)
+                                          .get();
+                                  if (subcollectionSnapshot.docs.isNotEmpty) {
+                                    // Access subcollection document data for the first document
+                                    Map<String, dynamic> firstDocData =
+                                        subcollectionSnapshot.docs[0].data()
                                             as Map<String, dynamic>;
-                                    print(
-                                        'Second Subcollection Document Data: $secondDocData');
-                                    setState(() {
-                                      fmName1 = secondDocData['Name'];
-                                      fmphoneNo1 = secondDocData['phonenumber'];
-                                    });
 
+                                    setState(() {
+                                      fmName = firstDocData['Name'];
+                                      fmphoneNo = firstDocData['phonenumber'];
+                                    });
                                     print(
-                                        "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                        'First Subcollection Document Data: $firstDocData');
+
+                                    // Check if there is a second document before accessing
+                                    if (subcollectionSnapshot.docs.length > 1) {
+                                      // Access subcollection document data for the second document
+                                      Map<String, dynamic> secondDocData =
+                                          subcollectionSnapshot.docs[1].data()
+                                              as Map<String, dynamic>;
+                                      print(
+                                          'Second Subcollection Document Data: $secondDocData');
+                                      setState(() {
+                                        fmName1 = secondDocData['Name'];
+                                        fmphoneNo1 =
+                                            secondDocData['phonenumber'];
+                                      });
+
+                                      print(
+                                          "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                    } else {
+                                      print(
+                                          'Subcollection has only one document.');
+                                    }
                                   } else {
-                                    print(
-                                        'Subcollection has only one document.');
+                                    print('Subcollection is empty.');
                                   }
                                 } else {
-                                  print('Subcollection is empty.');
+                                  print(
+                                      'Document with ID $parentId does not exist.');
                                 }
+
+                                // Process the second document if it exists
+
+                                await FirebaseFirestore.instance
+                                    .collection(collect)
+                                    .add(
+                                  {
+                                    "edit": false,
+                                    "name": userinfo["name"],
+                                    "phoneNo": userinfo["phoneNo"],
+                                    "address": userinfo["address"],
+                                    "fmphoneNo": fmphoneNo,
+                                    "fmphoneNo1": fmphoneNo1,
+                                    "fname": userinfo['fname'],
+                                    "fPhoneNo": userinfo['fphoneNo'],
+                                    "fmName": fmName,
+                                    "fmName1": fmName1,
+                                    "designation": userinfo["designation"],
+                                    "age": userinfo["age"],
+                                    "pressedTime": FieldValue.serverTimestamp(),
+                                    "type": collect,
+                                    "time": formattedTime,
+                                    "date": formattedDate,
+                                    "uid": userinfo["uid"],
+                                    "owner": userinfo["owner"],
+                                    "email": userinfo["email"],
+                                    "noti": true,
+                                    "residentID": "Invoseg$fourDigitCode",
+                                    "FCMtoken": FCMtoken
+                                  },
+                                ).then(
+                                  (DocumentReference document) => {
+                                    documentId = document.id,
+                                    print("DOCUMENT ID +++++++ $documentId"),
+                                  },
+                                );
+
+                                FirebaseFirestore.instance
+                                    .collection("UserButtonRequest")
+                                    .add(
+                                  {
+                                    "type": collect,
+                                    "uid": userinfo["uid"],
+                                    "pressedTime": FieldValue.serverTimestamp(),
+                                  },
+                                );
+
+                                Navigator.of(ctx).pop(true);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                      "Your Request is sent",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    action: SnackBarAction(
+                                      label: 'OK',
+                                      textColor: Colors.black,
+                                      onPressed: () {},
+                                    ),
+                                    backgroundColor: Colors.grey[400],
+                                  ),
+                                );
                               } else {
                                 print(
-                                    'Document with ID $parentId does not exist.');
+                                    "No matching documents found in the Sub collection.");
+                                await FirebaseFirestore.instance
+                                    .collection(collect)
+                                    .add(
+                                  {
+                                    "name": userinfo["name"],
+                                    "phoneNo": userinfo["phoneNo"],
+                                    "address": userinfo["address"],
+                                    "fmphoneNo": fmphoneNo ?? "",
+                                    "fmName1": fmName1 ?? "",
+                                    "fmphoneNo1": fmphoneNo1 ?? "",
+                                    "fname": userinfo['fname'],
+                                    "fPhoneNo": userinfo['fphoneNo'],
+                                    "fmName": fmName ?? "",
+                                    "edit": false,
+                                    "designation": userinfo["designation"],
+                                    "age": userinfo["age"],
+                                    "pressedTime": FieldValue.serverTimestamp(),
+                                    "type": collect,
+                                    "time": formattedTime,
+                                    "date": formattedDate,
+                                    "uid": userinfo["uid"],
+                                    "owner": userinfo["owner"],
+                                    "email": userinfo["email"],
+                                    "noti": true,
+                                    "residentID": "Invoseg$fourDigitCode",
+                                    "FCMtoken": FCMtoken
+                                  },
+                                ).then(
+                                  (DocumentReference document) => {
+                                    documentId = document.id,
+                                    print("DOCUMENT ID +++++++ $documentId"),
+                                  },
+                                );
+
+                                FirebaseFirestore.instance
+                                    .collection("UserButtonRequest")
+                                    .add(
+                                  {
+                                    "type": collect,
+                                    "uid": userinfo["uid"],
+                                    "pressedTime": FieldValue.serverTimestamp(),
+                                  },
+                                );
+
+                                Navigator.of(ctx).pop(true);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                      "Your Request is sent",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    action: SnackBarAction(
+                                      label: 'OK',
+                                      textColor: Colors.black,
+                                      onPressed: () {},
+                                    ),
+                                    backgroundColor: Colors.grey[400],
+                                  ),
+                                );
                               }
+                            },
+                          );
+                        } else {
+                          print(
+                              "No matching documents found in the main collection.");
+                        }
 
-                              // Process the second document if it exists
-
-                              await FirebaseFirestore.instance
-                                  .collection(collect)
-                                  .add(
-                                {
-                                  "edit": false,
-                                  "name": userinfo["name"],
-                                  "phoneNo": userinfo["phoneNo"],
-                                  "address": userinfo["address"],
-                                  "fmphoneNo": fmphoneNo,
-                                  "fmphoneNo1": fmphoneNo1,
-                                  "fname": userinfo['fname'],
-                                  "fPhoneNo": userinfo['fphoneNo'],
-                                  "fmName": fmName,
-                                  "fmName1": fmName1,
-                                  "designation": userinfo["designation"],
-                                  "age": userinfo["age"],
-                                  "pressedTime": FieldValue.serverTimestamp(),
-                                  "type": collect,
-                                  "time": formattedTime,
-                                  "date": formattedDate,
-                                  "uid": userinfo["uid"],
-                                  "owner": userinfo["owner"],
-                                  "email": userinfo["email"],
-                                  "noti": true,
-                                  "residentID": "Invoseg$fourDigitCode",
-                                  "FCMtoken": FCMtoken
-                                },
-                              ).then(
-                                (DocumentReference document) => {
-                                  documentId = document.id,
-                                  print("DOCUMENT ID +++++++ $documentId"),
-                                },
-                              );
-
-                              FirebaseFirestore.instance
-                                  .collection("UserButtonRequest")
-                                  .add(
-                                {
-                                  "type": collect,
-                                  "uid": userinfo["uid"],
-                                  "pressedTime": FieldValue.serverTimestamp(),
-                                },
-                              );
-
-                              Navigator.of(ctx).pop(true);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
-                                    "Your Request is sent",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  action: SnackBarAction(
-                                    label: 'OK',
-                                    textColor: Colors.black,
-                                    onPressed: () {},
-                                  ),
-                                  backgroundColor: Colors.grey[400],
-                                ),
-                              );
-                            } else {
-                              print(
-                                  "No matching documents found in the Sub collection.");
-                              await FirebaseFirestore.instance
-                                  .collection(collect)
-                                  .add(
-                                {
-                                  "name": userinfo["name"],
-                                  "phoneNo": userinfo["phoneNo"],
-                                  "address": userinfo["address"],
-                                  "fmphoneNo": fmphoneNo ?? "",
-                                  "fmName1": fmName1 ?? "",
-                                  "fmphoneNo1": fmphoneNo1 ?? "",
-                                  "fname": userinfo['fname'],
-                                  "fPhoneNo": userinfo['fphoneNo'],
-                                  "fmName": fmName ?? "",
-                                  "edit": false,
-                                  "designation": userinfo["designation"],
-                                  "age": userinfo["age"],
-                                  "pressedTime": FieldValue.serverTimestamp(),
-                                  "type": collect,
-                                  "time": formattedTime,
-                                  "date": formattedDate,
-                                  "uid": userinfo["uid"],
-                                  "owner": userinfo["owner"],
-                                  "email": userinfo["email"],
-                                  "noti": true,
-                                  "residentID": "Invoseg$fourDigitCode",
-                                  "FCMtoken": FCMtoken
-                                },
-                              ).then(
-                                (DocumentReference document) => {
-                                  documentId = document.id,
-                                  print("DOCUMENT ID +++++++ $documentId"),
-                                },
-                              );
-
-                              FirebaseFirestore.instance
-                                  .collection("UserButtonRequest")
-                                  .add(
-                                {
-                                  "type": collect,
-                                  "uid": userinfo["uid"],
-                                  "pressedTime": FieldValue.serverTimestamp(),
-                                },
-                              );
-
-                              Navigator.of(ctx).pop(true);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
-                                    "Your Request is sent",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  action: SnackBarAction(
-                                    label: 'OK',
-                                    textColor: Colors.black,
-                                    onPressed: () {},
-                                  ),
-                                  backgroundColor: Colors.grey[400],
-                                ),
-                              );
-                            }
-                          },
-                        );
+                        print("FCM Token: $FCMtoken");
                       } else {
-                        print(
-                            "No matching documents found in the main collection.");
+                        print("Unable to get FCM token");
                       }
+                    },
+                  );
 
-                      print("FCM Token: $FCMtoken");
-                    } else {
-                      print("Unable to get FCM token");
-                    }
-                  },
-                );
-
-                _sendEmail(
-                    name: '${userinfo["name"]}',
-                    email: '${userinfo["email"]}',
-                    message:
-                        "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
-                    subject: "test subject");
-              } else {}
+                  _sendEmail(
+                      name: '${userinfo["name"]}',
+                      email: '${userinfo["email"]}',
+                      message:
+                          "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                      subject: "test subject");
+                } else {}
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        "Request not sent. please check your internet connection and try again !")));
+              }
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -654,270 +661,280 @@ class _HomeDesign1State extends State<HomeDesign1> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              if (btnOnOff == false) {
-                final prefs = await SharedPreferences.getInstance();
-                final userinfo =
-                    json.decode(prefs.getString('userinfo') as String);
-                await _firebaseMessaging.getToken().then((String? token) async {
-                  if (token != null) {
-                    setState(() {
-                      FCMtoken = token;
-                      btnOnOff = true;
-                    });
-                    updateButtonThree();
-                    final mainCollectionQuery = await FirebaseFirestore.instance
-                        .collection(
-                            "UserRequest") // Replace with your main collection
-                        .where("parentID", isEqualTo: userinfo['parentID'])
-                        .get();
+              try {
+                if (btnOnOff == false) {
+                  final prefs = await SharedPreferences.getInstance();
+                  final userinfo =
+                      json.decode(prefs.getString('userinfo') as String);
+                  await _firebaseMessaging
+                      .getToken()
+                      .then((String? token) async {
+                    if (token != null) {
+                      setState(() {
+                        FCMtoken = token;
+                        btnOnOff = true;
+                      });
+                      updateButtonThree();
+                      final mainCollectionQuery = await FirebaseFirestore
+                          .instance
+                          .collection(
+                              "UserRequest") // Replace with your main collection
+                          .where("parentID", isEqualTo: userinfo['parentID'])
+                          .get();
 
-                    if (mainCollectionQuery.docs.isNotEmpty) {
-                      mainCollectionQuery.docs.forEach((mainDoc) async {
-                        final subcollectionRef =
-                            mainDoc.reference.collection("FMData");
+                      if (mainCollectionQuery.docs.isNotEmpty) {
+                        mainCollectionQuery.docs.forEach((mainDoc) async {
+                          final subcollectionRef =
+                              mainDoc.reference.collection("FMData");
 
-                        final subcollectionQuery = await subcollectionRef
-                            .where("owner", isEqualTo: userinfo['owner'])
-                            .get();
-
-                        if (subcollectionQuery.docs.isNotEmpty) {
-                          // Process the first document
-                          var data = subcollectionQuery.docs[0].data();
-                          String parentId = data['parentID'];
-                          DocumentSnapshot parentDoc = await FirebaseFirestore
-                              .instance
-                              .collection('UserRequest')
-                              .doc(parentId)
+                          final subcollectionQuery = await subcollectionRef
+                              .where("owner", isEqualTo: userinfo['owner'])
                               .get();
-                          if (parentDoc.exists) {
-                            // Step 2: Access the subcollection
-                            QuerySnapshot subcollectionSnapshot =
-                                await parentDoc.reference
-                                    .collection('FMData')
-                                    .limit(2)
-                                    .get();
-                            if (subcollectionSnapshot.docs.isNotEmpty) {
-                              // Access subcollection document data for the first document
-                              Map<String, dynamic> firstDocData =
-                                  subcollectionSnapshot.docs[0].data()
-                                      as Map<String, dynamic>;
 
-                              setState(() {
-                                fmName = firstDocData['Name'];
-                                fmphoneNo = firstDocData['phonenumber'];
-                              });
-                              print(
-                                  'First Subcollection Document Data: $firstDocData');
-
-                              // Check if there is a second document before accessing
-                              if (subcollectionSnapshot.docs.length > 1) {
-                                // Access subcollection document data for the second document
-                                Map<String, dynamic> secondDocData =
-                                    subcollectionSnapshot.docs[1].data()
+                          if (subcollectionQuery.docs.isNotEmpty) {
+                            // Process the first document
+                            var data = subcollectionQuery.docs[0].data();
+                            String parentId = data['parentID'];
+                            DocumentSnapshot parentDoc = await FirebaseFirestore
+                                .instance
+                                .collection('UserRequest')
+                                .doc(parentId)
+                                .get();
+                            if (parentDoc.exists) {
+                              // Step 2: Access the subcollection
+                              QuerySnapshot subcollectionSnapshot =
+                                  await parentDoc.reference
+                                      .collection('FMData')
+                                      .limit(2)
+                                      .get();
+                              if (subcollectionSnapshot.docs.isNotEmpty) {
+                                // Access subcollection document data for the first document
+                                Map<String, dynamic> firstDocData =
+                                    subcollectionSnapshot.docs[0].data()
                                         as Map<String, dynamic>;
-                                print(
-                                    'Second Subcollection Document Data: $secondDocData');
-                                setState(() {
-                                  fmName1 = secondDocData['Name'];
-                                  fmphoneNo1 = secondDocData['phonenumber'];
-                                });
 
+                                setState(() {
+                                  fmName = firstDocData['Name'];
+                                  fmphoneNo = firstDocData['phonenumber'];
+                                });
                                 print(
-                                    "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                    'First Subcollection Document Data: $firstDocData');
+
+                                // Check if there is a second document before accessing
+                                if (subcollectionSnapshot.docs.length > 1) {
+                                  // Access subcollection document data for the second document
+                                  Map<String, dynamic> secondDocData =
+                                      subcollectionSnapshot.docs[1].data()
+                                          as Map<String, dynamic>;
+                                  print(
+                                      'Second Subcollection Document Data: $secondDocData');
+                                  setState(() {
+                                    fmName1 = secondDocData['Name'];
+                                    fmphoneNo1 = secondDocData['phonenumber'];
+                                  });
+
+                                  print(
+                                      "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                } else {
+                                  print('Subcollection has only one document.');
+                                }
                               } else {
-                                print('Subcollection has only one document.');
+                                print('Subcollection is empty.');
                               }
                             } else {
-                              print('Subcollection is empty.');
+                              print(
+                                  'Document with ID $parentId does not exist.');
                             }
+                            // setState(() {
+                            //   fmName = data['Name'];
+                            //   fmphoneNo = data['Phoneno'];
+                            //   print(
+                            //       "Document 1 - Name: $fmName, Phone No: $fmphoneNo");
+                            // });
+
+                            // Process the second document if it exists
+
+                            await FirebaseFirestore.instance
+                                .collection(collect)
+                                .add({
+                              "edit": false,
+
+                              "name": userinfo["name"],
+                              "phoneNo": userinfo["phoneNo"],
+                              "address": userinfo["address"],
+                              "fmphoneNo": fmphoneNo,
+                              "fmphoneNo1": fmphoneNo1,
+                              "fname": userinfo['fname'],
+                              "fPhoneNo": userinfo['fphoneNo'],
+                              "fmName": fmName,
+                              "fmName1": fmName1,
+                              "designation": userinfo["designation"],
+                              "age": userinfo["age"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                              "type": collect,
+                              "time": formattedTime,
+                              "date": formattedDate,
+                              // "FM${num}": userinfo["FM${num}"],
+                              "uid": userinfo["uid"],
+                              "owner": userinfo["owner"],
+                              "email": userinfo["email"],
+                              "noti": true,
+                              "residentID": "Invoseg$fourDigitCode",
+                              "FCMtoken": FCMtoken
+                            }).then((DocumentReference document) => {
+                                      documentId = document.id,
+                                      print("DOCUMENT ID +++++++ $documentId"),
+                                    });
+                            FirebaseFirestore.instance
+                                .collection("UserButtonRequest")
+                                .add({
+                              "type": collect,
+                              "uid": userinfo["uid"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                            });
+                            Navigator.of(ctx).pop(true);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Your Request is sent",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                action: SnackBarAction(
+                                    label: 'OK',
+                                    textColor: Colors.black,
+                                    onPressed: () {}),
+                                backgroundColor: Colors.grey[400],
+                              ),
+                            );
                           } else {
-                            print('Document with ID $parentId does not exist.');
+                            print(
+                                "No matching documents found in the Sub collection.");
+                            await FirebaseFirestore.instance
+                                .collection(collect)
+                                .add({
+                              "name": userinfo["name"],
+                              "phoneNo": userinfo["phoneNo"],
+                              "address": userinfo["address"],
+                              "fmphoneNo": "",
+                              "fmName1": "",
+                              "fmphoneNo1": "",
+                              "fname": userinfo['fname'],
+                              "fPhoneNo": userinfo['fphoneNo'],
+                              "fmName": "",
+                              "designation": userinfo["designation"],
+                              "age": userinfo["age"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                              "type": collect,
+                              "edit": false,
+                              "time": formattedTime,
+                              "date": formattedDate,
+                              // "FM${num}": userinfo["FM${num}"],
+                              "uid": userinfo["uid"],
+                              "owner": userinfo["owner"],
+                              "email": userinfo["email"],
+                              "noti": true,
+                              "residentID": "Invoseg$fourDigitCode",
+                              "FCMtoken": FCMtoken
+                            }).then((DocumentReference document) => {
+                                      documentId = document.id,
+                                      print("DOCUMENT ID +++++++ $documentId")
+                                    });
+                            FirebaseFirestore.instance
+                                .collection("UserButtonRequest")
+                                .add({
+                              "type": collect,
+                              "uid": userinfo["uid"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                            });
+                            Navigator.of(ctx).pop(true);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Your Request is sent",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                action: SnackBarAction(
+                                    label: 'OK',
+                                    textColor: Colors.black,
+                                    onPressed: () {}),
+                                backgroundColor: Colors.grey[400],
+                              ),
+                            );
                           }
-                          // setState(() {
-                          //   fmName = data['Name'];
-                          //   fmphoneNo = data['Phoneno'];
-                          //   print(
-                          //       "Document 1 - Name: $fmName, Phone No: $fmphoneNo");
-                          // });
+                        });
+                      } else {
+                        print(
+                            "No matching documents found in the main collection.");
+                      }
+                      // await FirebaseFirestore.instance.collection(collect).add({
+                      //   "name": userinfo["name"],
+                      //   "phoneNo": userinfo["phoneNo"],
+                      //   "address": userinfo["address"],
+                      //   "fmphoneNo": fmphoneNo,
+                      //   "fname": userinfo['fname'],
+                      //   "fPhoneNo": userinfo['fphoneNo'],
+                      //   "fmName": fmName,
+                      //   "designation": userinfo["designation"],
+                      //   "age": userinfo["age"],
+                      //   "pressedTime": FieldValue.serverTimestamp(),
+                      //   "type": collect,
+                      //   "isProcessed": false,
+                      //   "time": formattedTime,
+                      //   "date": formattedDate,
+                      //   // "FM${num}": userinfo["FM${num}"],
+                      //   "uid": userinfo["uid"],
+                      //   "owner": userinfo["owner"],
+                      //   "email": userinfo["email"],
+                      //   "noti": true,
+                      //   "residentID": "Invoseg${fourDigitCode}",
+                      //   "FCMtoken": FCMtoken
+                      // }).then((DocumentReference document) => {
+                      //       document_id = document.id,
+                      //       print("DOCUMENT ID +++++++ $document_id")
+                      //     });
+                      // FirebaseFirestore.instance
+                      //     .collection("UserButtonRequest")
+                      //     .add({
+                      //   "type": collect,
+                      //   "uid": userinfo["uid"],
+                      //   "pressedTime": FieldValue.serverTimestamp(),
+                      // });
+                      // Navigator.of(ctx).pop(true);
 
-                          // Process the second document if it exists
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(
+                      //     content: const Text(
+                      //       "Your Request is sent",
+                      //       style: TextStyle(color: Colors.black),
+                      //     ),
+                      //     action: SnackBarAction(
+                      //         label: 'OK',
+                      //         textColor: Colors.black,
+                      //         onPressed: () {}),
+                      //     backgroundColor: Colors.grey[400],
+                      //   ),
+                      // );
 
-                          await FirebaseFirestore.instance
-                              .collection(collect)
-                              .add({
-                            "edit": false,
-
-                            "name": userinfo["name"],
-                            "phoneNo": userinfo["phoneNo"],
-                            "address": userinfo["address"],
-                            "fmphoneNo": fmphoneNo,
-                            "fmphoneNo1": fmphoneNo1,
-                            "fname": userinfo['fname'],
-                            "fPhoneNo": userinfo['fphoneNo'],
-                            "fmName": fmName,
-                            "fmName1": fmName1,
-                            "designation": userinfo["designation"],
-                            "age": userinfo["age"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                            "type": collect,
-                            "time": formattedTime,
-                            "date": formattedDate,
-                            // "FM${num}": userinfo["FM${num}"],
-                            "uid": userinfo["uid"],
-                            "owner": userinfo["owner"],
-                            "email": userinfo["email"],
-                            "noti": true,
-                            "residentID": "Invoseg$fourDigitCode",
-                            "FCMtoken": FCMtoken
-                          }).then((DocumentReference document) => {
-                                    documentId = document.id,
-                                    print("DOCUMENT ID +++++++ $documentId"),
-                                  });
-                          FirebaseFirestore.instance
-                              .collection("UserButtonRequest")
-                              .add({
-                            "type": collect,
-                            "uid": userinfo["uid"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                          });
-                          Navigator.of(ctx).pop(true);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Your Request is sent",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  textColor: Colors.black,
-                                  onPressed: () {}),
-                              backgroundColor: Colors.grey[400],
-                            ),
-                          );
-                        } else {
-                          print(
-                              "No matching documents found in the Sub collection.");
-                          await FirebaseFirestore.instance
-                              .collection(collect)
-                              .add({
-                            "name": userinfo["name"],
-                            "phoneNo": userinfo["phoneNo"],
-                            "address": userinfo["address"],
-                            "fmphoneNo": "",
-                            "fmName1": "",
-                            "fmphoneNo1": "",
-                            "fname": userinfo['fname'],
-                            "fPhoneNo": userinfo['fphoneNo'],
-                            "fmName": "",
-                            "designation": userinfo["designation"],
-                            "age": userinfo["age"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                            "type": collect,
-                            "edit": false,
-                            "time": formattedTime,
-                            "date": formattedDate,
-                            // "FM${num}": userinfo["FM${num}"],
-                            "uid": userinfo["uid"],
-                            "owner": userinfo["owner"],
-                            "email": userinfo["email"],
-                            "noti": true,
-                            "residentID": "Invoseg$fourDigitCode",
-                            "FCMtoken": FCMtoken
-                          }).then((DocumentReference document) => {
-                                    documentId = document.id,
-                                    print("DOCUMENT ID +++++++ $documentId")
-                                  });
-                          FirebaseFirestore.instance
-                              .collection("UserButtonRequest")
-                              .add({
-                            "type": collect,
-                            "uid": userinfo["uid"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                          });
-                          Navigator.of(ctx).pop(true);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Your Request is sent",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  textColor: Colors.black,
-                                  onPressed: () {}),
-                              backgroundColor: Colors.grey[400],
-                            ),
-                          );
-                        }
-                      });
+                      print("FCM Token: $FCMtoken");
                     } else {
-                      print(
-                          "No matching documents found in the main collection.");
+                      print("Unable to get FCM token");
                     }
-                    // await FirebaseFirestore.instance.collection(collect).add({
-                    //   "name": userinfo["name"],
-                    //   "phoneNo": userinfo["phoneNo"],
-                    //   "address": userinfo["address"],
-                    //   "fmphoneNo": fmphoneNo,
-                    //   "fname": userinfo['fname'],
-                    //   "fPhoneNo": userinfo['fphoneNo'],
-                    //   "fmName": fmName,
-                    //   "designation": userinfo["designation"],
-                    //   "age": userinfo["age"],
-                    //   "pressedTime": FieldValue.serverTimestamp(),
-                    //   "type": collect,
-                    //   "isProcessed": false,
-                    //   "time": formattedTime,
-                    //   "date": formattedDate,
-                    //   // "FM${num}": userinfo["FM${num}"],
-                    //   "uid": userinfo["uid"],
-                    //   "owner": userinfo["owner"],
-                    //   "email": userinfo["email"],
-                    //   "noti": true,
-                    //   "residentID": "Invoseg${fourDigitCode}",
-                    //   "FCMtoken": FCMtoken
-                    // }).then((DocumentReference document) => {
-                    //       document_id = document.id,
-                    //       print("DOCUMENT ID +++++++ $document_id")
-                    //     });
-                    // FirebaseFirestore.instance
-                    //     .collection("UserButtonRequest")
-                    //     .add({
-                    //   "type": collect,
-                    //   "uid": userinfo["uid"],
-                    //   "pressedTime": FieldValue.serverTimestamp(),
-                    // });
-                    // Navigator.of(ctx).pop(true);
+                  });
 
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     content: const Text(
-                    //       "Your Request is sent",
-                    //       style: TextStyle(color: Colors.black),
-                    //     ),
-                    //     action: SnackBarAction(
-                    //         label: 'OK',
-                    //         textColor: Colors.black,
-                    //         onPressed: () {}),
-                    //     backgroundColor: Colors.grey[400],
-                    //   ),
-                    // );
-
-                    print("FCM Token: $FCMtoken");
-                  } else {
-                    print("Unable to get FCM token");
-                  }
-                });
-
-                _sendEmail(
-                    name: '${userinfo["name"]}',
-                    email: '${userinfo["email"]}',
-                    message:
-                        "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
-                    subject: "test subject");
-              } else {}
+                  _sendEmail(
+                      name: '${userinfo["name"]}',
+                      email: '${userinfo["email"]}',
+                      message:
+                          "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                      subject: "test subject");
+                } else {}
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        "Request not sent. please check your internet connection and try again !")));
+              }
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -964,261 +981,272 @@ class _HomeDesign1State extends State<HomeDesign1> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              if (btnOnOff == false) {
-                final prefs = await SharedPreferences.getInstance();
-                final userinfo =
-                    json.decode(prefs.getString('userinfo') as String);
-                await _firebaseMessaging.getToken().then((String? token) async {
-                  if (token != null) {
-                    setState(() {
-                      FCMtoken = token;
-                      btnOnOff = true;
-                    });
-                    updateButtonTwo();
-                    final mainCollectionQuery = await FirebaseFirestore.instance
-                        .collection(
-                            "UserRequest") // Replace with your main collection
-                        .where("parentID", isEqualTo: userinfo['parentID'])
-                        .get();
+              try {
+                if (btnOnOff == false) {
+                  final prefs = await SharedPreferences.getInstance();
+                  final userinfo =
+                      json.decode(prefs.getString('userinfo') as String);
+                  await _firebaseMessaging
+                      .getToken()
+                      .then((String? token) async {
+                    if (token != null) {
+                      setState(() {
+                        FCMtoken = token;
+                        btnOnOff = true;
+                      });
+                      updateButtonTwo();
+                      final mainCollectionQuery = await FirebaseFirestore
+                          .instance
+                          .collection(
+                              "UserRequest") // Replace with your main collection
+                          .where("parentID", isEqualTo: userinfo['parentID'])
+                          .get();
 
-                    if (mainCollectionQuery.docs.isNotEmpty) {
-                      mainCollectionQuery.docs.forEach((mainDoc) async {
-                        final subcollectionRef =
-                            mainDoc.reference.collection("FMData");
+                      if (mainCollectionQuery.docs.isNotEmpty) {
+                        mainCollectionQuery.docs.forEach((mainDoc) async {
+                          final subcollectionRef =
+                              mainDoc.reference.collection("FMData");
 
-                        final subcollectionQuery = await subcollectionRef
-                            .where("parentID", isEqualTo: userinfo['parentID'])
-                            .get();
-
-                        if (subcollectionQuery.docs.isNotEmpty) {
-                          // Process the first document
-                          var data = subcollectionQuery.docs[0].data();
-                          String parentId = data['parentID'];
-                          DocumentSnapshot parentDoc = await FirebaseFirestore
-                              .instance
-                              .collection('UserRequest')
-                              .doc(parentId)
+                          final subcollectionQuery = await subcollectionRef
+                              .where("parentID",
+                                  isEqualTo: userinfo['parentID'])
                               .get();
-                          if (parentDoc.exists) {
-                            // Step 2: Access the subcollection
-                            QuerySnapshot subcollectionSnapshot =
-                                await parentDoc.reference
-                                    .collection('FMData')
-                                    .limit(2)
-                                    .get();
-                            if (subcollectionSnapshot.docs.isNotEmpty) {
-                              // Access subcollection document data for the first document
-                              Map<String, dynamic> firstDocData =
-                                  subcollectionSnapshot.docs[0].data()
-                                      as Map<String, dynamic>;
 
-                              setState(() {
-                                fmName = firstDocData['Name'];
-                                fmphoneNo = firstDocData['phonenumber'];
-                              });
-                              print(
-                                  'First Subcollection Document Data: $firstDocData');
-
-                              // Check if there is a second document before accessing
-                              if (subcollectionSnapshot.docs.length > 1) {
-                                // Access subcollection document data for the second document
-                                Map<String, dynamic> secondDocData =
-                                    subcollectionSnapshot.docs[1].data()
+                          if (subcollectionQuery.docs.isNotEmpty) {
+                            // Process the first document
+                            var data = subcollectionQuery.docs[0].data();
+                            String parentId = data['parentID'];
+                            DocumentSnapshot parentDoc = await FirebaseFirestore
+                                .instance
+                                .collection('UserRequest')
+                                .doc(parentId)
+                                .get();
+                            if (parentDoc.exists) {
+                              // Step 2: Access the subcollection
+                              QuerySnapshot subcollectionSnapshot =
+                                  await parentDoc.reference
+                                      .collection('FMData')
+                                      .limit(2)
+                                      .get();
+                              if (subcollectionSnapshot.docs.isNotEmpty) {
+                                // Access subcollection document data for the first document
+                                Map<String, dynamic> firstDocData =
+                                    subcollectionSnapshot.docs[0].data()
                                         as Map<String, dynamic>;
-                                print(
-                                    'Second Subcollection Document Data: $secondDocData');
-                                setState(() {
-                                  fmName1 = secondDocData['Name'];
-                                  fmphoneNo1 = secondDocData['phonenumber'];
-                                });
 
+                                setState(() {
+                                  fmName = firstDocData['Name'];
+                                  fmphoneNo = firstDocData['phonenumber'];
+                                });
                                 print(
-                                    "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                    'First Subcollection Document Data: $firstDocData');
+
+                                // Check if there is a second document before accessing
+                                if (subcollectionSnapshot.docs.length > 1) {
+                                  // Access subcollection document data for the second document
+                                  Map<String, dynamic> secondDocData =
+                                      subcollectionSnapshot.docs[1].data()
+                                          as Map<String, dynamic>;
+                                  print(
+                                      'Second Subcollection Document Data: $secondDocData');
+                                  setState(() {
+                                    fmName1 = secondDocData['Name'];
+                                    fmphoneNo1 = secondDocData['phonenumber'];
+                                  });
+
+                                  print(
+                                      "FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                } else {
+                                  print('Subcollection has only one document.');
+                                }
                               } else {
-                                print('Subcollection has only one document.');
+                                print('Subcollection is empty.');
                               }
                             } else {
-                              print('Subcollection is empty.');
+                              print(
+                                  'Document with ID $parentId does not exist.');
                             }
+                            await FirebaseFirestore.instance
+                                .collection(collect)
+                                .add({
+                              "name": userinfo["name"],
+                              "phoneNo": userinfo["phoneNo"],
+                              "address": userinfo["address"],
+                              "fmphoneNo": fmphoneNo,
+                              "fmphoneNo1": fmphoneNo1,
+                              "fname": userinfo['fname'],
+                              "fPhoneNo": userinfo['fphoneNo'],
+                              "fmName": fmName,
+                              "fmName1": fmName1,
+
+                              "designation": userinfo["designation"],
+                              "age": userinfo["age"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                              "type": collect,
+                              "edit": false,
+                              "time": formattedTime,
+                              "date": formattedDate,
+                              // "FM${num}": userinfo["FM${num}"],
+                              "uid": userinfo["uid"],
+                              "owner": userinfo["owner"],
+                              "email": userinfo["email"],
+                              "noti": true,
+                              "residentID": "Invoseg$fourDigitCode",
+                              "FCMtoken": FCMtoken
+                            }).then((DocumentReference document) => {
+                                      documentId = document.id,
+                                      print("DOCUMENT ID +++++++ $documentId"),
+                                    });
+                            FirebaseFirestore.instance
+                                .collection("UserButtonRequest")
+                                .add({
+                              "type": collect,
+                              "uid": userinfo["uid"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                            });
+                            Navigator.of(ctx).pop(true);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Your Request is sent",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                action: SnackBarAction(
+                                    label: 'OK',
+                                    textColor: Colors.black,
+                                    onPressed: () {}),
+                                backgroundColor: Colors.grey[400],
+                              ),
+                            );
                           } else {
-                            print('Document with ID $parentId does not exist.');
+                            print(
+                                "No matching documents found in the Sub collection.");
+                            await FirebaseFirestore.instance
+                                .collection(collect)
+                                .add({
+                              "name": userinfo["name"],
+                              "phoneNo": userinfo["phoneNo"],
+                              "address": userinfo["address"],
+                              "fmphoneNo": "",
+                              "fmName1": "",
+                              "fmphoneNo1": "",
+                              "fname": userinfo['fname'],
+                              "fPhoneNo": userinfo['fphoneNo'],
+                              "fmName": "",
+                              "designation": userinfo["designation"],
+                              "age": userinfo["age"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                              "type": collect,
+                              "edit": false,
+                              "time": formattedTime,
+                              "date": formattedDate,
+                              // "FM${num}": userinfo["FM${num}"],
+                              "uid": userinfo["uid"],
+                              "owner": userinfo["owner"],
+                              "email": userinfo["email"],
+                              "noti": true,
+                              "residentID": "Invoseg$fourDigitCode",
+                              "FCMtoken": FCMtoken
+                            }).then((DocumentReference document) => {
+                                      documentId = document.id,
+                                      print("DOCUMENT ID +++++++ $documentId")
+                                    });
+                            FirebaseFirestore.instance
+                                .collection("UserButtonRequest")
+                                .add({
+                              "type": collect,
+                              "uid": userinfo["uid"],
+                              "pressedTime": FieldValue.serverTimestamp(),
+                            });
+                            Navigator.of(ctx).pop(true);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Your Request is sent",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                action: SnackBarAction(
+                                    label: 'OK',
+                                    textColor: Colors.black,
+                                    onPressed: () {}),
+                                backgroundColor: Colors.grey[400],
+                              ),
+                            );
                           }
-                          await FirebaseFirestore.instance
-                              .collection(collect)
-                              .add({
-                            "name": userinfo["name"],
-                            "phoneNo": userinfo["phoneNo"],
-                            "address": userinfo["address"],
-                            "fmphoneNo": fmphoneNo,
-                            "fmphoneNo1": fmphoneNo1,
-                            "fname": userinfo['fname'],
-                            "fPhoneNo": userinfo['fphoneNo'],
-                            "fmName": fmName,
-                            "fmName1": fmName1,
+                        });
+                      } else {
+                        print(
+                            "No matching documents found in the main collection.");
+                      }
+                      // await FirebaseFirestore.instance.collection(collect).add({
+                      //   "name": userinfo["name"],
+                      //   "phoneNo": userinfo["phoneNo"],
+                      //   "address": userinfo["address"],
+                      //   "fmphoneNo": fmphoneNo,
+                      //   "fname": userinfo['fname'],
+                      //   "fPhoneNo": userinfo['fphoneNo'],
+                      //   "fmName": fmName,
+                      //   "designation": userinfo["designation"],
+                      //   "age": userinfo["age"],
+                      //   "pressedTime": FieldValue.serverTimestamp(),
+                      //   "type": collect,
+                      //   "isProcessed": false,
+                      //   "time": formattedTime,
+                      //   "date": formattedDate,
+                      //   // "FM${num}": userinfo["FM${num}"],
+                      //   "uid": userinfo["uid"],
+                      //   "owner": userinfo["owner"],
+                      //   "email": userinfo["email"],
+                      //   "noti": true,
+                      //   "residentID": "Invoseg${fourDigitCode}",
+                      //   "FCMtoken": FCMtoken
+                      // }).then((DocumentReference document) => {
+                      //       document_id = document.id,
+                      //       print("DOCUMENT ID +++++++ $document_id")
+                      //     });
+                      // FirebaseFirestore.instance
+                      //     .collection("UserButtonRequest")
+                      //     .add({
+                      //   "type": collect,
+                      //   "uid": userinfo["uid"],
+                      //   "pressedTime": FieldValue.serverTimestamp(),
+                      // });
+                      // Navigator.of(ctx).pop(true);
 
-                            "designation": userinfo["designation"],
-                            "age": userinfo["age"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                            "type": collect,
-                            "edit": false,
-                            "time": formattedTime,
-                            "date": formattedDate,
-                            // "FM${num}": userinfo["FM${num}"],
-                            "uid": userinfo["uid"],
-                            "owner": userinfo["owner"],
-                            "email": userinfo["email"],
-                            "noti": true,
-                            "residentID": "Invoseg$fourDigitCode",
-                            "FCMtoken": FCMtoken
-                          }).then((DocumentReference document) => {
-                                    documentId = document.id,
-                                    print("DOCUMENT ID +++++++ $documentId"),
-                                  });
-                          FirebaseFirestore.instance
-                              .collection("UserButtonRequest")
-                              .add({
-                            "type": collect,
-                            "uid": userinfo["uid"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                          });
-                          Navigator.of(ctx).pop(true);
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(
+                      //     content: const Text(
+                      //       "Your Request is sent",
+                      //       style: TextStyle(color: Colors.black),
+                      //     ),
+                      //     action: SnackBarAction(
+                      //         label: 'OK',
+                      //         textColor: Colors.black,
+                      //         onPressed: () {}),
+                      //     backgroundColor: Colors.grey[400],
+                      //   ),
+                      // );
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Your Request is sent",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  textColor: Colors.black,
-                                  onPressed: () {}),
-                              backgroundColor: Colors.grey[400],
-                            ),
-                          );
-                        } else {
-                          print(
-                              "No matching documents found in the Sub collection.");
-                          await FirebaseFirestore.instance
-                              .collection(collect)
-                              .add({
-                            "name": userinfo["name"],
-                            "phoneNo": userinfo["phoneNo"],
-                            "address": userinfo["address"],
-                            "fmphoneNo": "",
-                            "fmName1": "",
-                            "fmphoneNo1": "",
-                            "fname": userinfo['fname'],
-                            "fPhoneNo": userinfo['fphoneNo'],
-                            "fmName": "",
-                            "designation": userinfo["designation"],
-                            "age": userinfo["age"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                            "type": collect,
-                            "edit": false,
-                            "time": formattedTime,
-                            "date": formattedDate,
-                            // "FM${num}": userinfo["FM${num}"],
-                            "uid": userinfo["uid"],
-                            "owner": userinfo["owner"],
-                            "email": userinfo["email"],
-                            "noti": true,
-                            "residentID": "Invoseg$fourDigitCode",
-                            "FCMtoken": FCMtoken
-                          }).then((DocumentReference document) => {
-                                    documentId = document.id,
-                                    print("DOCUMENT ID +++++++ $documentId")
-                                  });
-                          FirebaseFirestore.instance
-                              .collection("UserButtonRequest")
-                              .add({
-                            "type": collect,
-                            "uid": userinfo["uid"],
-                            "pressedTime": FieldValue.serverTimestamp(),
-                          });
-                          Navigator.of(ctx).pop(true);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Your Request is sent",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  textColor: Colors.black,
-                                  onPressed: () {}),
-                              backgroundColor: Colors.grey[400],
-                            ),
-                          );
-                        }
-                      });
+                      print("FCM Token: $FCMtoken");
                     } else {
-                      print(
-                          "No matching documents found in the main collection.");
+                      print("Unable to get FCM token");
                     }
-                    // await FirebaseFirestore.instance.collection(collect).add({
-                    //   "name": userinfo["name"],
-                    //   "phoneNo": userinfo["phoneNo"],
-                    //   "address": userinfo["address"],
-                    //   "fmphoneNo": fmphoneNo,
-                    //   "fname": userinfo['fname'],
-                    //   "fPhoneNo": userinfo['fphoneNo'],
-                    //   "fmName": fmName,
-                    //   "designation": userinfo["designation"],
-                    //   "age": userinfo["age"],
-                    //   "pressedTime": FieldValue.serverTimestamp(),
-                    //   "type": collect,
-                    //   "isProcessed": false,
-                    //   "time": formattedTime,
-                    //   "date": formattedDate,
-                    //   // "FM${num}": userinfo["FM${num}"],
-                    //   "uid": userinfo["uid"],
-                    //   "owner": userinfo["owner"],
-                    //   "email": userinfo["email"],
-                    //   "noti": true,
-                    //   "residentID": "Invoseg${fourDigitCode}",
-                    //   "FCMtoken": FCMtoken
-                    // }).then((DocumentReference document) => {
-                    //       document_id = document.id,
-                    //       print("DOCUMENT ID +++++++ $document_id")
-                    //     });
-                    // FirebaseFirestore.instance
-                    //     .collection("UserButtonRequest")
-                    //     .add({
-                    //   "type": collect,
-                    //   "uid": userinfo["uid"],
-                    //   "pressedTime": FieldValue.serverTimestamp(),
-                    // });
-                    // Navigator.of(ctx).pop(true);
+                  });
 
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(
-                    //     content: const Text(
-                    //       "Your Request is sent",
-                    //       style: TextStyle(color: Colors.black),
-                    //     ),
-                    //     action: SnackBarAction(
-                    //         label: 'OK',
-                    //         textColor: Colors.black,
-                    //         onPressed: () {}),
-                    //     backgroundColor: Colors.grey[400],
-                    //   ),
-                    // );
-
-                    print("FCM Token: $FCMtoken");
-                  } else {
-                    print("Unable to get FCM token");
-                  }
-                });
-
-                _sendEmail(
-                    name: '${userinfo["name"]}',
-                    email: '${userinfo["email"]}',
-                    message:
-                        "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
-                    subject: "test subject");
-              } else {}
+                  _sendEmail(
+                      name: '${userinfo["name"]}',
+                      email: '${userinfo["email"]}',
+                      message:
+                          "type : $collect\n name : ${userinfo["name"]}\nEmail : ${userinfo['email']}\nAddress : ${userinfo['address']}\nPhone No : ${userinfo['phoneNo']}\nF-Phone No ${userinfo['fphoneNo']}\nF-Name : ${userinfo['fname']}\nDesignation : ${userinfo['designation']}\nage : ${userinfo['age']}\nOwner : ${userinfo['owner']}",
+                      subject: "test subject");
+                } else {}
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        "Request not sent. please check your internet connection and try again !")));
+              }
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
