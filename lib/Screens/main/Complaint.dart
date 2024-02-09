@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -479,6 +480,11 @@ class _ComplainformState extends State<Complainform> {
                                               .limit(2)
                                               .orderBy('pressedTime',
                                                   descending: true)
+                                              .where('uid',
+                                                  isEqualTo: FirebaseAuth
+                                                      .instance
+                                                      .currentUser!
+                                                      .uid)
                                               .get(),
                                           builder: (context,
                                               AsyncSnapshot<QuerySnapshot>
@@ -495,8 +501,11 @@ class _ComplainformState extends State<Complainform> {
 
                                             if (!snapshot.hasData ||
                                                 snapshot.data!.docs.isEmpty) {
-                                              return const Text(
-                                                  'No complaints available');
+                                              return const Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                    'No complaints available'),
+                                              );
                                             } else {
                                               List<DocumentSnapshot> documents =
                                                   snapshot.data!.docs;

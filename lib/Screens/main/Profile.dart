@@ -79,6 +79,7 @@ class _UserProfileState extends State<UserProfile> {
               userinfo["Fname"],
               userinfo["designation"],
               userinfo["age"],
+              userinfo['id'],
               userinfo["uid"],
               userinfo["owner"],
               userinfo["email"]
@@ -86,7 +87,7 @@ class _UserProfileState extends State<UserProfile> {
             // setState(() {
 
             // });
-            print("uid = ${userinfo["uid"]}");
+            print("uid = ${userinfo['id']}");
             return Stack(
               children: [
                 Column(
@@ -131,36 +132,38 @@ class _UserProfileState extends State<UserProfile> {
                           const SizedBox(
                             height: 10.0,
                           ),
-                          ElevatedButton.icon(
-                              label: const Text(
-                                'Add Family Members',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onPressed: () {
-                                updateAddFM();
-                                String docid = userinfo["uid"];
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FamilyMembers(
-                                          id: docid,
-                                          emailss: userinfo["email"],
-                                          addresss: userinfo["address"],
-                                          ownerss: userinfo['owner']),
-                                    ));
-                              },
-                              style: ButtonStyle(
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                  )),
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.black),
-                                  padding: MaterialStateProperty.all(
-                                      const EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20))),
-                              icon: const Icon(Icons.add, color: Colors.white))
+                          if (!userinfo["id"].toString().startsWith('FM'))
+                            ElevatedButton.icon(
+                                label: const Text(
+                                  'Add Family Members',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                onPressed: () {
+                                  updateAddFM();
+                                  String docid = userinfo["uid"];
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FamilyMembers(
+                                            id: docid,
+                                            emailss: userinfo["email"],
+                                            addresss: userinfo["address"],
+                                            ownerss: userinfo['owner']),
+                                      ));
+                                },
+                                style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(100),
+                                    )),
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                    padding: MaterialStateProperty.all(
+                                        const EdgeInsets.symmetric(
+                                            vertical: 10, horizontal: 20))),
+                                icon:
+                                    const Icon(Icons.add, color: Colors.white))
                         ]),
                       ),
                     ),

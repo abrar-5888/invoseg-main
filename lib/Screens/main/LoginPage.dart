@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       await SharedPreferences.getInstance();
                                   final userinfo = json.encode({
                                     "Fnname": info["Name"],
-                                    "FpphoneNo": info["Phoneno"],
+                                    "FpphoneNo": info["phonenumber"],
 
                                     // "FM${num}": info["FM1"][0]['FamilyName']
                                   });
@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         });
                       }
                     } else {
-                      EasyLoading.showError("Inavlid Credentials");
+                      // EasyLoading.showError("Inavlid Credentials");
                     }
                   });
                   EasyLoading.dismiss();
@@ -415,7 +415,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   parentDocument
                       .collection(
                           'FMData') // Replace with your subcollection name
-                      .where('Phoneno', isEqualTo: logins['user'])
+                      .where('phonenumber', isEqualTo: logins['user'])
                       .get()
                       .then((subcollectionSnapshot) {
                     print("then");
@@ -469,7 +469,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     await SharedPreferences.getInstance();
                                 final userinfo = json.encode({
                                   "Fnname": info["Name"],
-                                  "FpphoneNo": info["Phoneno"],
+                                  "FpphoneNo": info["phonenumber"],
 
                                   // "FM${num}": info["FM1"][0]['FamilyName']
                                 });
@@ -562,7 +562,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         });
                       }
                     } else {
-                      EasyLoading.showError("Invalid Credentials");
+                      // EasyLoading.showError("Invalid Credentials");
                       Future.delayed(const Duration(seconds: 1), () {
                         EasyLoading.dismiss();
                       });

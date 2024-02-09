@@ -1407,11 +1407,11 @@ class _HomeDesign1State extends State<HomeDesign1> {
                   leading: const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Padding(
-                      padding: EdgeInsets.all(3.0),
+                      padding: EdgeInsets.all(1.0),
                       child: Image(
                         image: AssetImage("assets/Images/izmir.jpg"),
-                        height: 40,
-                        width: 40,
+                        height: 70,
+                        width: 70,
                       ),
                     ),
                   ),
@@ -2238,10 +2238,14 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                             fontWeight:
                                                                                 FontWeight.bold),
                                                                       ),
-                                                                      content:
-                                                                          Text(
-                                                                        'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
-                                                                      ),
+                                                                      content: _daysDifference + 1 ==
+                                                                              1
+                                                                          ? Text(
+                                                                              'You will not be home for ${_daysDifference + 1} day, Security will look after your house.\nPress YES to send your request.',
+                                                                            )
+                                                                          : Text(
+                                                                              'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
+                                                                            ),
                                                                       actions: <Widget>[
                                                                         ElevatedButton(
                                                                           style:
@@ -2362,23 +2366,22 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                       'title': 'Not at Home',
                                                                                       'uid': userinfo['uid'],
                                                                                       'pressedTime': DateTime.now(),
-                                                                                    });
+                                                                                    }).then((value) => {
+                                                                                          Navigator.push(
+                                                                                              context,
+                                                                                              MaterialPageRoute(
+                                                                                                builder: (context) => TabsScreen(
+                                                                                                  index: 0,
+                                                                                                ),
+                                                                                              )),
+                                                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                              action: SnackBarAction(
+                                                                                                label: "Ok",
+                                                                                                onPressed: () {},
+                                                                                              ),
+                                                                                              content: const Text("Your Details has been sent "))),
+                                                                                        });
                                                                                   });
-
-                                                                                  Navigator.push(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => TabsScreen(
-                                                                                          index: 0,
-                                                                                        ),
-                                                                                      ));
-
-                                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                      action: SnackBarAction(
-                                                                                        label: "Ok",
-                                                                                        onPressed: () {},
-                                                                                      ),
-                                                                                      content: const Text("Your Details has been sent ")));
                                                                                 } else {
                                                                                   await FirebaseFirestore.instance.collection("not_Home").add({
                                                                                     'FCMtoken': FCMtoken,

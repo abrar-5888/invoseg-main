@@ -47,6 +47,7 @@ class _PlotsState extends State<Plots> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       drawer: const DrawerWidg(),
       key: _key,
       appBar: AppBar(

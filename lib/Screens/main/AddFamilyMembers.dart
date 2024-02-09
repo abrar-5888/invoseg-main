@@ -222,7 +222,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
             Map<String, dynamic> fmData = {
               "remaining": remaining,
               "Name": addFMmodel.name,
-              "Phoneno": addFMmodel.phoneNo,
+              "phonenumber": addFMmodel.phoneNo,
               "status": "Approve",
               "email": FirebaseAuth.instance.currentUser!.email,
               "uid": user?.uid,
