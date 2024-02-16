@@ -10,7 +10,7 @@ import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
@@ -647,7 +647,7 @@ class _GroceryState extends State<Grocery> {
   }
 
   void logic(String collect) async {
-    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    // final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     String FCMtoken = "";
     DateTime now = DateTime.now();
     String documentId;

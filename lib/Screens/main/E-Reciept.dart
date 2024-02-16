@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 // import 'package:provider/provider.dart';
@@ -553,7 +553,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
   }
 
   void logic(String collect) async {
-    final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+    // final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     String FCMtoken = "";
     DateTime now = DateTime.now();
     String documentId;

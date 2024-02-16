@@ -13,7 +13,7 @@ import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
@@ -236,7 +236,6 @@ class _HomeDesign1State extends State<HomeDesign1> {
     }
   }
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   String FCMtoken = "";
   getMobileToken() {}
   bool btnOnOff = false;
@@ -1681,19 +1680,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                             ),
                                                                             onPressed:
                                                                                 () async {
-                                                                              final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-                                                                              String FCMtoken = "";
-                                                                              await firebaseMessaging.getToken().then((String? token) {
-                                                                                if (token != null) {
-                                                                                  setState(() {
-                                                                                    FCMtoken = token;
-                                                                                  });
+                                                                              SharedPreferences token = await SharedPreferences.getInstance();
+                                                                              String FCMtoken = token.getString('token')!;
 
-                                                                                  print("FCM Token: $FCMtoken");
-                                                                                } else {
-                                                                                  print("Unable to get FCM token");
-                                                                                }
-                                                                              });
                                                                               final mainCollectionQuery = await FirebaseFirestore.instance
                                                                                   .collection("UserRequest") // Replace with your main collection
                                                                                   .where("parentID", isEqualTo: userinfo['parentID'])
@@ -2076,19 +2065,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                             ),
                                                                             onPressed:
                                                                                 () async {
-                                                                              final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-                                                                              String FCMtoken = "";
-                                                                              await firebaseMessaging.getToken().then((String? token) {
-                                                                                if (token != null) {
-                                                                                  setState(() {
-                                                                                    FCMtoken = token;
-                                                                                  });
+                                                                              SharedPreferences token = await SharedPreferences.getInstance();
+                                                                              String FCMtoken = token.getString('token')!;
 
-                                                                                  print("FCM Token: $FCMtoken");
-                                                                                } else {
-                                                                                  print("Unable to get FCM token");
-                                                                                }
-                                                                              });
                                                                               final mainCollectionQuery = await FirebaseFirestore.instance
                                                                                   .collection("UserRequest") // Replace with your main collection
                                                                                   .where("uid", isEqualTo: userinfo['uid'])
