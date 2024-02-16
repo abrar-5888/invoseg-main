@@ -573,7 +573,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Text(
-          'Are you sure you want to send a ${buttonLabels[0]} request?',
+          'Are you sure you want to send a ${buttonLabels[0].toString().toLowerCase()} request?',
         ),
         actions: <Widget>[
           ElevatedButton(
@@ -614,7 +614,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Are you sure you want to send a Grocery request?',
+          'Are you sure you want to send a grocery request?',
         ),
         actions: <Widget>[
           ElevatedButton(
@@ -653,7 +653,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Are you sure you want to send a Medical consultation request?',
+          'Are you sure you want to send a medical consultation request?',
         ),
         actions: <Widget>[
           ElevatedButton(
