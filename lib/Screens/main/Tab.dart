@@ -28,7 +28,7 @@ class _TabsScreenState extends State<TabsScreen> {
     await _firebaseMessaging.getToken().then((String? token) async {
       if (token != null) {
         setState(() {
-          tokrn.setString('token', token);
+          tokrn.setString('tokens', token);
           FCMtoken = token;
         });
 

@@ -571,7 +571,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     final userinfo = json.decode(prefs.getString('userinfo') as String);
     if (btnOnOff == false) {
       setState(() {
-        FCMtoken = prefs.getString('token')!;
+        FCMtoken = prefs.getString('tokens')!;
         btnOnOff = true;
       });
       final mainCollectionQuery = await FirebaseFirestore.instance

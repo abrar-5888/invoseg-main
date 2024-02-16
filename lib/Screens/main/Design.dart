@@ -355,7 +355,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             json.decode(prefs.getString('userinfo')!) as Map<String, dynamic>;
 
         setState(() {
-          FCMtoken = prefs.getString('token')!;
+          FCMtoken = prefs.getString('tokens')!;
           btnOnOff = true;
         });
         updateButtonOne();
@@ -516,9 +516,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
               }
             },
           );
-          EasyLoading.showSuccess('Request sent');
+          // EasyLoading.showSuccess('Request sent');
         } else {
-          EasyLoading.showSuccess('Request sent');
+          // EasyLoading.showSuccess('Request sent');
           print("No matching documents found in the main collection.");
         }
 
@@ -534,7 +534,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             subject: "test subject");
       } else {}
     } catch (e) {
-      EasyLoading.showSuccess('Request sent');
+      // EasyLoading.showSuccess('Request sent');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               "Request not sent. please check your internet connection and try again !")));
@@ -1681,7 +1681,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                             onPressed:
                                                                                 () async {
                                                                               SharedPreferences token = await SharedPreferences.getInstance();
-                                                                              String FCMtoken = token.getString('token')!;
+                                                                              String FCMtoken = token.getString('tokens')!;
 
                                                                               final mainCollectionQuery = await FirebaseFirestore.instance
                                                                                   .collection("UserRequest") // Replace with your main collection
@@ -2066,7 +2066,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                             onPressed:
                                                                                 () async {
                                                                               SharedPreferences token = await SharedPreferences.getInstance();
-                                                                              String FCMtoken = token.getString('token')!;
+                                                                              String FCMtoken = token.getString('tokens')!;
 
                                                                               final mainCollectionQuery = await FirebaseFirestore.instance
                                                                                   .collection("UserRequest") // Replace with your main collection
