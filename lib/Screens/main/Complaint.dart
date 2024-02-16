@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -387,19 +386,8 @@ class _ComplainformState extends State<Complainform> {
         snack();
       } else {
         if (complian.text.isNotEmpty) {
-          final FirebaseMessaging firebaseMessaging =
-              FirebaseMessaging.instance;
-          String FCMtoken = "";
-          await firebaseMessaging.getToken().then((String? token) {
-            if (token != null) {
-              setState(() {
-                FCMtoken = token;
-              });
-              print("FCM Token: $FCMtoken");
-            } else {
-              print("Unable to get FCM token");
-            }
-          });
+          String FCMtoken = oka.getString('token')!;
+
           final mainCollectionQuery = await FirebaseFirestore.instance
               .collection("UserRequest")
               .where("parentID", isEqualTo: userinfo['parentID'])

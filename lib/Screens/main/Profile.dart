@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
@@ -26,6 +27,18 @@ class _UserProfileState extends State<UserProfile> {
     // TODO: implement initState
     super.initState();
     updateViewProf();
+  }
+
+  void naviagte(String docid, email, address, owner) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => FamilyMembers(
+                  id: docid,
+                  emailss: email,
+                  addresss: address,
+                  ownerss: owner,
+                )));
   }
 
   String filePath = "";
@@ -138,18 +151,23 @@ class _UserProfileState extends State<UserProfile> {
                                   'Add Family Members',
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                onPressed: () {
-                                  updateAddFM();
-                                  String docid = userinfo["uid"];
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => FamilyMembers(
-                                            id: docid,
-                                            emailss: userinfo["email"],
-                                            addresss: userinfo["address"],
-                                            ownerss: userinfo['owner']),
-                                      ));
+                                onPressed: () async {
+                                  var connectivityResult = await (Connectivity()
+                                      .checkConnectivity());
+                                  print(
+                                      "Connectivity == ${connectivityResult.toString()}");
+                                  if (connectivityResult ==
+                                      ConnectivityResult.none) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "This Feature is not available in Offline mode")));
+                                  } else {
+                                    updateAddFM();
+                                    String docid = userinfo["uid"];
+                                    naviagte(docid, userinfo['email'],
+                                        userinfo['address'], userinfo['owner']);
+                                  }
                                 },
                                 style: ButtonStyle(
                                     shape: MaterialStateProperty.all<

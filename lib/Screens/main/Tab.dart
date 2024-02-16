@@ -8,6 +8,7 @@ import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TabsScreen extends StatefulWidget {
   static const route = 'tabsScreen';
@@ -22,9 +23,12 @@ class _TabsScreenState extends State<TabsScreen> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   String FCMtoken = "";
   Future<void> addFcmToken() async {
+    SharedPreferences tokrn = await SharedPreferences.getInstance();
+
     await _firebaseMessaging.getToken().then((String? token) async {
       if (token != null) {
         setState(() {
+          tokrn.setString('token', token);
           FCMtoken = token;
         });
 

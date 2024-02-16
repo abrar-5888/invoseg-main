@@ -8,6 +8,7 @@ import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -616,7 +617,16 @@ class _GroceryState extends State<Grocery> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              logic(collect);
+              var connectivityResult =
+                  await (Connectivity().checkConnectivity());
+              print("Connectivity == ${connectivityResult.toString()}");
+              if (connectivityResult == ConnectivityResult.none) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text("This Feature is not available in Offline mode")));
+              } else {
+                logic(collect);
+              }
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -654,124 +664,116 @@ class _GroceryState extends State<Grocery> {
     final prefs = await SharedPreferences.getInstance();
     final userinfo = json.decode(prefs.getString('userinfo') as String);
     if (btnOnOff == false) {
-      await firebaseMessaging.getToken().then((String? token) async {
-        if (token != null) {
-          setState(() {
-            FCMtoken = token;
-            btnOnOff = true;
-          });
-          final mainCollectionQuery = await FirebaseFirestore.instance
-              .collection("UserRequest") // Replace with your main collection
-              .where("email", isEqualTo: userinfo['email'])
+      setState(() {
+        FCMtoken = prefs.getString('token')!;
+        btnOnOff = true;
+      });
+      final mainCollectionQuery = await FirebaseFirestore.instance
+          .collection("UserRequest") // Replace with your main collection
+          .where("email", isEqualTo: userinfo['email'])
+          .get();
+
+      if (mainCollectionQuery.docs.isNotEmpty) {
+        mainCollectionQuery.docs.forEach((mainDoc) async {
+          final subcollectionRef = mainDoc.reference.collection("FMData");
+
+          final subcollectionQuery = await subcollectionRef
+              .where("owner", isEqualTo: userinfo['owner'])
               .get();
 
-          if (mainCollectionQuery.docs.isNotEmpty) {
-            mainCollectionQuery.docs.forEach((mainDoc) async {
-              final subcollectionRef = mainDoc.reference.collection("FMData");
-
-              final subcollectionQuery = await subcollectionRef
-                  .where("owner", isEqualTo: userinfo['owner'])
-                  .get();
-
-              if (subcollectionQuery.docs.isNotEmpty) {
-                // Process the first document
-                var data = subcollectionQuery.docs[0].data();
-                setState(() {
-                  fmName = data['Name'];
-                  fmphoneNo = data['Phoneno'];
-                  print("Document 1 - Name: $fmName, Phone No: $fmphoneNo");
-                });
-
-                // Process the second document if it exists
-                if (subcollectionQuery.docs.length > 1) {
-                  var data1 = subcollectionQuery.docs[1].data();
-                  setState(() {
-                    fmName1 = data1['Name'];
-                    fmphoneNo1 = data1['Phoneno'];
-                    print("Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
-                  });
-                }
-
-                await FirebaseFirestore.instance.collection(collect).add({
-                  "edit": true,
-                  "name": userinfo["name"],
-                  "phoneNo": userinfo["phoneNo"],
-                  "address": userinfo["address"],
-                  "fmphoneNo": fmphoneNo,
-                  "fmphoneNo1": fmphoneNo1,
-                  "fname": userinfo['fname'],
-                  "fPhoneNo": userinfo['fphoneNo'],
-                  "fmName": fmName,
-                  "fmName1": fmName1,
-                  "designation": userinfo["designation"],
-                  "age": userinfo["age"],
-                  "pressedTime": FieldValue.serverTimestamp(),
-                  "type": collect,
-                  "isProcessed": false,
-                  "time": formattedTime,
-                  "date": formattedDate,
-                  // "FM${num}": userinfo["FM${num}"],
-                  "uid": userinfo["uid"],
-                  "owner": userinfo["owner"],
-                  "email": userinfo["email"],
-                  "noti": true,
-                  "residentID": "Invoseg$fourDigitCode",
-                  "FCMtoken": FCMtoken
-                }).then((DocumentReference document) => {
-                      documentId = document.id,
-                      print("DOCUMENT ID +++++++ $documentId"),
-                    });
-                FirebaseFirestore.instance.collection("UserButtonRequest").add({
-                  "type": collect,
-                  "uid": userinfo["uid"],
-                  "pressedTime": FieldValue.serverTimestamp(),
-                });
-                popAndSnackBar();
-              } else {
-                print("No matching documents found in the Sub collection.");
-                await FirebaseFirestore.instance.collection(collect).add({
-                  "name": userinfo["name"],
-                  "phoneNo": userinfo["phoneNo"],
-                  "address": userinfo["address"],
-                  "fmphoneNo": "",
-                  "fname": userinfo['fname'],
-                  "fPhoneNo": userinfo['fphoneNo'],
-                  "fmName": "",
-                  "designation": userinfo["designation"],
-                  "age": userinfo["age"],
-                  "pressedTime": FieldValue.serverTimestamp(),
-                  "type": collect,
-                  "isProcessed": false,
-                  "time": formattedTime,
-                  "date": formattedDate,
-                  // "FM${num}": userinfo["FM${num}"],
-                  "uid": userinfo["uid"],
-                  "owner": userinfo["owner"],
-                  "email": userinfo["email"],
-                  "noti": true,
-                  "residentID": "Invoseg$fourDigitCode",
-                  "FCMtoken": FCMtoken
-                }).then((DocumentReference document) => {
-                      documentId = document.id,
-                      print("DOCUMENT ID +++++++ $documentId")
-                    });
-                FirebaseFirestore.instance.collection("UserButtonRequest").add({
-                  "type": collect,
-                  "uid": userinfo["uid"],
-                  "pressedTime": FieldValue.serverTimestamp(),
-                });
-                popAndSnackBar();
-              }
+          if (subcollectionQuery.docs.isNotEmpty) {
+            // Process the first document
+            var data = subcollectionQuery.docs[0].data();
+            setState(() {
+              fmName = data['Name'];
+              fmphoneNo = data['Phoneno'];
+              print("Document 1 - Name: $fmName, Phone No: $fmphoneNo");
             });
-          } else {
-            print("No matching documents found in the main collection.");
-          }
 
-          print("FCM Token: $FCMtoken");
-        } else {
-          print("Unable to get FCM token");
-        }
-      });
+            // Process the second document if it exists
+            if (subcollectionQuery.docs.length > 1) {
+              var data1 = subcollectionQuery.docs[1].data();
+              setState(() {
+                fmName1 = data1['Name'];
+                fmphoneNo1 = data1['Phoneno'];
+                print("Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
+              });
+            }
+
+            await FirebaseFirestore.instance.collection(collect).add({
+              "edit": true,
+              "name": userinfo["name"],
+              "phoneNo": userinfo["phoneNo"],
+              "address": userinfo["address"],
+              "fmphoneNo": fmphoneNo,
+              "fmphoneNo1": fmphoneNo1,
+              "fname": userinfo['fname'],
+              "fPhoneNo": userinfo['fphoneNo'],
+              "fmName": fmName,
+              "fmName1": fmName1,
+              "designation": userinfo["designation"],
+              "age": userinfo["age"],
+              "pressedTime": FieldValue.serverTimestamp(),
+              "type": collect,
+              "isProcessed": false,
+              "time": formattedTime,
+              "date": formattedDate,
+              // "FM${num}": userinfo["FM${num}"],
+              "uid": userinfo["uid"],
+              "owner": userinfo["owner"],
+              "email": userinfo["email"],
+              "noti": true,
+              "residentID": "Invoseg$fourDigitCode",
+              "FCMtoken": FCMtoken
+            }).then((DocumentReference document) => {
+                  documentId = document.id,
+                  print("DOCUMENT ID +++++++ $documentId"),
+                });
+            FirebaseFirestore.instance.collection("UserButtonRequest").add({
+              "type": collect,
+              "uid": userinfo["uid"],
+              "pressedTime": FieldValue.serverTimestamp(),
+            });
+            popAndSnackBar();
+          } else {
+            print("No matching documents found in the Sub collection.");
+            await FirebaseFirestore.instance.collection(collect).add({
+              "name": userinfo["name"],
+              "phoneNo": userinfo["phoneNo"],
+              "address": userinfo["address"],
+              "fmphoneNo": "",
+              "fname": userinfo['fname'],
+              "fPhoneNo": userinfo['fphoneNo'],
+              "fmName": "",
+              "designation": userinfo["designation"],
+              "age": userinfo["age"],
+              "pressedTime": FieldValue.serverTimestamp(),
+              "type": collect,
+              "isProcessed": false,
+              "time": formattedTime,
+              "date": formattedDate,
+              // "FM${num}": userinfo["FM${num}"],
+              "uid": userinfo["uid"],
+              "owner": userinfo["owner"],
+              "email": userinfo["email"],
+              "noti": true,
+              "residentID": "Invoseg$fourDigitCode",
+              "FCMtoken": FCMtoken
+            }).then((DocumentReference document) => {
+                  documentId = document.id,
+                  print("DOCUMENT ID +++++++ $documentId")
+                });
+            FirebaseFirestore.instance.collection("UserButtonRequest").add({
+              "type": collect,
+              "uid": userinfo["uid"],
+              "pressedTime": FieldValue.serverTimestamp(),
+            });
+            popAndSnackBar();
+          }
+        });
+      } else {
+        print("No matching documents found in the main collection.");
+      }
     } else {}
   }
 
