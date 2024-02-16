@@ -15,6 +15,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
@@ -348,6 +349,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fmName1 = "", fmphoneNo1 = "";
     String fourDigitCode = generateRandomFourDigitCode();
     try {
+      EasyLoading.show(status: "Please Wait");
       if (!btnOnOff) {
         final prefs = await SharedPreferences.getInstance();
         final userinfo =
@@ -475,6 +477,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           "pressedTime": FieldValue.serverTimestamp(),
                         },
                       );
+                      EasyLoading.showSuccess('Request sent');
                       popAndSnackBar();
                     } else {
                       print(
@@ -520,17 +523,23 @@ class _HomeDesign1State extends State<HomeDesign1> {
                           "pressedTime": FieldValue.serverTimestamp(),
                         },
                       );
+                      EasyLoading.showSuccess('Request sent');
 
                       popAndSnackBar();
                     }
                   },
                 );
+                EasyLoading.showSuccess('Request sent');
               } else {
+                EasyLoading.showSuccess('Request sent');
                 print("No matching documents found in the main collection.");
               }
 
               print("FCM Token: $FCMtoken");
+
+              EasyLoading.showSuccess('Request sent');
             } else {
+              EasyLoading.showSuccess('Request sent');
               print("Unable to get FCM token");
             }
           },
@@ -544,6 +553,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             subject: "test subject");
       } else {}
     } catch (e) {
+      EasyLoading.showSuccess('Request sent');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               "Request not sent. please check your internet connection and try again !")));
@@ -1510,489 +1520,393 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     ],
                                   ),
                                 ),
-                                onTap: () {
+                                onTap: () async {
                                   updateMainIcons();
                                   // status = false;
-                                  if (status == false) {
-                                    print(
-                                        "New Selected Date    $newSelectedDate");
+                                  var connectivityResult = await (Connectivity()
+                                      .checkConnectivity());
+                                  print(
+                                      "Connectivity == ${connectivityResult.toString()}");
+                                  if (connectivityResult ==
+                                      ConnectivityResult.none) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "This Feature is not available in Offline mode")));
+                                  } else {
+                                    if (status == false) {
+                                      print(
+                                          "New Selected Date    $newSelectedDate");
 
-                                    print(
-                                        "Datetime format = $formattedDateTime");
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) => Center(
-                                              child: SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    1.65,
-                                                // Adjust the width as needed
-                                                child: FutureBuilder(
-                                                    future: SharedPreferences
-                                                        .getInstance(),
-                                                    builder: (context,
-                                                        AsyncSnapshot
-                                                            snapshot) {
-                                                      var userinfo = json
-                                                          .decode(snapshot.data
-                                                                  .getString(
-                                                                      'userinfo')
-                                                              as String);
-                                                      final myListData = [
-                                                        userinfo["name"],
-                                                        userinfo["phoneNo"],
-                                                        userinfo["address"],
-                                                        userinfo["fphoneNo"],
-                                                        userinfo["fname"],
-                                                        userinfo["designation"],
-                                                        userinfo["age"],
-                                                        userinfo["uid"],
-                                                        userinfo["owner"],
-                                                        userinfo["email"]
-                                                      ];
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Not Home'),
-                                                        content: Column(
-                                                          children: [
-                                                            const Text(
-                                                                'Select the date when you will be at home'),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            TextFormField(
-                                                              controller:
-                                                                  currentdate,
-                                                              readOnly: true,
-                                                              decoration:
-                                                                  const InputDecoration(
-                                                                labelText:
-                                                                    'From',
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 25),
-                                                            TextFormField(
-                                                              controller:
-                                                                  _dateController,
-                                                              readOnly: true,
-                                                              onTap: () {
-                                                                if (newSelectedDate ==
-                                                                        DateTime
-                                                                            .now() ||
-                                                                    status ==
-                                                                        false) {
-                                                                  print(
-                                                                      "New Selected Date    $newSelectedDate");
-                                                                  _selectDate(
-                                                                      context);
-                                                                } else {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(const SnackBar(
-                                                                          content:
-                                                                              Text("You can not send another request")));
-                                                                }
-                                                              },
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                labelText: 'To',
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                  icon: const Icon(
-                                                                      Icons
-                                                                          .calendar_today),
-                                                                  onPressed:
-                                                                      () {
-                                                                    if (newSelectedDate ==
-                                                                            DateTime
-                                                                                .now() ||
-                                                                        status ==
-                                                                            false) {
-                                                                      print(
-                                                                          "New Selected Date    $newSelectedDate");
-                                                                      _selectDate(
-                                                                          context);
-                                                                    } else {
-                                                                      ScaffoldMessenger.of(
-                                                                              context)
-                                                                          .showSnackBar(
-                                                                              const SnackBar(content: Text("You can not send another request")));
-                                                                    }
-                                                                  },
+                                      print(
+                                          "Datetime format = $formattedDateTime");
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) => Center(
+                                                child: SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      1.65,
+                                                  // Adjust the width as needed
+                                                  child: FutureBuilder(
+                                                      future: SharedPreferences
+                                                          .getInstance(),
+                                                      builder: (context,
+                                                          AsyncSnapshot
+                                                              snapshot) {
+                                                        var userinfo =
+                                                            json.decode(snapshot
+                                                                    .data
+                                                                    .getString(
+                                                                        'userinfo')
+                                                                as String);
+                                                        final myListData = [
+                                                          userinfo["name"],
+                                                          userinfo["phoneNo"],
+                                                          userinfo["address"],
+                                                          userinfo["fphoneNo"],
+                                                          userinfo["fname"],
+                                                          userinfo[
+                                                              "designation"],
+                                                          userinfo["age"],
+                                                          userinfo["uid"],
+                                                          userinfo["owner"],
+                                                          userinfo["email"]
+                                                        ];
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Not Home'),
+                                                          content: Column(
+                                                            children: [
+                                                              const Text(
+                                                                  'Select the date when you will be at home'),
+                                                              const SizedBox(
+                                                                  height: 10),
+                                                              TextFormField(
+                                                                controller:
+                                                                    currentdate,
+                                                                readOnly: true,
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                  labelText:
+                                                                      'From',
                                                                 ),
                                                               ),
-                                                            ),
-                                                            // Align(
-                                                            //     alignment:
-                                                            //         Alignment
-                                                            //             .bottomRight,
-                                                            //     child: TextButton(
-                                                            //         onPressed: () async {
+                                                              const SizedBox(
+                                                                  height: 25),
+                                                              TextFormField(
+                                                                controller:
+                                                                    _dateController,
+                                                                readOnly: true,
+                                                                onTap: () {
+                                                                  if (newSelectedDate ==
+                                                                          DateTime
+                                                                              .now() ||
+                                                                      status ==
+                                                                          false) {
+                                                                    print(
+                                                                        "New Selected Date    $newSelectedDate");
+                                                                    _selectDate(
+                                                                        context);
+                                                                  } else {
+                                                                    ScaffoldMessenger.of(
+                                                                            context)
+                                                                        .showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text("You can not send another request")));
+                                                                  }
+                                                                },
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  labelText:
+                                                                      'To',
+                                                                  suffixIcon:
+                                                                      IconButton(
+                                                                    icon: const Icon(
+                                                                        Icons
+                                                                            .calendar_today),
+                                                                    onPressed:
+                                                                        () {
+                                                                      if (newSelectedDate ==
+                                                                              DateTime
+                                                                                  .now() ||
+                                                                          status ==
+                                                                              false) {
+                                                                        print(
+                                                                            "New Selected Date    $newSelectedDate");
+                                                                        _selectDate(
+                                                                            context);
+                                                                      } else {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text("You can not send another request")));
+                                                                      }
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              // Align(
+                                                              //     alignment:
+                                                              //         Alignment
+                                                              //             .bottomRight,
+                                                              //     child: TextButton(
+                                                              //         onPressed: () async {
 
-                                                            //         },
-                                                            //         child: Icon(
-                                                            //           Icons.delete,
-                                                            //           color:
-                                                            //               Colors.red,
-                                                            //         )))
-                                                          ],
-                                                        ),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              if (DateTime.now() !=
-                                                                      toField ||
-                                                                  status ==
-                                                                      true) {
-                                                                print(
-                                                                    "feild == $toField");
-                                                                // Uncomment this code to show the confirmation dialog
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return AlertDialog(
-                                                                      title:
-                                                                          const Text(
-                                                                        'Confirmation',
-                                                                        style: TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                      content: _daysDifference + 1 ==
-                                                                              1
-                                                                          ? Text(
-                                                                              'You will not be home for ${_daysDifference + 1} day, Security will look after your house.\nPress YES to send your request.',
-                                                                            )
-                                                                          : Text(
-                                                                              'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
-                                                                            ),
-                                                                      actions: <Widget>[
-                                                                        ElevatedButton(
+                                                              //         },
+                                                              //         child: Icon(
+                                                              //           Icons.delete,
+                                                              //           color:
+                                                              //               Colors.red,
+                                                              //         )))
+                                                            ],
+                                                          ),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                if (DateTime.now() !=
+                                                                        toField ||
+                                                                    status ==
+                                                                        true) {
+                                                                  print(
+                                                                      "feild == $toField");
+                                                                  // Uncomment this code to show the confirmation dialog
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return AlertDialog(
+                                                                        title:
+                                                                            const Text(
+                                                                          'Confirmation',
                                                                           style:
-                                                                              ButtonStyle(
-                                                                            backgroundColor:
-                                                                                MaterialStateProperty.all(Colors.black),
-                                                                          ),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            final FirebaseMessaging
-                                                                                firebaseMessaging =
-                                                                                FirebaseMessaging.instance;
-                                                                            String
-                                                                                FCMtoken =
-                                                                                "";
-                                                                            await firebaseMessaging.getToken().then((String?
-                                                                                token) {
-                                                                              if (token != null) {
-                                                                                setState(() {
-                                                                                  FCMtoken = token;
-                                                                                });
-
-                                                                                print("FCM Token: $FCMtoken");
-                                                                              } else {
-                                                                                print("Unable to get FCM token");
-                                                                              }
-                                                                            });
-                                                                            final mainCollectionQuery = await FirebaseFirestore.instance
-                                                                                .collection("UserRequest") // Replace with your main collection
-                                                                                .where("parentID", isEqualTo: userinfo['parentID'])
-                                                                                .get();
-
-                                                                            if (mainCollectionQuery.docs.isNotEmpty) {
-                                                                              mainCollectionQuery.docs.forEach((mainDoc) async {
-                                                                                final subcollectionRef = mainDoc.reference.collection("FMData");
-
-                                                                                final subcollectionQuery = await subcollectionRef.where("owner", isEqualTo: userinfo['owner']).get();
-
-                                                                                if (subcollectionQuery.docs.isNotEmpty) {
-                                                                                  print("oka");
-                                                                                  // Process the first document
-                                                                                  var data = subcollectionQuery.docs[0].data();
-                                                                                  String parentId = data['parentID'];
-                                                                                  DocumentSnapshot parentDoc = await FirebaseFirestore.instance.collection('UserRequest').doc(parentId).get();
-                                                                                  if (parentDoc.exists) {
-                                                                                    // Step 2: Access the subcollection
-                                                                                    QuerySnapshot subcollectionSnapshot = await parentDoc.reference.collection('FMData').limit(2).get();
-                                                                                    if (subcollectionSnapshot.docs.isNotEmpty) {
-                                                                                      // Access subcollection document data for the first document
-                                                                                      Map<String, dynamic> firstDocData = subcollectionSnapshot.docs[0].data() as Map<String, dynamic>;
-
-                                                                                      setState(() {
-                                                                                        fmName = firstDocData['Name'];
-                                                                                        fmphoneNo = firstDocData['phonenumber'];
-                                                                                      });
-                                                                                      print('First Subcollection Document Data: $firstDocData');
-
-                                                                                      // Check if there is a second document before accessing
-                                                                                      if (subcollectionSnapshot.docs.length > 1) {
-                                                                                        // Access subcollection document data for the second document
-                                                                                        Map<String, dynamic> secondDocData = subcollectionSnapshot.docs[1].data() as Map<String, dynamic>;
-                                                                                        print('Second Subcollection Document Data: $secondDocData');
-                                                                                        setState(() {
-                                                                                          fmName1 = secondDocData['Name'];
-                                                                                          fmphoneNo1 = secondDocData['phonenumber'];
-                                                                                        });
-
-                                                                                        print("FM 1 $fmName1    +++++++++++   $fmphoneNo1");
-                                                                                      } else {
-                                                                                        print('Subcollection has only one document.');
-                                                                                      }
-                                                                                    } else {
-                                                                                      print('Subcollection is empty.');
-                                                                                    }
-                                                                                  } else {
-                                                                                    print('Document with ID $parentId does not exist.');
-                                                                                  }
-
-                                                                                  await FirebaseFirestore.instance.collection("not_Home").add({
-                                                                                    'FCMtoken': FCMtoken,
-                                                                                    'time': DateTime.now(),
-                                                                                    'nh': false,
-                                                                                    "edit": false,
-                                                                                    'pressedTime': DateTime.now(),
-                                                                                    "fmName": fmName,
-                                                                                    "fmName1": fmName1,
-                                                                                    "fmphoneNo": fmphoneNo,
-                                                                                    "fmphoneNo1": fmphoneNo1,
-                                                                                    // 'from': currentdate.text,
-                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
-                                                                                    'to': _dateController.text,
-                                                                                    "days": _daysDifference,
-                                                                                    'Name': '${userinfo['name']}',
-                                                                                    'Email': '${userinfo['email']}',
-                                                                                    'ID': '${userinfo["uid"]}',
-                                                                                    'PhoneNo': '${userinfo["phoneNo"]}',
-                                                                                    'Address': '${userinfo["address"]}',
-                                                                                    "fname": userinfo['fname'],
-                                                                                    "fPhoneNo": userinfo['fphoneNo'],
-                                                                                    'Designation': '${userinfo["designation"]}',
-                                                                                    'Age': '${userinfo["age"]}',
-                                                                                    'Owner': '${userinfo["owner"]}',
-                                                                                    'noti': true,
-                                                                                    'Status': true,
-                                                                                    'uid': userinfo['uid'],
-                                                                                    'cancelled': false,
-                                                                                  }).then((DocumentReference document) async {
-                                                                                    print("ID= ${document.id}");
-
-                                                                                    String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
-                                                                                    await FirebaseFirestore.instance.collection("notifications").add({
-                                                                                      'isRead': false,
-                                                                                      'id': document.id,
-                                                                                      'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                                      'description': "Not at Home is on !",
-                                                                                      'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                                                      'time': formattedTime,
-                                                                                      'title': 'Not at Home',
-                                                                                      'uid': userinfo['uid'],
-                                                                                      'pressedTime': DateTime.now(),
-                                                                                    }).then((value) => {
-                                                                                          Navigator.push(
-                                                                                              context,
-                                                                                              MaterialPageRoute(
-                                                                                                builder: (context) => TabsScreen(
-                                                                                                  index: 0,
-                                                                                                ),
-                                                                                              )),
-                                                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                              action: SnackBarAction(
-                                                                                                label: "Ok",
-                                                                                                onPressed: () {},
-                                                                                              ),
-                                                                                              content: const Text("Your Details has been sent "))),
-                                                                                        });
+                                                                              TextStyle(fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                        content: _daysDifference + 1 ==
+                                                                                1
+                                                                            ? Text(
+                                                                                'You will not be home for ${_daysDifference + 1} day, Security will look after your house.\nPress YES to send your request.',
+                                                                              )
+                                                                            : Text(
+                                                                                'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
+                                                                              ),
+                                                                        actions: <Widget>[
+                                                                          ElevatedButton(
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () async {
+                                                                              final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+                                                                              String FCMtoken = "";
+                                                                              await firebaseMessaging.getToken().then((String? token) {
+                                                                                if (token != null) {
+                                                                                  setState(() {
+                                                                                    FCMtoken = token;
                                                                                   });
+
+                                                                                  print("FCM Token: $FCMtoken");
                                                                                 } else {
-                                                                                  await FirebaseFirestore.instance.collection("not_Home").add({
-                                                                                    'FCMtoken': FCMtoken,
-                                                                                    'time': DateTime.now(),
-                                                                                    'nh': false,
-                                                                                    "edit": false,
-                                                                                    'pressedTime': DateTime.now(),
-                                                                                    "fmName": "",
-                                                                                    "fmName1": "",
-                                                                                    "fmphoneNo": "",
-                                                                                    "fmphoneNo1": "",
-                                                                                    // 'from': currentdate.text,
-                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
-
-                                                                                    'to': _dateController.text,
-                                                                                    "days": _daysDifference,
-                                                                                    'Name': '${userinfo['name']}',
-                                                                                    'Email': '${userinfo['email']}',
-                                                                                    'ID': '${userinfo["uid"]}',
-                                                                                    'PhoneNo': '${userinfo["phoneNo"]}',
-                                                                                    'Address': '${userinfo["address"]}',
-                                                                                    "fname": userinfo['fname'],
-                                                                                    "fPhoneNo": userinfo['fphoneNo'],
-                                                                                    'Designation': '${userinfo["designation"]}',
-                                                                                    'Age': '${userinfo["age"]}',
-                                                                                    'Owner': '${userinfo["owner"]}',
-                                                                                    'noti': true,
-                                                                                    'Status': true,
-                                                                                    'uid': userinfo['uid'],
-                                                                                    'cancelled': false,
-                                                                                  }).then((DocumentReference document) async {
-                                                                                    print("ID= ${document.id}");
-
-                                                                                    String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
-                                                                                    await FirebaseFirestore.instance.collection("notifications").add({
-                                                                                      'isRead': false,
-                                                                                      'id': document.id,
-                                                                                      'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                                      'description': "Not at Home is on !",
-                                                                                      'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                                                      'time': formattedTime,
-                                                                                      'title': 'Not at Home',
-                                                                                      'uid': userinfo['uid'],
-                                                                                      'pressedTime': DateTime.now(),
-                                                                                    });
-                                                                                  });
-
-                                                                                  Navigator.push(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => TabsScreen(
-                                                                                          index: 0,
-                                                                                        ),
-                                                                                      ));
-
-                                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                      action: SnackBarAction(
-                                                                                        label: "Ok",
-                                                                                        onPressed: () {},
-                                                                                      ),
-                                                                                      content: const Text("Your Details has been sent ")));
+                                                                                  print("Unable to get FCM token");
                                                                                 }
                                                                               });
-                                                                            } else {
-                                                                              print("main Document is empty");
-                                                                            }
-                                                                          },
-                                                                          child: const Text(
-                                                                              'Yes',
-                                                                              style: TextStyle(color: Colors.white)),
-                                                                        ),
-                                                                        ElevatedButton(
-                                                                          style:
-                                                                              ButtonStyle(
-                                                                            backgroundColor:
-                                                                                MaterialStateProperty.all(Colors.black),
+                                                                              final mainCollectionQuery = await FirebaseFirestore.instance
+                                                                                  .collection("UserRequest") // Replace with your main collection
+                                                                                  .where("parentID", isEqualTo: userinfo['parentID'])
+                                                                                  .get();
+
+                                                                              if (mainCollectionQuery.docs.isNotEmpty) {
+                                                                                mainCollectionQuery.docs.forEach((mainDoc) async {
+                                                                                  final subcollectionRef = mainDoc.reference.collection("FMData");
+
+                                                                                  final subcollectionQuery = await subcollectionRef.where("owner", isEqualTo: userinfo['owner']).get();
+
+                                                                                  if (subcollectionQuery.docs.isNotEmpty) {
+                                                                                    print("oka");
+                                                                                    // Process the first document
+                                                                                    var data = subcollectionQuery.docs[0].data();
+                                                                                    String parentId = data['parentID'];
+                                                                                    DocumentSnapshot parentDoc = await FirebaseFirestore.instance.collection('UserRequest').doc(parentId).get();
+                                                                                    if (parentDoc.exists) {
+                                                                                      // Step 2: Access the subcollection
+                                                                                      QuerySnapshot subcollectionSnapshot = await parentDoc.reference.collection('FMData').limit(2).get();
+                                                                                      if (subcollectionSnapshot.docs.isNotEmpty) {
+                                                                                        // Access subcollection document data for the first document
+                                                                                        Map<String, dynamic> firstDocData = subcollectionSnapshot.docs[0].data() as Map<String, dynamic>;
+
+                                                                                        setState(() {
+                                                                                          fmName = firstDocData['Name'];
+                                                                                          fmphoneNo = firstDocData['phonenumber'];
+                                                                                        });
+                                                                                        print('First Subcollection Document Data: $firstDocData');
+
+                                                                                        // Check if there is a second document before accessing
+                                                                                        if (subcollectionSnapshot.docs.length > 1) {
+                                                                                          // Access subcollection document data for the second document
+                                                                                          Map<String, dynamic> secondDocData = subcollectionSnapshot.docs[1].data() as Map<String, dynamic>;
+                                                                                          print('Second Subcollection Document Data: $secondDocData');
+                                                                                          setState(() {
+                                                                                            fmName1 = secondDocData['Name'];
+                                                                                            fmphoneNo1 = secondDocData['phonenumber'];
+                                                                                          });
+
+                                                                                          print("FM 1 $fmName1    +++++++++++   $fmphoneNo1");
+                                                                                        } else {
+                                                                                          print('Subcollection has only one document.');
+                                                                                        }
+                                                                                      } else {
+                                                                                        print('Subcollection is empty.');
+                                                                                      }
+                                                                                    } else {
+                                                                                      print('Document with ID $parentId does not exist.');
+                                                                                    }
+
+                                                                                    await FirebaseFirestore.instance.collection("not_Home").add({
+                                                                                      'FCMtoken': FCMtoken,
+                                                                                      'time': DateTime.now(),
+                                                                                      'nh': false,
+                                                                                      "edit": false,
+                                                                                      'pressedTime': DateTime.now(),
+                                                                                      "fmName": fmName,
+                                                                                      "fmName1": fmName1,
+                                                                                      "fmphoneNo": fmphoneNo,
+                                                                                      "fmphoneNo1": fmphoneNo1,
+                                                                                      // 'from': currentdate.text,
+                                                                                      'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+                                                                                      'to': _dateController.text,
+                                                                                      "days": _daysDifference,
+                                                                                      'Name': '${userinfo['name']}',
+                                                                                      'Email': '${userinfo['email']}',
+                                                                                      'ID': '${userinfo["uid"]}',
+                                                                                      'PhoneNo': '${userinfo["phoneNo"]}',
+                                                                                      'Address': '${userinfo["address"]}',
+                                                                                      "fname": userinfo['fname'],
+                                                                                      "fPhoneNo": userinfo['fphoneNo'],
+                                                                                      'Designation': '${userinfo["designation"]}',
+                                                                                      'Age': '${userinfo["age"]}',
+                                                                                      'Owner': '${userinfo["owner"]}',
+                                                                                      'noti': true,
+                                                                                      'Status': true,
+                                                                                      'uid': userinfo['uid'],
+                                                                                      'cancelled': false,
+                                                                                    }).then((DocumentReference document) async {
+                                                                                      print("ID= ${document.id}");
+
+                                                                                      String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                                                      await FirebaseFirestore.instance.collection("notifications").add({
+                                                                                        'isRead': false,
+                                                                                        'id': document.id,
+                                                                                        'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                                                        'description': "Not at Home is on !",
+                                                                                        'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                                                        'time': formattedTime,
+                                                                                        'title': 'Not at Home',
+                                                                                        'uid': userinfo['uid'],
+                                                                                        'pressedTime': DateTime.now(),
+                                                                                      }).then((value) => {
+                                                                                            Navigator.push(
+                                                                                                context,
+                                                                                                MaterialPageRoute(
+                                                                                                  builder: (context) => TabsScreen(
+                                                                                                    index: 0,
+                                                                                                  ),
+                                                                                                )),
+                                                                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                                action: SnackBarAction(
+                                                                                                  label: "Ok",
+                                                                                                  onPressed: () {},
+                                                                                                ),
+                                                                                                content: const Text("Your Details has been sent "))),
+                                                                                          });
+                                                                                    });
+                                                                                  } else {
+                                                                                    await FirebaseFirestore.instance.collection("not_Home").add({
+                                                                                      'FCMtoken': FCMtoken,
+                                                                                      'time': DateTime.now(),
+                                                                                      'nh': false,
+                                                                                      "edit": false,
+                                                                                      'pressedTime': DateTime.now(),
+                                                                                      "fmName": "",
+                                                                                      "fmName1": "",
+                                                                                      "fmphoneNo": "",
+                                                                                      "fmphoneNo1": "",
+                                                                                      // 'from': currentdate.text,
+                                                                                      'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+
+                                                                                      'to': _dateController.text,
+                                                                                      "days": _daysDifference,
+                                                                                      'Name': '${userinfo['name']}',
+                                                                                      'Email': '${userinfo['email']}',
+                                                                                      'ID': '${userinfo["uid"]}',
+                                                                                      'PhoneNo': '${userinfo["phoneNo"]}',
+                                                                                      'Address': '${userinfo["address"]}',
+                                                                                      "fname": userinfo['fname'],
+                                                                                      "fPhoneNo": userinfo['fphoneNo'],
+                                                                                      'Designation': '${userinfo["designation"]}',
+                                                                                      'Age': '${userinfo["age"]}',
+                                                                                      'Owner': '${userinfo["owner"]}',
+                                                                                      'noti': true,
+                                                                                      'Status': true,
+                                                                                      'uid': userinfo['uid'],
+                                                                                      'cancelled': false,
+                                                                                    }).then((DocumentReference document) async {
+                                                                                      print("ID= ${document.id}");
+
+                                                                                      String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                                                      await FirebaseFirestore.instance.collection("notifications").add({
+                                                                                        'isRead': false,
+                                                                                        'id': document.id,
+                                                                                        'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                                                        'description': "Not at Home is on !",
+                                                                                        'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                                                        'time': formattedTime,
+                                                                                        'title': 'Not at Home',
+                                                                                        'uid': userinfo['uid'],
+                                                                                        'pressedTime': DateTime.now(),
+                                                                                      });
+                                                                                    });
+
+                                                                                    Navigator.push(
+                                                                                        context,
+                                                                                        MaterialPageRoute(
+                                                                                          builder: (context) => TabsScreen(
+                                                                                            index: 0,
+                                                                                          ),
+                                                                                        ));
+
+                                                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                        action: SnackBarAction(
+                                                                                          label: "Ok",
+                                                                                          onPressed: () {},
+                                                                                        ),
+                                                                                        content: const Text("Your Details has been sent ")));
+                                                                                  }
+                                                                                });
+                                                                              } else {
+                                                                                print("main Document is empty");
+                                                                              }
+                                                                            },
+                                                                            child:
+                                                                                const Text('Yes', style: TextStyle(color: Colors.white)),
                                                                           ),
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop(); // Close the confirmation dialog
-                                                                          },
-                                                                          child: const Text(
-                                                                              'No',
-                                                                              style: TextStyle(color: Colors.white)),
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              } else {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(const SnackBar(
-                                                                        content:
-                                                                            Text("You can not send another request")));
-                                                              }
-                                                            },
-                                                            child: const Text(
-                                                                'OK'),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                "Cancel"),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }),
-                                              ),
-                                            ));
-
-                                    // _selectDate(context);
-                                  } else if (status.toString().isEmpty) {
-                                    print(
-                                        "New Selected Date    $newSelectedDate");
-
-                                    print(
-                                        "Datetime format = $formattedDateTime");
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) => Center(
-                                              child: SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    1.65,
-                                                // Adjust the width as needed
-                                                child: FutureBuilder(
-                                                    future: SharedPreferences
-                                                        .getInstance(),
-                                                    builder: (context,
-                                                        AsyncSnapshot
-                                                            snapshot) {
-                                                      var userinfo = json
-                                                          .decode(snapshot.data
-                                                                  .getString(
-                                                                      'userinfo')
-                                                              as String);
-                                                      final myListData = [
-                                                        userinfo["name"],
-                                                        userinfo["phoneNo"],
-                                                        userinfo["address"],
-                                                        userinfo["fphoneNo"],
-                                                        userinfo["fname"],
-                                                        userinfo["designation"],
-                                                        userinfo["age"],
-                                                        userinfo["uid"],
-                                                        userinfo["owner"],
-                                                        userinfo["email"]
-                                                      ];
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Not Home'),
-                                                        content: Column(
-                                                          children: [
-                                                            const Text(
-                                                                'Select the date when you will be at home'),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            TextFormField(
-                                                              controller:
-                                                                  currentdate,
-                                                              readOnly: true,
-                                                              decoration:
-                                                                  const InputDecoration(
-                                                                labelText:
-                                                                    'From',
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 25),
-                                                            TextFormField(
-                                                              controller:
-                                                                  _dateController,
-                                                              readOnly: true,
-                                                              onTap: () {
-                                                                if (newSelectedDate ==
-                                                                        DateTime
-                                                                            .now() ||
-                                                                    status ==
-                                                                        false) {
-                                                                  print(
-                                                                      "New Selected Date    $newSelectedDate");
-                                                                  _selectDate(
-                                                                      context);
+                                                                          ElevatedButton(
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.of(context).pop(); // Close the confirmation dialog
+                                                                            },
+                                                                            child:
+                                                                                const Text('No', style: TextStyle(color: Colors.white)),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
                                                                 } else {
                                                                   ScaffoldMessenger.of(
                                                                           context)
@@ -2001,760 +1915,846 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                               Text("You can not send another request")));
                                                                 }
                                                               },
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                labelText: 'To',
-                                                                suffixIcon:
-                                                                    IconButton(
-                                                                  icon: const Icon(
-                                                                      Icons
-                                                                          .calendar_today),
-                                                                  onPressed:
-                                                                      () {
-                                                                    if (newSelectedDate ==
-                                                                            DateTime
-                                                                                .now() ||
-                                                                        status ==
-                                                                            false) {
-                                                                      print(
-                                                                          "New Selected Date    $newSelectedDate");
-                                                                      _selectDate(
-                                                                          context);
-                                                                    } else {
-                                                                      ScaffoldMessenger.of(
-                                                                              context)
-                                                                          .showSnackBar(
-                                                                              const SnackBar(content: Text("You can not send another request")));
-                                                                    }
-                                                                  },
+                                                              child: const Text(
+                                                                  'OK'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  "Cancel"),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }),
+                                                ),
+                                              ));
+
+                                      // _selectDate(context);
+                                    } else if (status.toString().isEmpty) {
+                                      print(
+                                          "New Selected Date    $newSelectedDate");
+
+                                      print(
+                                          "Datetime format = $formattedDateTime");
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) => Center(
+                                                child: SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      1.65,
+                                                  // Adjust the width as needed
+                                                  child: FutureBuilder(
+                                                      future: SharedPreferences
+                                                          .getInstance(),
+                                                      builder: (context,
+                                                          AsyncSnapshot
+                                                              snapshot) {
+                                                        var userinfo =
+                                                            json.decode(snapshot
+                                                                    .data
+                                                                    .getString(
+                                                                        'userinfo')
+                                                                as String);
+                                                        final myListData = [
+                                                          userinfo["name"],
+                                                          userinfo["phoneNo"],
+                                                          userinfo["address"],
+                                                          userinfo["fphoneNo"],
+                                                          userinfo["fname"],
+                                                          userinfo[
+                                                              "designation"],
+                                                          userinfo["age"],
+                                                          userinfo["uid"],
+                                                          userinfo["owner"],
+                                                          userinfo["email"]
+                                                        ];
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Not Home'),
+                                                          content: Column(
+                                                            children: [
+                                                              const Text(
+                                                                  'Select the date when you will be at home'),
+                                                              const SizedBox(
+                                                                  height: 10),
+                                                              TextFormField(
+                                                                controller:
+                                                                    currentdate,
+                                                                readOnly: true,
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                  labelText:
+                                                                      'From',
                                                                 ),
                                                               ),
-                                                            ),
-                                                            // Align(
-                                                            //     alignment:
-                                                            //         Alignment
-                                                            //             .bottomRight,
-                                                            //     child: TextButton(
-                                                            //         onPressed: () async {
+                                                              const SizedBox(
+                                                                  height: 25),
+                                                              TextFormField(
+                                                                controller:
+                                                                    _dateController,
+                                                                readOnly: true,
+                                                                onTap: () {
+                                                                  if (newSelectedDate ==
+                                                                          DateTime
+                                                                              .now() ||
+                                                                      status ==
+                                                                          false) {
+                                                                    print(
+                                                                        "New Selected Date    $newSelectedDate");
+                                                                    _selectDate(
+                                                                        context);
+                                                                  } else {
+                                                                    ScaffoldMessenger.of(
+                                                                            context)
+                                                                        .showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text("You can not send another request")));
+                                                                  }
+                                                                },
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  labelText:
+                                                                      'To',
+                                                                  suffixIcon:
+                                                                      IconButton(
+                                                                    icon: const Icon(
+                                                                        Icons
+                                                                            .calendar_today),
+                                                                    onPressed:
+                                                                        () {
+                                                                      if (newSelectedDate ==
+                                                                              DateTime
+                                                                                  .now() ||
+                                                                          status ==
+                                                                              false) {
+                                                                        print(
+                                                                            "New Selected Date    $newSelectedDate");
+                                                                        _selectDate(
+                                                                            context);
+                                                                      } else {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text("You can not send another request")));
+                                                                      }
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              // Align(
+                                                              //     alignment:
+                                                              //         Alignment
+                                                              //             .bottomRight,
+                                                              //     child: TextButton(
+                                                              //         onPressed: () async {
 
-                                                            //         },
-                                                            //         child: Icon(
-                                                            //           Icons.delete,
-                                                            //           color:
-                                                            //               Colors.red,
-                                                            //         )))
-                                                          ],
-                                                        ),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              if (DateTime.now() !=
-                                                                      toField ||
-                                                                  status ==
-                                                                      true) {
-                                                                print(
-                                                                    "feild == $toField");
-                                                                // Uncomment this code to show the confirmation dialog
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return AlertDialog(
-                                                                      title:
-                                                                          const Text(
-                                                                        'Confirmation',
-                                                                        style: TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                      content:
-                                                                          Text(
-                                                                        'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
-                                                                      ),
-                                                                      actions: <Widget>[
-                                                                        ElevatedButton(
+                                                              //         },
+                                                              //         child: Icon(
+                                                              //           Icons.delete,
+                                                              //           color:
+                                                              //               Colors.red,
+                                                              //         )))
+                                                            ],
+                                                          ),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                if (DateTime.now() !=
+                                                                        toField ||
+                                                                    status ==
+                                                                        true) {
+                                                                  print(
+                                                                      "feild == $toField");
+                                                                  // Uncomment this code to show the confirmation dialog
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (context) {
+                                                                      return AlertDialog(
+                                                                        title:
+                                                                            const Text(
+                                                                          'Confirmation',
                                                                           style:
-                                                                              ButtonStyle(
-                                                                            backgroundColor:
-                                                                                MaterialStateProperty.all(Colors.black),
-                                                                          ),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            final FirebaseMessaging
-                                                                                firebaseMessaging =
-                                                                                FirebaseMessaging.instance;
-                                                                            String
-                                                                                FCMtoken =
-                                                                                "";
-                                                                            await firebaseMessaging.getToken().then((String?
-                                                                                token) {
-                                                                              if (token != null) {
-                                                                                setState(() {
-                                                                                  FCMtoken = token;
-                                                                                });
-
-                                                                                print("FCM Token: $FCMtoken");
-                                                                              } else {
-                                                                                print("Unable to get FCM token");
-                                                                              }
-                                                                            });
-                                                                            final mainCollectionQuery = await FirebaseFirestore.instance
-                                                                                .collection("UserRequest") // Replace with your main collection
-                                                                                .where("uid", isEqualTo: userinfo['uid'])
-                                                                                .get();
-
-                                                                            if (mainCollectionQuery.docs.isNotEmpty) {
-                                                                              mainCollectionQuery.docs.forEach((mainDoc) async {
-                                                                                final subcollectionRef = mainDoc.reference.collection("FMData");
-
-                                                                                final subcollectionQuery = await subcollectionRef.where("owner", isEqualTo: userinfo['owner']).get();
-
-                                                                                if (subcollectionQuery.docs.isNotEmpty) {
-                                                                                  // Process the first document
-                                                                                  var data = subcollectionQuery.docs[0].data();
+                                                                              TextStyle(fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                        content:
+                                                                            Text(
+                                                                          'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
+                                                                        ),
+                                                                        actions: <Widget>[
+                                                                          ElevatedButton(
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () async {
+                                                                              final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+                                                                              String FCMtoken = "";
+                                                                              await firebaseMessaging.getToken().then((String? token) {
+                                                                                if (token != null) {
                                                                                   setState(() {
-                                                                                    fmName = data['Name'];
-                                                                                    fmphoneNo = data['Phoneno'];
-                                                                                    print("Document 1 - Name: $fmName, Phone No: $fmphoneNo");
+                                                                                    FCMtoken = token;
                                                                                   });
 
-                                                                                  // Process the second document if it exists
-                                                                                  if (subcollectionQuery.docs.length > 1) {
-                                                                                    var data1 = subcollectionQuery.docs[1].data();
+                                                                                  print("FCM Token: $FCMtoken");
+                                                                                } else {
+                                                                                  print("Unable to get FCM token");
+                                                                                }
+                                                                              });
+                                                                              final mainCollectionQuery = await FirebaseFirestore.instance
+                                                                                  .collection("UserRequest") // Replace with your main collection
+                                                                                  .where("uid", isEqualTo: userinfo['uid'])
+                                                                                  .get();
+
+                                                                              if (mainCollectionQuery.docs.isNotEmpty) {
+                                                                                mainCollectionQuery.docs.forEach((mainDoc) async {
+                                                                                  final subcollectionRef = mainDoc.reference.collection("FMData");
+
+                                                                                  final subcollectionQuery = await subcollectionRef.where("owner", isEqualTo: userinfo['owner']).get();
+
+                                                                                  if (subcollectionQuery.docs.isNotEmpty) {
+                                                                                    // Process the first document
+                                                                                    var data = subcollectionQuery.docs[0].data();
                                                                                     setState(() {
-                                                                                      fmName1 = data1['Name'];
-                                                                                      fmphoneNo1 = data1['Phoneno'];
-                                                                                      print("Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
+                                                                                      fmName = data['Name'];
+                                                                                      fmphoneNo = data['Phoneno'];
+                                                                                      print("Document 1 - Name: $fmName, Phone No: $fmphoneNo");
                                                                                     });
+
+                                                                                    // Process the second document if it exists
+                                                                                    if (subcollectionQuery.docs.length > 1) {
+                                                                                      var data1 = subcollectionQuery.docs[1].data();
+                                                                                      setState(() {
+                                                                                        fmName1 = data1['Name'];
+                                                                                        fmphoneNo1 = data1['Phoneno'];
+                                                                                        print("Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
+                                                                                      });
+                                                                                    }
+
+                                                                                    await FirebaseFirestore.instance.collection("not_Home").add({
+                                                                                      'FCMtoken': FCMtoken,
+                                                                                      'time': DateTime.now(),
+                                                                                      'nh': false,
+                                                                                      "uid": userinfo['uid'],
+                                                                                      "edit": false,
+                                                                                      "fmName": fmName,
+                                                                                      'pressedTime': DateTime.now(),
+                                                                                      "fmName1": fmName1,
+                                                                                      "fmphoneNo": fmphoneNo,
+                                                                                      "fmphoneNo1": fmphoneNo1,
+                                                                                      // 'from': currentdate.text,
+                                                                                      'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+
+                                                                                      'to': _dateController.text,
+                                                                                      "days": _daysDifference,
+                                                                                      'Name': '${userinfo['name']}',
+                                                                                      'Email': '${userinfo['email']}',
+                                                                                      'ID': '${userinfo["uid"]}',
+                                                                                      'PhoneNo': '${userinfo["phoneNo"]}',
+                                                                                      'Address': '${userinfo["address"]}',
+                                                                                      "fname": userinfo['fname'],
+                                                                                      "fPhoneNo": userinfo['fphoneNo'],
+                                                                                      'Designation': '${userinfo["designation"]}',
+                                                                                      'Age': '${userinfo["age"]}',
+                                                                                      'Owner': '${userinfo["owner"]}',
+                                                                                      'noti': true,
+                                                                                      'Status': true,
+                                                                                      'cancelled': false,
+                                                                                    }).then((DocumentReference document) async {
+                                                                                      print("ID= ${document.id}");
+
+                                                                                      String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                                                      await FirebaseFirestore.instance.collection("notifications").add({
+                                                                                        'isRead': false,
+                                                                                        'id': document.id,
+                                                                                        'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                                                        'description': "Not at Home is on !",
+                                                                                        'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                                                        'time': formattedTime,
+                                                                                        'title': 'Not at Home',
+                                                                                        "uid": userinfo['uid'],
+                                                                                        'pressedTime': DateTime.now(),
+                                                                                      });
+                                                                                    });
+
+                                                                                    Navigator.push(
+                                                                                        context,
+                                                                                        MaterialPageRoute(
+                                                                                          builder: (context) => TabsScreen(
+                                                                                            index: 0,
+                                                                                          ),
+                                                                                        ));
+
+                                                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                        action: SnackBarAction(
+                                                                                          label: "Ok",
+                                                                                          onPressed: () {},
+                                                                                        ),
+                                                                                        content: const Text("Your Details has been sent ")));
                                                                                   }
+                                                                                });
+                                                                              }
+                                                                            },
+                                                                            child:
+                                                                                const Text('Yes', style: TextStyle(color: Colors.white)),
+                                                                          ),
+                                                                          ElevatedButton(
+                                                                            style:
+                                                                                ButtonStyle(
+                                                                              backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                            ),
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.of(context).pop(); // Close the confirmation dialog
+                                                                            },
+                                                                            child:
+                                                                                const Text('No', style: TextStyle(color: Colors.white)),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                } else {
+                                                                  ScaffoldMessenger.of(
+                                                                          context)
+                                                                      .showSnackBar(const SnackBar(
+                                                                          content:
+                                                                              Text("You can not send another request")));
+                                                                }
+                                                              },
+                                                              child: const Text(
+                                                                  'OK'),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  "Cancel"),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }),
+                                                ),
+                                              ));
 
-                                                                                  await FirebaseFirestore.instance.collection("not_Home").add({
-                                                                                    'FCMtoken': FCMtoken,
-                                                                                    'time': DateTime.now(),
-                                                                                    'nh': false,
-                                                                                    "uid": userinfo['uid'],
-                                                                                    "edit": false,
-                                                                                    "fmName": fmName,
-                                                                                    'pressedTime': DateTime.now(),
-                                                                                    "fmName1": fmName1,
-                                                                                    "fmphoneNo": fmphoneNo,
-                                                                                    "fmphoneNo1": fmphoneNo1,
-                                                                                    // 'from': currentdate.text,
-                                                                                    'from': "${DateTime.now().year}-${DateTime.now().month <= 1 || DateTime.now().month >= 9 ? "0${DateTime.now().month}" : DateTime.now().month}-${DateTime.now().day}",
+                                      // _selectDate(context);
+                                    } else if (status == true) {
+                                      print(
+                                          "$status+$toField+$docid+$fbToDate+$fbFromDate");
 
-                                                                                    'to': _dateController.text,
-                                                                                    "days": _daysDifference,
-                                                                                    'Name': '${userinfo['name']}',
-                                                                                    'Email': '${userinfo['email']}',
-                                                                                    'ID': '${userinfo["uid"]}',
-                                                                                    'PhoneNo': '${userinfo["phoneNo"]}',
-                                                                                    'Address': '${userinfo["address"]}',
-                                                                                    "fname": userinfo['fname'],
-                                                                                    "fPhoneNo": userinfo['fphoneNo'],
-                                                                                    'Designation': '${userinfo["designation"]}',
-                                                                                    'Age': '${userinfo["age"]}',
-                                                                                    'Owner': '${userinfo["owner"]}',
-                                                                                    'noti': true,
-                                                                                    'Status': true,
-                                                                                    'cancelled': false,
-                                                                                  }).then((DocumentReference document) async {
-                                                                                    print("ID= ${document.id}");
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) => Center(
+                                                child: SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      1.65,
+                                                  // Adjust the width as needed
+                                                  child: FutureBuilder(
+                                                      future: SharedPreferences
+                                                          .getInstance(),
+                                                      builder: (context,
+                                                          AsyncSnapshot
+                                                              snapshot) {
+                                                        var userinfo =
+                                                            json.decode(snapshot
+                                                                    .data
+                                                                    .getString(
+                                                                        'userinfo')
+                                                                as String);
+                                                        final myListData = [
+                                                          userinfo["name"],
+                                                          userinfo["phoneNo"],
+                                                          userinfo["address"],
+                                                          userinfo["fphoneNo"],
+                                                          userinfo["fname"],
+                                                          userinfo[
+                                                              "designation"],
+                                                          userinfo["age"],
+                                                          userinfo["uid"],
+                                                          userinfo["owner"],
+                                                          userinfo["email"]
+                                                        ];
+                                                        print("$fbFromDate");
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Not Home'),
+                                                          content: Column(
+                                                            children: [
+                                                              Text(
+                                                                  'Security will look after your house for the next ${Fdays! + 1} days. From ${DateFormat('yyyy-MM-dd').format(fbFromDate)} to ${DateFormat('yyyy-MM-dd').format(fbToDate)} days'),
+                                                              const Text(''),
+                                                              const SizedBox(
+                                                                  height: 10),
+                                                              // TextFormField(
+                                                              //   controller:
+                                                              //       currentdate,
+                                                              //   readOnly:
+                                                              //       true,
+                                                              //   decoration:
+                                                              //       InputDecoration(
+                                                              //     labelText:
+                                                              //         'From',
+                                                              //   ),
+                                                              // ),
+                                                              // SizedBox(
+                                                              //     height:
+                                                              //         25),
+                                                              // TextFormField(
+                                                              //   controller:
+                                                              //       _dateController,
+                                                              //   readOnly:
+                                                              //       true,
+                                                              // onTap: () {
+                                                              //   if (newSelectedDate ==
+                                                              //           DateTime
+                                                              //               .now() ||
+                                                              //       status ==
+                                                              //           false) {
+                                                              //     print(
+                                                              //         "New Selected Date    ${newSelectedDate}");
+                                                              //     _selectDate(
+                                                              //         context);
+                                                              //   } else {
+                                                              //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                              //         content:
+                                                              //             Text("You can not send another request")));
+                                                              //   }
+                                                              // },
+                                                              // decoration:
+                                                              //     InputDecoration(
+                                                              //   labelText:
+                                                              //'To',
+                                                              // suffixIcon:
+                                                              //     IconButton(
+                                                              //   icon: Icon(
+                                                              //       Icons.calendar_today),
+                                                              //   onPressed:
+                                                              //       () {
+                                                              //     if (newSelectedDate == DateTime.now() ||
+                                                              //         status == false) {
+                                                              //       print("New Selected Date    ${newSelectedDate}");
+                                                              //       _selectDate(context);
+                                                              //     } else {
+                                                              //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You can not send another request")));
+                                                              //     }
+                                                              //   },
+                                                              // ),
+                                                              // ),
+                                                              // ),
+                                                              // Align(
+                                                              //     alignment:
+                                                              //         Alignment
+                                                              //             .bottomRight,
+                                                              //     child: TextButton(
+                                                              //         onPressed: () async {
 
-                                                                                    String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                              //         },
+                                                              //         child: Icon(
+                                                              //           Icons.delete,
+                                                              //           color:
+                                                              //               Colors.red,
+                                                              //         )))
+
+                                                              SizedBox(
+                                                                width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    2,
+                                                                height: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height /
+                                                                    18,
+                                                                child:
+                                                                    Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: const Color
+                                                                        .fromRGBO(
+                                                                        15,
+                                                                        39,
+                                                                        127,
+                                                                        1),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10.0),
+                                                                    boxShadow: [
+                                                                      BoxShadow(
+                                                                        color: Colors
+                                                                            .black
+                                                                            .withOpacity(0.3), // Shadow color
+                                                                        offset: const Offset(
+                                                                            1,
+                                                                            4), // Offset of the shadow (x, y)
+                                                                        blurRadius:
+                                                                            5, // Blur radius
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  child: InkWell(
+                                                                      onTap: () async {
+                                                                        showDialog(
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return AlertDialog(
+                                                                              title: const Text(
+                                                                                'Confirmation',
+                                                                                style: TextStyle(fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                              content: const Text(
+                                                                                'Do you want to cancel your Not Home Request.',
+                                                                              ),
+                                                                              actions: <Widget>[
+                                                                                ElevatedButton(
+                                                                                  style: ButtonStyle(
+                                                                                    backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                                  ),
+                                                                                  onPressed: () async {
+                                                                                    print("KDDDDDDDDDDDDDDDDDD$docid");
+                                                                                    await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
+                                                                                      'Status': false,
+                                                                                      'cancelled': true,
+                                                                                      'pressedTime1': DateTime.now()
+                                                                                    });
                                                                                     await FirebaseFirestore.instance.collection("notifications").add({
                                                                                       'isRead': false,
-                                                                                      'id': document.id,
+                                                                                      'id': docid,
                                                                                       'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                                      'description': "Not at Home is on !",
+                                                                                      'description': "You Have Cancelled Your not home request !",
                                                                                       'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
                                                                                       'time': formattedTime,
                                                                                       'title': 'Not at Home',
                                                                                       "uid": userinfo['uid'],
                                                                                       'pressedTime': DateTime.now(),
                                                                                     });
-                                                                                  });
+                                                                                    // await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
 
-                                                                                  Navigator.push(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => TabsScreen(
-                                                                                          index: 0,
+                                                                                    print("NOT HOMEE STATUS $status");
+
+                                                                                    Navigator.push(
+                                                                                        context,
+                                                                                        MaterialPageRoute(
+                                                                                          builder: (context) => TabsScreen(
+                                                                                            index: 0,
+                                                                                          ),
+                                                                                        ));
+
+                                                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                                        action: SnackBarAction(
+                                                                                          label: "Ok",
+                                                                                          onPressed: () {},
                                                                                         ),
-                                                                                      ));
-
-                                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                      action: SnackBarAction(
-                                                                                        label: "Ok",
-                                                                                        onPressed: () {},
-                                                                                      ),
-                                                                                      content: const Text("Your Details has been sent ")));
-                                                                                }
-                                                                              });
-                                                                            }
+                                                                                        content: const Text("Your Not Home request has been Cancelled ")));
+                                                                                  },
+                                                                                  child: const Text('Yes', style: TextStyle(color: Colors.white)),
+                                                                                ),
+                                                                                ElevatedButton(
+                                                                                  style: ButtonStyle(
+                                                                                    backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                                                  ),
+                                                                                  onPressed: () {
+                                                                                    Navigator.of(context).pop(); // Close the confirmation dialog
+                                                                                  },
+                                                                                  child: const Text('No', style: TextStyle(color: Colors.white)),
+                                                                                ),
+                                                                              ],
+                                                                            );
                                                                           },
-                                                                          child: const Text(
-                                                                              'Yes',
-                                                                              style: TextStyle(color: Colors.white)),
+                                                                        );
+                                                                      },
+                                                                      child: const Padding(
+                                                                        padding:
+                                                                            EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceEvenly,
+                                                                          children: [
+                                                                            Text('Cancel my request',
+                                                                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                            Icon(
+                                                                              Icons.delete,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ],
                                                                         ),
-                                                                        ElevatedButton(
-                                                                          style:
-                                                                              ButtonStyle(
-                                                                            backgroundColor:
-                                                                                MaterialStateProperty.all(Colors.black),
-                                                                          ),
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop(); // Close the confirmation dialog
-                                                                          },
-                                                                          child: const Text(
-                                                                              'No',
-                                                                              style: TextStyle(color: Colors.white)),
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              } else {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(const SnackBar(
-                                                                        content:
-                                                                            Text("You can not send another request")));
-                                                              }
-                                                            },
-                                                            child: const Text(
-                                                                'OK'),
+                                                                      )),
+                                                                ),
+                                                              ),
+                                                              // const SizedBox(
+                                                              //   height: 10,
+                                                              // ),
+                                                              // const Padding(
+                                                              //   padding:
+                                                              //       EdgeInsets
+                                                              //           .all(8.0),
+                                                              //   child: Text(
+                                                              //       "Your Assigned gaurd details",
+                                                              //       style: TextStyle(
+                                                              //           fontSize:
+                                                              //               20,
+                                                              //           fontWeight:
+                                                              //               FontWeight
+                                                              //                   .bold)),
+                                                              // ),
+                                                              // const SizedBox(
+                                                              //     height: 10),
+                                                              // Align(
+                                                              //   alignment: Alignment
+                                                              //       .centerLeft,
+                                                              //   child: Padding(
+                                                              //     padding:
+                                                              //         const EdgeInsets
+                                                              //             .all(
+                                                              //             8.0),
+                                                              //     child: Text(
+                                                              //         "Name : ${guardName ?? ""}"),
+                                                              //   ),
+                                                              // ),
+                                                              // Align(
+                                                              //   alignment: Alignment
+                                                              //       .centerLeft,
+                                                              //   child: Padding(
+                                                              //     padding:
+                                                              //         const EdgeInsets
+                                                              //             .all(
+                                                              //             8.0),
+                                                              //     child: Text(
+                                                              //         "Email : ${guardEmail ?? ""}"),
+                                                              //   ),
+                                                              // ),
+                                                              // Align(
+                                                              //   alignment: Alignment
+                                                              //       .centerLeft,
+                                                              //   child: Padding(
+                                                              //     padding:
+                                                              //         const EdgeInsets
+                                                              //             .all(
+                                                              //             8.0),
+                                                              //     child: Row(
+                                                              //       mainAxisAlignment:
+                                                              //           MainAxisAlignment
+                                                              //               .spaceBetween,
+                                                              //       children: [
+                                                              //         Text(
+                                                              //             "Phone No : ${guardPhone ?? ""}"),
+                                                              //         if (guardPhone
+                                                              //             .isNotEmpty)
+                                                              //           IconButton(
+                                                              //               onPressed:
+                                                              //                   () async {
+                                                              //                 final Uri
+                                                              //                     uri =
+                                                              //                     Uri.parse('tel:$guardPhone');
+                                                              //                 if (await canLaunchUrl(uri)) {
+                                                              //                   await launchUrl(uri);
+                                                              //                 } else {
+                                                              //                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                              //                     content: const Text("can not call right now ! please try again later"),
+                                                              //                     action: SnackBarAction(
+                                                              //                       label: 'ok',
+                                                              //                       onPressed: () {},
+                                                              //                     ),
+                                                              //                   ));
+                                                              //                 }
+                                                              //               },
+                                                              //               icon:
+                                                              //                   const Icon(Icons.call))
+                                                              //       ],
+                                                              //     ),
+                                                              //   ),
+                                                              // )
+                                                            ],
                                                           ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                "Cancel"),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }),
-                                              ),
-                                            ));
-
-                                    // _selectDate(context);
-                                  } else if (status == true) {
-                                    print(
-                                        "$status+$toField+$docid+$fbToDate+$fbFromDate");
-
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) => Center(
-                                              child: SizedBox(
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    1.65,
-                                                // Adjust the width as needed
-                                                child: FutureBuilder(
-                                                    future: SharedPreferences
-                                                        .getInstance(),
-                                                    builder: (context,
-                                                        AsyncSnapshot
-                                                            snapshot) {
-                                                      var userinfo = json
-                                                          .decode(snapshot.data
-                                                                  .getString(
-                                                                      'userinfo')
-                                                              as String);
-                                                      final myListData = [
-                                                        userinfo["name"],
-                                                        userinfo["phoneNo"],
-                                                        userinfo["address"],
-                                                        userinfo["fphoneNo"],
-                                                        userinfo["fname"],
-                                                        userinfo["designation"],
-                                                        userinfo["age"],
-                                                        userinfo["uid"],
-                                                        userinfo["owner"],
-                                                        userinfo["email"]
-                                                      ];
-                                                      print("$fbFromDate");
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Not Home'),
-                                                        content: Column(
-                                                          children: [
-                                                            Text(
-                                                                'Security will look after your house for the next ${Fdays! + 1} days. From ${DateFormat('yyyy-MM-dd').format(fbFromDate)} to ${DateFormat('yyyy-MM-dd').format(fbToDate)} days'),
-                                                            const Text(''),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            // TextFormField(
-                                                            //   controller:
-                                                            //       currentdate,
-                                                            //   readOnly:
-                                                            //       true,
-                                                            //   decoration:
-                                                            //       InputDecoration(
-                                                            //     labelText:
-                                                            //         'From',
-                                                            //   ),
-                                                            // ),
-                                                            // SizedBox(
-                                                            //     height:
-                                                            //         25),
-                                                            // TextFormField(
-                                                            //   controller:
-                                                            //       _dateController,
-                                                            //   readOnly:
-                                                            //       true,
-                                                            // onTap: () {
-                                                            //   if (newSelectedDate ==
-                                                            //           DateTime
-                                                            //               .now() ||
-                                                            //       status ==
-                                                            //           false) {
-                                                            //     print(
-                                                            //         "New Selected Date    ${newSelectedDate}");
-                                                            //     _selectDate(
-                                                            //         context);
-                                                            //   } else {
-                                                            //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                            //         content:
-                                                            //             Text("You can not send another request")));
-                                                            //   }
-                                                            // },
-                                                            // decoration:
-                                                            //     InputDecoration(
-                                                            //   labelText:
-                                                            //'To',
-                                                            // suffixIcon:
-                                                            //     IconButton(
-                                                            //   icon: Icon(
-                                                            //       Icons.calendar_today),
+                                                          actions: <Widget>[
+                                                            // TextButton(
                                                             //   onPressed:
                                                             //       () {
-                                                            //     if (newSelectedDate == DateTime.now() ||
-                                                            //         status == false) {
-                                                            //       print("New Selected Date    ${newSelectedDate}");
-                                                            //       _selectDate(context);
-                                                            //     } else {
-                                                            //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You can not send another request")));
-                                                            //     }
-                                                            //   },
-                                                            // ),
-                                                            // ),
-                                                            // ),
-                                                            // Align(
-                                                            //     alignment:
-                                                            //         Alignment
-                                                            //             .bottomRight,
-                                                            //     child: TextButton(
-                                                            //         onPressed: () async {
+                                                            //     Navigator.of(
+                                                            //             context)
+                                                            //         .pop();
+                                                            // if (DateTime.now() !=
+                                                            //         toField ||
+                                                            //     status ==
+                                                            //         true) {
+                                                            //   print(
+                                                            //       "feild == ${toField}");
+                                                            //   // Uncomment this code to show the confirmation dialog
+                                                            //   showDialog(
+                                                            //     context:
+                                                            //         context,
+                                                            //     builder:
+                                                            //         (context) {
+                                                            //       return AlertDialog(
+                                                            //         title:
+                                                            //             const Text(
+                                                            //           'Confirmation',
+                                                            //           style: TextStyle(fontWeight: FontWeight.bold),
+                                                            //         ),
+                                                            //         content:
+                                                            //             Text(
+                                                            //           'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
+                                                            //         ),
+                                                            //         actions: <Widget>[
+                                                            //           ElevatedButton(
+                                                            //             child: const Text('Yes', style: TextStyle(color: Colors.white)),
+                                                            //             style: ButtonStyle(
+                                                            //               backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                            //             ),
+                                                            //             onPressed: () async {
+                                                            //               final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+                                                            //               String FCMtoken = "";
+                                                            //               await _firebaseMessaging.getToken().then((String? token) {
+                                                            //                 if (token != null) {
+                                                            //                   setState(() {
+                                                            //                     FCMtoken = token;
+                                                            //                   });
 
-                                                            //         },
-                                                            //         child: Icon(
-                                                            //           Icons.delete,
-                                                            //           color:
-                                                            //               Colors.red,
-                                                            //         )))
-
-                                                            SizedBox(
-                                                              width: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width /
-                                                                  2,
-                                                              height: MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height /
-                                                                  18,
-                                                              child: Container(
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: const Color
-                                                                      .fromRGBO(
-                                                                      15,
-                                                                      39,
-                                                                      127,
-                                                                      1),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10.0),
-                                                                  boxShadow: [
-                                                                    BoxShadow(
-                                                                      color: Colors
-                                                                          .black
-                                                                          .withOpacity(
-                                                                              0.3), // Shadow color
-                                                                      offset: const Offset(
-                                                                          1,
-                                                                          4), // Offset of the shadow (x, y)
-                                                                      blurRadius:
-                                                                          5, // Blur radius
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                child: InkWell(
-                                                                    onTap:
-                                                                        () async {
-                                                                      showDialog(
-                                                                        context:
-                                                                            context,
-                                                                        builder:
-                                                                            (context) {
-                                                                          return AlertDialog(
-                                                                            title:
-                                                                                const Text(
-                                                                              'Confirmation',
-                                                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                                                            ),
-                                                                            content:
-                                                                                const Text(
-                                                                              'Do you want to cancel your Not Home Request.',
-                                                                            ),
-                                                                            actions: <Widget>[
-                                                                              ElevatedButton(
-                                                                                style: ButtonStyle(
-                                                                                  backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                                                ),
-                                                                                onPressed: () async {
-                                                                                  print("KDDDDDDDDDDDDDDDDDD$docid");
-                                                                                  await FirebaseFirestore.instance.collection("not_Home").doc(docid).update({
-                                                                                    'Status': false,
-                                                                                    'cancelled': true,
-                                                                                    'pressedTime1': DateTime.now()
-                                                                                  });
-                                                                                  await FirebaseFirestore.instance.collection("notifications").add({
-                                                                                    'isRead': false,
-                                                                                    'id': docid,
-                                                                                    'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                                                    'description': "You Have Cancelled Your not home request !",
-                                                                                    'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                                                    'time': formattedTime,
-                                                                                    'title': 'Not at Home',
-                                                                                    "uid": userinfo['uid'],
-                                                                                    'pressedTime': DateTime.now(),
-                                                                                  });
-                                                                                  // await fetchToFieldForLatestDocument(FirebaseAuth.instance.currentUser!.uid);
-
-                                                                                  print("NOT HOMEE STATUS $status");
-
-                                                                                  Navigator.push(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => TabsScreen(
-                                                                                          index: 0,
-                                                                                        ),
-                                                                                      ));
-
-                                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                      action: SnackBarAction(
-                                                                                        label: "Ok",
-                                                                                        onPressed: () {},
-                                                                                      ),
-                                                                                      content: const Text("Your Not Home request has been Cancelled ")));
-                                                                                },
-                                                                                child: const Text('Yes', style: TextStyle(color: Colors.white)),
-                                                                              ),
-                                                                              ElevatedButton(
-                                                                                style: ButtonStyle(
-                                                                                  backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                                                ),
-                                                                                onPressed: () {
-                                                                                  Navigator.of(context).pop(); // Close the confirmation dialog
-                                                                                },
-                                                                                child: const Text('No', style: TextStyle(color: Colors.white)),
-                                                                              ),
-                                                                            ],
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    },
-                                                                    child:
-                                                                        const Padding(
-                                                                      padding:
-                                                                          EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceEvenly,
-                                                                        children: [
-                                                                          Text(
-                                                                              'Cancel my request',
-                                                                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                                                          Icon(
-                                                                            Icons.delete,
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    )),
-                                                              ),
-                                                            ),
-                                                            // const SizedBox(
-                                                            //   height: 10,
-                                                            // ),
-                                                            // const Padding(
-                                                            //   padding:
-                                                            //       EdgeInsets
-                                                            //           .all(8.0),
-                                                            //   child: Text(
-                                                            //       "Your Assigned gaurd details",
-                                                            //       style: TextStyle(
-                                                            //           fontSize:
-                                                            //               20,
-                                                            //           fontWeight:
-                                                            //               FontWeight
-                                                            //                   .bold)),
-                                                            // ),
-                                                            // const SizedBox(
-                                                            //     height: 10),
-                                                            // Align(
-                                                            //   alignment: Alignment
-                                                            //       .centerLeft,
-                                                            //   child: Padding(
-                                                            //     padding:
-                                                            //         const EdgeInsets
-                                                            //             .all(
-                                                            //             8.0),
-                                                            //     child: Text(
-                                                            //         "Name : ${guardName ?? ""}"),
-                                                            //   ),
-                                                            // ),
-                                                            // Align(
-                                                            //   alignment: Alignment
-                                                            //       .centerLeft,
-                                                            //   child: Padding(
-                                                            //     padding:
-                                                            //         const EdgeInsets
-                                                            //             .all(
-                                                            //             8.0),
-                                                            //     child: Text(
-                                                            //         "Email : ${guardEmail ?? ""}"),
-                                                            //   ),
-                                                            // ),
-                                                            // Align(
-                                                            //   alignment: Alignment
-                                                            //       .centerLeft,
-                                                            //   child: Padding(
-                                                            //     padding:
-                                                            //         const EdgeInsets
-                                                            //             .all(
-                                                            //             8.0),
-                                                            //     child: Row(
-                                                            //       mainAxisAlignment:
-                                                            //           MainAxisAlignment
-                                                            //               .spaceBetween,
-                                                            //       children: [
-                                                            //         Text(
-                                                            //             "Phone No : ${guardPhone ?? ""}"),
-                                                            //         if (guardPhone
-                                                            //             .isNotEmpty)
-                                                            //           IconButton(
-                                                            //               onPressed:
-                                                            //                   () async {
-                                                            //                 final Uri
-                                                            //                     uri =
-                                                            //                     Uri.parse('tel:$guardPhone');
-                                                            //                 if (await canLaunchUrl(uri)) {
-                                                            //                   await launchUrl(uri);
+                                                            //                   print("FCM Token: $FCMtoken");
                                                             //                 } else {
-                                                            //                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                            //                     content: const Text("can not call right now ! please try again later"),
-                                                            //                     action: SnackBarAction(
-                                                            //                       label: 'ok',
-                                                            //                       onPressed: () {},
+                                                            //                   print("Unable to get FCM token");
+                                                            //                 }
+                                                            //               });
+
+                                                            //               await FirebaseFirestore.instance.collection("not_Home").add({
+                                                            //                 'FCMtoken': FCMtoken,
+                                                            //                 'time': DateTime.now(),
+                                                            //                 'nh': false,
+                                                            //                 'from': '${currentdate.text}',
+                                                            //                 'to': '${_dateController.text}',
+                                                            //                 "days": _daysDifference,
+                                                            //                 'Name': '${userinfo['name']}',
+                                                            //                 'Email': '${userinfo['email']}',
+                                                            //                 'ID': '${userinfo["uid"]}',
+                                                            //                 'PhoneNo': '${userinfo["phoneNo"]}',
+                                                            //                 'Address': '${userinfo["address"]}',
+                                                            //                 'FPhoneNo': '${userinfo["fphoneNo"] }',
+                                                            //                 'FName': '${userinfo["fname"]}',
+                                                            //                 'Designation': '${userinfo["designation"]}',
+                                                            //                 'Age': '${userinfo["age"]}',
+                                                            //                 'Owner': '${userinfo["owner"]}',
+                                                            //                 'noti': true,
+                                                            //                 'Status': true,
+                                                            //                 'cancelled': false,
+                                                            //               }).then((DocumentReference document) async {
+                                                            //                 print("ID= ${document.id}");
+
+                                                            //                 String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+                                                            //                 await FirebaseFirestore.instance.collection("notifications").add({
+                                                            //                   'isRead': false,
+                                                            //                   'id': document.id,
+                                                            //                   'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
+                                                            //                   'description': "Not at Home is on !",
+                                                            //                   'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
+                                                            //                   'time': formattedTime,
+                                                            //                   'title': 'Not at Home'
+                                                            //                 });
+                                                            //               });
+
+                                                            //               Navigator.push(
+                                                            //                   context,
+                                                            //                   MaterialPageRoute(
+                                                            //                     builder: (context) => TabsScreen(
+                                                            //                       index: 0,
                                                             //                     ),
                                                             //                   ));
-                                                            //                 }
-                                                            //               },
-                                                            //               icon:
-                                                            //                   const Icon(Icons.call))
-                                                            //       ],
-                                                            //     ),
-                                                            //   ),
-                                                            // )
+
+                                                            //               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                            //                   action: SnackBarAction(
+                                                            //                     label: "Ok",
+                                                            //                     onPressed: () {},
+                                                            //                   ),
+                                                            //                   content: Text("Your Details has been sent ")));
+                                                            //             },
+                                                            //           ),
+                                                            //           ElevatedButton(
+                                                            //             child: const Text('No', style: TextStyle(color: Colors.white)),
+                                                            //             style: ButtonStyle(
+                                                            //               backgroundColor: MaterialStateProperty.all(Colors.black),
+                                                            //             ),
+                                                            //             onPressed: () {
+                                                            //               Navigator.of(context).pop(); // Close the confirmation dialog
+                                                            //             },
+                                                            //           ),
+                                                            //         ],
+                                                            //       );
+                                                            //     },
+                                                            //   );
+                                                            // } else {
+                                                            //   ScaffoldMessenger.of(
+                                                            //           context)
+                                                            //       .showSnackBar(
+                                                            //           SnackBar(content: Text("You can not send another request")));
+                                                            // }
+                                                            //   },
+                                                            //   child: Text(
+                                                            //       'OK'),
+                                                            // ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  "back"),
+                                                            ),
                                                           ],
-                                                        ),
-                                                        actions: <Widget>[
-                                                          // TextButton(
-                                                          //   onPressed:
-                                                          //       () {
-                                                          //     Navigator.of(
-                                                          //             context)
-                                                          //         .pop();
-                                                          // if (DateTime.now() !=
-                                                          //         toField ||
-                                                          //     status ==
-                                                          //         true) {
-                                                          //   print(
-                                                          //       "feild == ${toField}");
-                                                          //   // Uncomment this code to show the confirmation dialog
-                                                          //   showDialog(
-                                                          //     context:
-                                                          //         context,
-                                                          //     builder:
-                                                          //         (context) {
-                                                          //       return AlertDialog(
-                                                          //         title:
-                                                          //             const Text(
-                                                          //           'Confirmation',
-                                                          //           style: TextStyle(fontWeight: FontWeight.bold),
-                                                          //         ),
-                                                          //         content:
-                                                          //             Text(
-                                                          //           'You will not be home for ${_daysDifference + 1} days, Security will look after your house.\nPress YES to send your request.',
-                                                          //         ),
-                                                          //         actions: <Widget>[
-                                                          //           ElevatedButton(
-                                                          //             child: const Text('Yes', style: TextStyle(color: Colors.white)),
-                                                          //             style: ButtonStyle(
-                                                          //               backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                          //             ),
-                                                          //             onPressed: () async {
-                                                          //               final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-                                                          //               String FCMtoken = "";
-                                                          //               await _firebaseMessaging.getToken().then((String? token) {
-                                                          //                 if (token != null) {
-                                                          //                   setState(() {
-                                                          //                     FCMtoken = token;
-                                                          //                   });
-
-                                                          //                   print("FCM Token: $FCMtoken");
-                                                          //                 } else {
-                                                          //                   print("Unable to get FCM token");
-                                                          //                 }
-                                                          //               });
-
-                                                          //               await FirebaseFirestore.instance.collection("not_Home").add({
-                                                          //                 'FCMtoken': FCMtoken,
-                                                          //                 'time': DateTime.now(),
-                                                          //                 'nh': false,
-                                                          //                 'from': '${currentdate.text}',
-                                                          //                 'to': '${_dateController.text}',
-                                                          //                 "days": _daysDifference,
-                                                          //                 'Name': '${userinfo['name']}',
-                                                          //                 'Email': '${userinfo['email']}',
-                                                          //                 'ID': '${userinfo["uid"]}',
-                                                          //                 'PhoneNo': '${userinfo["phoneNo"]}',
-                                                          //                 'Address': '${userinfo["address"]}',
-                                                          //                 'FPhoneNo': '${userinfo["fphoneNo"] }',
-                                                          //                 'FName': '${userinfo["fname"]}',
-                                                          //                 'Designation': '${userinfo["designation"]}',
-                                                          //                 'Age': '${userinfo["age"]}',
-                                                          //                 'Owner': '${userinfo["owner"]}',
-                                                          //                 'noti': true,
-                                                          //                 'Status': true,
-                                                          //                 'cancelled': false,
-                                                          //               }).then((DocumentReference document) async {
-                                                          //                 print("ID= ${document.id}");
-
-                                                          //                 String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
-                                                          //                 await FirebaseFirestore.instance.collection("notifications").add({
-                                                          //                   'isRead': false,
-                                                          //                   'id': document.id,
-                                                          //                   'date': "${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}",
-                                                          //                   'description': "Not at Home is on !",
-                                                          //                   'image': "https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-test-icon-63758263.jpg",
-                                                          //                   'time': formattedTime,
-                                                          //                   'title': 'Not at Home'
-                                                          //                 });
-                                                          //               });
-
-                                                          //               Navigator.push(
-                                                          //                   context,
-                                                          //                   MaterialPageRoute(
-                                                          //                     builder: (context) => TabsScreen(
-                                                          //                       index: 0,
-                                                          //                     ),
-                                                          //                   ));
-
-                                                          //               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                          //                   action: SnackBarAction(
-                                                          //                     label: "Ok",
-                                                          //                     onPressed: () {},
-                                                          //                   ),
-                                                          //                   content: Text("Your Details has been sent ")));
-                                                          //             },
-                                                          //           ),
-                                                          //           ElevatedButton(
-                                                          //             child: const Text('No', style: TextStyle(color: Colors.white)),
-                                                          //             style: ButtonStyle(
-                                                          //               backgroundColor: MaterialStateProperty.all(Colors.black),
-                                                          //             ),
-                                                          //             onPressed: () {
-                                                          //               Navigator.of(context).pop(); // Close the confirmation dialog
-                                                          //             },
-                                                          //           ),
-                                                          //         ],
-                                                          //       );
-                                                          //     },
-                                                          //   );
-                                                          // } else {
-                                                          //   ScaffoldMessenger.of(
-                                                          //           context)
-                                                          //       .showSnackBar(
-                                                          //           SnackBar(content: Text("You can not send another request")));
-                                                          // }
-                                                          //   },
-                                                          //   child: Text(
-                                                          //       'OK'),
-                                                          // ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                "back"),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }),
-                                              ),
-                                            ));
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (context) {
-                                    //     return Center(
-                                    //       child: Container(
-                                    //           child: Column(
-                                    //         children: [
-                                    //           Text("Not Home"),
-                                    //           SizedBox(
-                                    //             height: 10,
-                                    //           ),
-                                    //           Text(
-                                    //               "Security will look after your house for the next ${Fdays! + 1} days"),
-                                    //           SizedBox(
-                                    //             height: 20,
-                                    //           ),
-                                    //           TextFormField(
-                                    //             controller: FfromDate,
-                                    //             readOnly: true,
-                                    //             decoration:
-                                    //                 InputDecoration(
-                                    //               labelText: 'From',
-                                    //             ),
-                                    //           ),
-                                    //           SizedBox(height: 20),
-                                    //           TextFormField(
-                                    //             controller: FtoDate,
-                                    //             readOnly: true,
-                                    //             decoration:
-                                    //                 InputDecoration(
-                                    //               labelText: 'To',
-                                    //             ),
-                                    //           ),
-                                    //         ],
-                                    //       )),
-                                    //     );
-                                    //   },
-                                    // );
+                                                        );
+                                                      }),
+                                                ),
+                                              ));
+                                      // showDialog(
+                                      //   context: context,
+                                      //   builder: (context) {
+                                      //     return Center(
+                                      //       child: Container(
+                                      //           child: Column(
+                                      //         children: [
+                                      //           Text("Not Home"),
+                                      //           SizedBox(
+                                      //             height: 10,
+                                      //           ),
+                                      //           Text(
+                                      //               "Security will look after your house for the next ${Fdays! + 1} days"),
+                                      //           SizedBox(
+                                      //             height: 20,
+                                      //           ),
+                                      //           TextFormField(
+                                      //             controller: FfromDate,
+                                      //             readOnly: true,
+                                      //             decoration:
+                                      //                 InputDecoration(
+                                      //               labelText: 'From',
+                                      //             ),
+                                      //           ),
+                                      //           SizedBox(height: 20),
+                                      //           TextFormField(
+                                      //             controller: FtoDate,
+                                      //             readOnly: true,
+                                      //             decoration:
+                                      //                 InputDecoration(
+                                      //               labelText: 'To',
+                                      //             ),
+                                      //           ),
+                                      //         ],
+                                      //       )),
+                                      //     );
+                                      //   },
+                                      // );
+                                    }
                                   }
                                 }), //
                           ],

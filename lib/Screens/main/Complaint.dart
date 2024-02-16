@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -177,7 +178,19 @@ class _ComplainformState extends State<Complainform> {
                         child: Container(
                           child: ElevatedButton(
                             onPressed: () async {
-                              alertMe();
+                              var connectivityResult =
+                                  await (Connectivity().checkConnectivity());
+                              print(
+                                  "Connectivity == ${connectivityResult.toString()}");
+                              if (connectivityResult ==
+                                  ConnectivityResult.none) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "This Feature is not available in Offline mode")));
+                              } else {
+                                alertMe();
+                              }
                             },
                             style: ButtonStyle(
                               shape: MaterialStateProperty.all<
