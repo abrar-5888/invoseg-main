@@ -349,6 +349,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fourDigitCode = generateRandomFourDigitCode();
     try {
       EasyLoading.show(status: "Please Wait");
+
       if (!btnOnOff) {
         final prefs = await SharedPreferences.getInstance();
         final userinfo =
@@ -524,7 +525,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
 
         print("FCM Token: $FCMtoken");
 
-        EasyLoading.showSuccess('Request sent');
+        // EasyLoading.showSuccess('Request sent');
 
         _sendEmail(
             name: '${userinfo["name"]}',
@@ -534,6 +535,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             subject: "test subject");
       } else {}
     } catch (e) {
+      popAndSnackBar();
       // EasyLoading.showSuccess('Request sent');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
@@ -542,7 +544,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
   }
 
   void popAndSnackBar() {
-    Navigator.pop(context);
+    // Navigator.pop(context);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -582,6 +584,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
             ),
             onPressed: () async {
               alertMe(collect);
+              Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -622,6 +625,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
               alertMe(collect);
+              Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -661,6 +665,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
               alertMe(collect);
+              Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
           ),
@@ -718,7 +723,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
   String video = "";
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 3), () {
       const CircularProgressIndicator(
         color: Color.fromRGBO(15, 39, 127, 1),
       );
@@ -1084,7 +1089,37 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                           content: Text(
                                                               "This Feature is not available in Offline mode")));
                                                 } else {
-                                                  medAlertMe("button-two");
+                                                  try {
+                                                    EasyLoading.show(
+                                                        status:
+                                                            'Loading Please Wait');
+                                                    // Attempt to make a GET request to a reliable server
+                                                    final response = await http
+                                                        .get(Uri.parse(
+                                                            'https://www.google.com'));
+                                                    print(response.statusCode);
+                                                    if (response.statusCode ==
+                                                        200) {
+                                                      EasyLoading.dismiss();
+                                                      medAlertMe("button-two");
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                              const SnackBar(
+                                                                  content: Text(
+                                                                      "Your Internet connection is not stable.Please try again later")));
+                                                      EasyLoading.dismiss();
+                                                    }
+                                                  } catch (e) {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    "Your Internet connection is not stable.Please try again later")));
+                                                    EasyLoading.dismiss();
+                                                  }
                                                 }
                                               } else {
                                                 ScaffoldMessenger.of(context)
@@ -1173,7 +1208,54 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                           content: Text(
                                                               "This Feature is not available in Offline mode")));
                                                 } else {
-                                                  groAlertMe("button-three");
+                                                  var connectivityResult =
+                                                      await (Connectivity()
+                                                          .checkConnectivity());
+                                                  print(
+                                                      "Connectivity == ${connectivityResult.toString()}");
+                                                  if (connectivityResult ==
+                                                      ConnectivityResult.none) {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    "This Feature is not available in Offline mode")));
+                                                  } else {
+                                                    try {
+                                                      EasyLoading.show(
+                                                          status:
+                                                              'Loading Please Wait');
+                                                      // Attempt to make a GET request to a reliable server
+                                                      final response = await http
+                                                          .get(Uri.parse(
+                                                              'https://www.google.com'));
+                                                      print(
+                                                          response.statusCode);
+                                                      if (response.statusCode ==
+                                                          200) {
+                                                        EasyLoading.dismiss();
+                                                        groAlertMe(
+                                                            "button-three");
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                                    content: Text(
+                                                                        "Your Internet connection is not stable.Please try again later")));
+                                                        EasyLoading.dismiss();
+                                                      }
+                                                    } catch (e) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                              const SnackBar(
+                                                                  content: Text(
+                                                                      "Your Internet connection is not stable.Please try again later")));
+                                                      EasyLoading.dismiss();
+                                                    }
+                                                  }
                                                 }
                                               } else {
                                                 ScaffoldMessenger.of(context)
@@ -1289,7 +1371,47 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                         ]));
                                           } else {
                                             print("Online");
-                                            secAlertMe("button-one");
+
+                                            var connectivityResult =
+                                                await (Connectivity()
+                                                    .checkConnectivity());
+                                            print(
+                                                "Connectivity == ${connectivityResult.toString()}");
+                                            if (connectivityResult ==
+                                                ConnectivityResult.none) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(const SnackBar(
+                                                      content: Text(
+                                                          "This Feature is not available in Offline mode")));
+                                            } else {
+                                              try {
+                                                EasyLoading.show(
+                                                    status:
+                                                        'Loading Please Wait');
+                                                // Attempt to make a GET request to a reliable server
+                                                final response = await http.get(
+                                                    Uri.parse(
+                                                        'https://www.google.com'));
+                                                print(response.statusCode);
+                                                if (response.statusCode ==
+                                                    200) {
+                                                  EasyLoading.dismiss();
+                                                  secAlertMe("button-one");
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(const SnackBar(
+                                                          content: Text(
+                                                              "Your Internet connection is not stable.Please try again later")));
+                                                  EasyLoading.dismiss();
+                                                }
+                                              } catch (e) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(const SnackBar(
+                                                        content: Text(
+                                                            "Your Internet connection is not stable.Please try again later")));
+                                                EasyLoading.dismiss();
+                                              }
+                                            }
                                           }
                                         } else {
                                           ScaffoldMessenger.of(context)
