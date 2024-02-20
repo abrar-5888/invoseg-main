@@ -95,7 +95,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
           .collection('VideoPanel') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
           .orderBy('time', descending: true)
-          .limit(30)
+          .limit(1)
           .get();
       // Initialize the link variable
 
@@ -348,7 +348,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
     String fmName1 = "", fmphoneNo1 = "";
     String fourDigitCode = generateRandomFourDigitCode();
     try {
-      EasyLoading.show(status: "Please Wait");
+      // EasyLoading.show(status: "Processing");
 
       if (!btnOnOff) {
         final prefs = await SharedPreferences.getInstance();
@@ -537,9 +537,18 @@ class _HomeDesign1State extends State<HomeDesign1> {
     } catch (e) {
       popAndSnackBar();
       // EasyLoading.showSuccess('Request sent');
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              "Request not sent. please check your internet connection and try again !")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text(
+          "Request not sent. please check your internet connection and try again !",
+          style: TextStyle(color: Colors.black),
+        ),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.black,
+          onPressed: () {},
+        ),
+        backgroundColor: Colors.grey[400],
+      ));
     }
   }
 
@@ -583,7 +592,113 @@ class _HomeDesign1State extends State<HomeDesign1> {
               backgroundColor: MaterialStateProperty.all(Colors.black),
             ),
             onPressed: () async {
-              alertMe(collect);
+              if (button_count_sec <= 25) {
+                setState(() {
+                  button_count_sec = button_count_sec + 1;
+                });
+                var connectivityResult =
+                    await (Connectivity().checkConnectivity());
+                print("Connectivity == ${connectivityResult.toString()}");
+                if (connectivityResult == ConnectivityResult.none) {
+                  await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                              title: const Text('Offline !'),
+                              content: const Text(
+                                  'you are currently offline ! Contact us via Messages !'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () async {
+                                    const recipientPhoneNumber =
+                                        '03038465220'; // Replace with the recipient's phone number
+                                    const String messageBody =
+                                        'Hello, this is a test message.';
+                                    final uri = Uri.encodeFull(
+                                        'sms:$recipientPhoneNumber?body=$messageBody');
+                                    await launchUrl(Uri.parse(uri));
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Send Maintenance Message'),
+                                ),
+                              ]));
+                } else {
+                  print("Online");
+
+                  var connectivityResult =
+                      await (Connectivity().checkConnectivity());
+                  print("Connectivity == ${connectivityResult.toString()}");
+                  if (connectivityResult == ConnectivityResult.none) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          "This Feature is not available in Offline mode",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          textColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                        backgroundColor: Colors.grey[400],
+                      ),
+                    );
+                  } else {
+                    try {
+                      // EasyLoading.show(status: 'Processing',);
+                      // Attempt to make a GET request to a reliable server
+                      final response =
+                          await http.get(Uri.parse('https://www.google.com'));
+                      print(response.statusCode);
+                      if (response.statusCode == 200) {
+                        EasyLoading.dismiss();
+                        alertMe(collect);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: const Text(
+                            "Your Internet connection is not stable. Please try again later",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          action: SnackBarAction(
+                            label: 'OK',
+                            textColor: Colors.black,
+                            onPressed: () {},
+                          ),
+                          backgroundColor: Colors.grey[400],
+                        ));
+
+                        EasyLoading.dismiss();
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text(
+                          "Your Internet connection is not stable. Please try again later",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          textColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                        backgroundColor: Colors.grey[400],
+                      ));
+                      EasyLoading.dismiss();
+                    }
+                  }
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Sorry ! but you have reached your todays limit .",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                        label: 'OK', textColor: Colors.black, onPressed: () {}),
+                    backgroundColor: Colors.grey[400],
+                  ),
+                );
+              }
+
               Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -624,7 +739,99 @@ class _HomeDesign1State extends State<HomeDesign1> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              alertMe(collect);
+              if (button_count_gro <= 25) {
+                setState(() {
+                  button_count_gro = button_count_gro + 1;
+                });
+                var connectivityResult =
+                    await (Connectivity().checkConnectivity());
+                print("Connectivity == ${connectivityResult.toString()}");
+                if (connectivityResult == ConnectivityResult.none) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text(
+                      "This Feature is not available in Offline mode",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                      label: 'OK',
+                      textColor: Colors.black,
+                      onPressed: () {},
+                    ),
+                    backgroundColor: Colors.grey[400],
+                  ));
+                } else {
+                  var connectivityResult =
+                      await (Connectivity().checkConnectivity());
+                  print("Connectivity == ${connectivityResult.toString()}");
+                  if (connectivityResult == ConnectivityResult.none) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                        "This Feature is not available in Offline mode",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      action: SnackBarAction(
+                        label: 'OK',
+                        textColor: Colors.black,
+                        onPressed: () {},
+                      ),
+                      backgroundColor: Colors.grey[400],
+                    ));
+                  } else {
+                    try {
+                      // EasyLoading.show(status: ' Processing');
+                      // Attempt to make a GET request to a reliable server
+                      final response =
+                          await http.get(Uri.parse('https://www.google.com'));
+                      print(response.statusCode);
+                      if (response.statusCode == 200) {
+                        EasyLoading.dismiss();
+                        alertMe(collect);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: const Text(
+                            "Your Internet connection is not stable. Please try again later",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          action: SnackBarAction(
+                            label: 'OK',
+                            textColor: Colors.black,
+                            onPressed: () {},
+                          ),
+                          backgroundColor: Colors.grey[400],
+                        ));
+                        EasyLoading.dismiss();
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text(
+                          "Your Internet connection is not stable. Please try again later",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          textColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                        backgroundColor: Colors.grey[400],
+                      ));
+                      EasyLoading.dismiss();
+                    }
+                  }
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Sorry ! but you have reached your todays limit .",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                        label: 'OK', textColor: Colors.black, onPressed: () {}),
+                    backgroundColor: Colors.grey[400],
+                  ),
+                );
+              }
+
               Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -664,7 +871,82 @@ class _HomeDesign1State extends State<HomeDesign1> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              alertMe(collect);
+              if (button_count_med <= 25) {
+                setState(() {
+                  button_count_med = button_count_med + 1;
+                });
+
+                var connectivityResult =
+                    await (Connectivity().checkConnectivity());
+                print("Connectivity == ${connectivityResult.toString()}");
+                if (connectivityResult == ConnectivityResult.none) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text(
+                      "This Feature is not available in Offline mode",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                      label: 'OK',
+                      textColor: Colors.black,
+                      onPressed: () {},
+                    ),
+                    backgroundColor: Colors.grey[400],
+                  ));
+                } else {
+                  try {
+                    // EasyLoading.show(status: 'Processing');
+                    // Attempt to make a GET request to a reliable server
+                    final response =
+                        await http.get(Uri.parse('https://www.google.com'));
+                    print(response.statusCode);
+                    if (response.statusCode == 200) {
+                      EasyLoading.dismiss();
+                      alertMe(collect);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text(
+                          "Your Internet connection is not stable. Please try again later",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          textColor: Colors.black,
+                          onPressed: () {},
+                        ),
+                        backgroundColor: Colors.grey[400],
+                      ));
+                      EasyLoading.dismiss();
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                        "Your Internet connection is not stable. Please try again later",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      action: SnackBarAction(
+                        label: 'OK',
+                        textColor: Colors.black,
+                        onPressed: () {},
+                      ),
+                      backgroundColor: Colors.grey[400],
+                    ));
+                    EasyLoading.dismiss();
+                  }
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Sorry ! but you have reached your todays limit .",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    action: SnackBarAction(
+                        label: 'OK', textColor: Colors.black, onPressed: () {}),
+                    backgroundColor: Colors.grey[400],
+                  ),
+                );
+              }
+
               Navigator.pop(context);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -749,6 +1031,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
       y_controller = YoutubePlayerController(
         initialVideoId: videoId,
         flags: const YoutubePlayerFlags(
+          // isLive: true,
+          // forceHD: true,
+
           autoPlay: false, // Set to true if you want the video to auto-play
           showLiveFullscreenButton: false,
         ),
@@ -936,6 +1221,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                   9, // You can adjust this aspect ratio as needed
                               child: YoutubePlayer(
                                   controller: y_controller,
+                                  showVideoProgressIndicator: true,
                                   bottomActions: [
                                     const SizedBox(width: 8.0),
                                     CurrentPosition(),
@@ -1071,74 +1357,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                           ),
                                           child: TextButton.icon(
                                             onPressed: () async {
-                                              if (button_count_med <= 25) {
-                                                setState(() {
-                                                  button_count_med =
-                                                      button_count_med + 1;
-                                                });
-
-                                                var connectivityResult =
-                                                    await (Connectivity()
-                                                        .checkConnectivity());
-                                                print(
-                                                    "Connectivity == ${connectivityResult.toString()}");
-                                                if (connectivityResult ==
-                                                    ConnectivityResult.none) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(const SnackBar(
-                                                          content: Text(
-                                                              "This Feature is not available in Offline mode")));
-                                                } else {
-                                                  try {
-                                                    EasyLoading.show(
-                                                        status:
-                                                            'Loading Please Wait');
-                                                    // Attempt to make a GET request to a reliable server
-                                                    final response = await http
-                                                        .get(Uri.parse(
-                                                            'https://www.google.com'));
-                                                    print(response.statusCode);
-                                                    if (response.statusCode ==
-                                                        200) {
-                                                      EasyLoading.dismiss();
-                                                      medAlertMe("button-two");
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                              const SnackBar(
-                                                                  content: Text(
-                                                                      "Your Internet connection is not stable.Please try again later")));
-                                                      EasyLoading.dismiss();
-                                                    }
-                                                  } catch (e) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                            const SnackBar(
-                                                                content: Text(
-                                                                    "Your Internet connection is not stable.Please try again later")));
-                                                    EasyLoading.dismiss();
-                                                  }
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: const Text(
-                                                      "Sorry ! but you have reached your todays limit .",
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                    action: SnackBarAction(
-                                                        label: 'OK',
-                                                        textColor: Colors.black,
-                                                        onPressed: () {}),
-                                                    backgroundColor:
-                                                        Colors.grey[400],
-                                                  ),
-                                                );
-                                              }
+                                              medAlertMe('button-two');
                                             },
                                             label: Text('  ' + buttonLabels[1],
                                                 style: const TextStyle(
@@ -1191,90 +1410,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                           ),
                                           child: TextButton.icon(
                                             onPressed: () async {
-                                              if (button_count_gro <= 25) {
-                                                setState(() {
-                                                  button_count_gro =
-                                                      button_count_gro + 1;
-                                                });
-                                                var connectivityResult =
-                                                    await (Connectivity()
-                                                        .checkConnectivity());
-                                                print(
-                                                    "Connectivity == ${connectivityResult.toString()}");
-                                                if (connectivityResult ==
-                                                    ConnectivityResult.none) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(const SnackBar(
-                                                          content: Text(
-                                                              "This Feature is not available in Offline mode")));
-                                                } else {
-                                                  var connectivityResult =
-                                                      await (Connectivity()
-                                                          .checkConnectivity());
-                                                  print(
-                                                      "Connectivity == ${connectivityResult.toString()}");
-                                                  if (connectivityResult ==
-                                                      ConnectivityResult.none) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                            const SnackBar(
-                                                                content: Text(
-                                                                    "This Feature is not available in Offline mode")));
-                                                  } else {
-                                                    try {
-                                                      EasyLoading.show(
-                                                          status:
-                                                              'Loading Please Wait');
-                                                      // Attempt to make a GET request to a reliable server
-                                                      final response = await http
-                                                          .get(Uri.parse(
-                                                              'https://www.google.com'));
-                                                      print(
-                                                          response.statusCode);
-                                                      if (response.statusCode ==
-                                                          200) {
-                                                        EasyLoading.dismiss();
-                                                        groAlertMe(
-                                                            "button-three");
-                                                      } else {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                                const SnackBar(
-                                                                    content: Text(
-                                                                        "Your Internet connection is not stable.Please try again later")));
-                                                        EasyLoading.dismiss();
-                                                      }
-                                                    } catch (e) {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                              const SnackBar(
-                                                                  content: Text(
-                                                                      "Your Internet connection is not stable.Please try again later")));
-                                                      EasyLoading.dismiss();
-                                                    }
-                                                  }
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: const Text(
-                                                      "Sorry ! but you have reached your todays limit .",
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                    action: SnackBarAction(
-                                                        label: 'OK',
-                                                        textColor: Colors.black,
-                                                        onPressed: () {}),
-                                                    backgroundColor:
-                                                        Colors.grey[400],
-                                                  ),
-                                                );
-                                              }
+                                              groAlertMe("button-three");
                                             },
                                             label: Text(
                                               '  ' + buttonLabels[2],
@@ -1327,109 +1463,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                     ),
                                     child: TextButton.icon(
                                       onPressed: () async {
-                                        if (button_count_sec <= 25) {
-                                          setState(() {
-                                            button_count_sec =
-                                                button_count_sec + 1;
-                                          });
-                                          var connectivityResult =
-                                              await (Connectivity()
-                                                  .checkConnectivity());
-                                          print(
-                                              "Connectivity == ${connectivityResult.toString()}");
-                                          if (connectivityResult ==
-                                              ConnectivityResult.none) {
-                                            await showDialog(
-                                                context: context,
-                                                builder: (context) =>
-                                                    AlertDialog(
-                                                        title: const Text(
-                                                            'Offline !'),
-                                                        content: const Text(
-                                                            'you are currently offline ! Contact us via Messages !'),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            onPressed:
-                                                                () async {
-                                                              const recipientPhoneNumber =
-                                                                  '03038465220'; // Replace with the recipient's phone number
-                                                              const String
-                                                                  messageBody =
-                                                                  'Hello, this is a test message.';
-                                                              final uri = Uri
-                                                                  .encodeFull(
-                                                                      'sms:$recipientPhoneNumber?body=$messageBody');
-                                                              await launchUrl(
-                                                                  Uri.parse(
-                                                                      uri));
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                'Send Maintenance Message'),
-                                                          ),
-                                                        ]));
-                                          } else {
-                                            print("Online");
-
-                                            var connectivityResult =
-                                                await (Connectivity()
-                                                    .checkConnectivity());
-                                            print(
-                                                "Connectivity == ${connectivityResult.toString()}");
-                                            if (connectivityResult ==
-                                                ConnectivityResult.none) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
-                                                      content: Text(
-                                                          "This Feature is not available in Offline mode")));
-                                            } else {
-                                              try {
-                                                EasyLoading.show(
-                                                    status:
-                                                        'Loading Please Wait');
-                                                // Attempt to make a GET request to a reliable server
-                                                final response = await http.get(
-                                                    Uri.parse(
-                                                        'https://www.google.com'));
-                                                print(response.statusCode);
-                                                if (response.statusCode ==
-                                                    200) {
-                                                  EasyLoading.dismiss();
-                                                  secAlertMe("button-one");
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(const SnackBar(
-                                                          content: Text(
-                                                              "Your Internet connection is not stable.Please try again later")));
-                                                  EasyLoading.dismiss();
-                                                }
-                                              } catch (e) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                        content: Text(
-                                                            "Your Internet connection is not stable.Please try again later")));
-                                                EasyLoading.dismiss();
-                                              }
-                                            }
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: const Text(
-                                                "Sorry ! but you have reached your todays limit .",
-                                                style: TextStyle(
-                                                    color: Colors.black),
-                                              ),
-                                              action: SnackBarAction(
-                                                  label: 'OK',
-                                                  textColor: Colors.black,
-                                                  onPressed: () {}),
-                                              backgroundColor: Colors.grey[400],
-                                            ),
-                                          );
-                                        }
+                                        secAlertMe("button-one");
                                       },
                                       icon: const Icon(
                                         Icons.security,
@@ -1632,10 +1666,19 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                       "Connectivity == ${connectivityResult.toString()}");
                                   if (connectivityResult ==
                                       ConnectivityResult.none) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                "This Feature is not available in Offline mode")));
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: const Text(
+                                        "This Feature is not available in Offline mode",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      action: SnackBarAction(
+                                        label: 'OK',
+                                        textColor: Colors.black,
+                                        onPressed: () {},
+                                      ),
+                                      backgroundColor: Colors.grey[400],
+                                    ));
                                   } else {
                                     if (status == false) {
                                       print(
@@ -1715,9 +1758,28 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                   } else {
                                                                     ScaffoldMessenger.of(
                                                                             context)
-                                                                        .showSnackBar(const SnackBar(
-                                                                            content:
-                                                                                Text("You can not send another request")));
+                                                                        .showSnackBar(
+                                                                            SnackBar(
+                                                                      content:
+                                                                          const Text(
+                                                                        "You can not send another request",
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.black),
+                                                                      ),
+                                                                      action:
+                                                                          SnackBarAction(
+                                                                        label:
+                                                                            'OK',
+                                                                        textColor:
+                                                                            Colors.black,
+                                                                        onPressed:
+                                                                            () {},
+                                                                      ),
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .grey[400],
+                                                                    ));
                                                                   }
                                                                 },
                                                                 decoration:
@@ -1741,9 +1803,26 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                         _selectDate(
                                                                             context);
                                                                       } else {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                                            content:
-                                                                                Text("You can not send another request")));
+                                                                        ScaffoldMessenger.of(context)
+                                                                            .showSnackBar(SnackBar(
+                                                                          content:
+                                                                              const Text(
+                                                                            "You can not send another request",
+                                                                            style:
+                                                                                TextStyle(color: Colors.black),
+                                                                          ),
+                                                                          action:
+                                                                              SnackBarAction(
+                                                                            label:
+                                                                                'OK',
+                                                                            textColor:
+                                                                                Colors.black,
+                                                                            onPressed:
+                                                                                () {},
+                                                                          ),
+                                                                          backgroundColor:
+                                                                              Colors.grey[400],
+                                                                        ));
                                                                       }
                                                                     },
                                                                   ),
@@ -1911,6 +1990,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                                   label: "Ok",
                                                                                                   onPressed: () {},
                                                                                                 ),
+                                                                                                backgroundColor: Colors.grey[400],
                                                                                                 content: const Text("Your Details has been sent "))),
                                                                                           });
                                                                                     });
@@ -1974,6 +2054,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                           label: "Ok",
                                                                                           onPressed: () {},
                                                                                         ),
+                                                                                        backgroundColor: Colors.grey[400],
                                                                                         content: const Text("Your Details has been sent ")));
                                                                                   }
                                                                                 });
@@ -2001,11 +2082,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     },
                                                                   );
                                                                 } else {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(const SnackBar(
-                                                                          content:
-                                                                              Text("You can not send another request")));
+                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                      backgroundColor:
+                                                                          Colors.grey[
+                                                                              400],
+                                                                      content:
+                                                                          const Text(
+                                                                              "You can not send another request")));
                                                                 }
                                                               },
                                                               child: const Text(
@@ -2102,11 +2185,12 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     _selectDate(
                                                                         context);
                                                                   } else {
-                                                                    ScaffoldMessenger.of(
-                                                                            context)
-                                                                        .showSnackBar(const SnackBar(
-                                                                            content:
-                                                                                Text("You can not send another request")));
+                                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                        backgroundColor:
+                                                                            Colors.grey[
+                                                                                400],
+                                                                        content:
+                                                                            const Text("You can not send another request")));
                                                                   }
                                                                 },
                                                                 decoration:
@@ -2130,9 +2214,10 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                         _selectDate(
                                                                             context);
                                                                       } else {
-                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                                            content:
-                                                                                Text("You can not send another request")));
+                                                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                            backgroundColor:
+                                                                                Colors.grey[400],
+                                                                            content: const Text("You can not send another request")));
                                                                       }
                                                                     },
                                                                   ),
@@ -2279,6 +2364,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                           label: "Ok",
                                                                                           onPressed: () {},
                                                                                         ),
+                                                                                        backgroundColor: Colors.grey[400],
                                                                                         content: const Text("Your Details has been sent ")));
                                                                                   }
                                                                                 });
@@ -2304,11 +2390,13 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                     },
                                                                   );
                                                                 } else {
-                                                                  ScaffoldMessenger.of(
-                                                                          context)
-                                                                      .showSnackBar(const SnackBar(
-                                                                          content:
-                                                                              Text("You can not send another request")));
+                                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                                      backgroundColor:
+                                                                          Colors.grey[
+                                                                              400],
+                                                                      content:
+                                                                          const Text(
+                                                                              "You can not send another request")));
                                                                 }
                                                               },
                                                               child: const Text(
@@ -2540,6 +2628,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                                                           label: "Ok",
                                                                                           onPressed: () {},
                                                                                         ),
+                                                                                        backgroundColor: Colors.grey[400],
                                                                                         content: const Text("Your Not Home request has been Cancelled ")));
                                                                                   },
                                                                                   child: const Text('Yes', style: TextStyle(color: Colors.white)),

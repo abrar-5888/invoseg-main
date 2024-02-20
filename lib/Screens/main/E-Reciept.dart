@@ -6,6 +6,8 @@ import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 // import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -452,7 +454,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
                                     print(Status);
                                     if (isButtonEnabled == true) {
                                       updateEditButton();
-                                      alertme("button-three");
+                                      alertme("button-three", widget.id);
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -507,7 +509,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     return code.toString().padLeft(4, '0');
   }
 
-  void alertme(String collect) async {
+  void alertme(String collect, String id) async {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -531,7 +533,27 @@ class _ViewERecieptState extends State<ViewEReciept> {
                     content:
                         Text("This Feature is not available in Offline mode")));
               } else {
-                logic(collect);
+                try {
+                  // EasyLoading.show(status: 'Loading Please Wait');
+                  // Attempt to make a GET request to a reliable server
+                  final response =
+                      await http.get(Uri.parse('https://www.google.com'));
+                  print(response.statusCode);
+                  if (response.statusCode == 200) {
+                    EasyLoading.dismiss();
+                    logic(collect, id);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                            "Your Internet connection is not stable.Please try again later")));
+                    EasyLoading.dismiss();
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text(
+                          "Your Internet connection is not stable.Please try again later")));
+                  EasyLoading.dismiss();
+                }
               }
             },
             child: const Text('Yes', style: TextStyle(color: Colors.white)),
@@ -552,7 +574,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     );
   }
 
-  void logic(String collect) async {
+  void logic(String collect, String id) async {
     // final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
     String FCMtoken = "";
     DateTime now = DateTime.now();
@@ -592,7 +614,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
             var data = subcollectionQuery.docs[0].data();
             setState(() {
               fmName = data['Name'];
-              fmphoneNo = data['Phoneno'];
+              fmphoneNo = data['phonenumber'];
               print("Document 1 - Name: $fmName, Phone No: $fmphoneNo");
             });
 
@@ -601,7 +623,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
               var data1 = subcollectionQuery.docs[1].data();
               setState(() {
                 fmName1 = data1['Name'];
-                fmphoneNo1 = data1['Phoneno'];
+                fmphoneNo1 = data1['phonenumber'];
                 print("Document 2 - Name: $fmName1, Phone No: $fmphoneNo1");
               });
             }
@@ -640,6 +662,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
               "uid": userinfo["uid"],
               "pressedTime": FieldValue.serverTimestamp(),
             });
+            canEdit(id);
             popAndSnackBar();
           } else {
             print("No matching documents found in the Sub collection.");
@@ -674,6 +697,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
               "uid": userinfo["uid"],
               "pressedTime": FieldValue.serverTimestamp(),
             });
+            canEdit(id);
             popAndSnackBar();
           }
         });
@@ -698,5 +722,12 @@ class _ViewERecieptState extends State<ViewEReciept> {
         backgroundColor: Colors.grey[400],
       ),
     );
+  }
+
+  Future<void> canEdit(String id) async {
+    await FirebaseFirestore.instance
+        .collection('grocery')
+        .doc(id)
+        .update({'canEdit': false, 'Status': 'Delivered'});
   }
 }

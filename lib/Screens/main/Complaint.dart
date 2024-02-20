@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Complainform extends StatefulWidget {
@@ -188,7 +190,29 @@ class _ComplainformState extends State<Complainform> {
                                         content: Text(
                                             "This Feature is not available in Offline mode")));
                               } else {
-                                alertMe();
+                                try {
+                                  // EasyLoading.show(status: 'Loading Please Wait');
+                                  // Attempt to make a GET request to a reliable server
+                                  final response = await http
+                                      .get(Uri.parse('https://www.google.com'));
+                                  print(response.statusCode);
+                                  if (response.statusCode == 200) {
+                                    EasyLoading.dismiss();
+                                    alertMe();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "Your Internet connection is not stable.Please try again later")));
+                                    EasyLoading.dismiss();
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Your Internet connection is not stable.Please try again later")));
+                                  EasyLoading.dismiss();
+                                }
                               }
                             },
                             style: ButtonStyle(
