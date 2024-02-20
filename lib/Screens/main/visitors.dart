@@ -130,6 +130,89 @@ class _VisitorsState extends State<Visitors> {
                     contentPadding: const EdgeInsets.all(10),
                     onTap: () async {
                       if (des.isNotEmpty &&
+                          (des.toString().contains("identity"))) {
+                        await fetchNotiInfo(ids);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height / 3.1,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      height: 100,
+                                      width: 100,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              blurRadius: 3,
+                                              color: Colors.grey,
+                                              spreadRadius: 1)
+                                        ],
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(notiImage),
+                                        radius: 52,
+                                        backgroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 10,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Name : $notiName',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Purpose : $notiPurpose',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(
+                                      top: 5,
+                                    )),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        'Vehicle No & Type : $notiVehicle',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }
+                      if (des.isNotEmpty &&
                           (des.toString().contains("Person"))) {
                         await fetchNotiInfo(ids);
                         showDialog(

@@ -93,7 +93,7 @@ class _NotificationsState extends State<Notifications> {
             .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -134,9 +134,9 @@ class _NotificationsState extends State<Notifications> {
                       if (des.isNotEmpty &&
                           (des.toString().contains("Person") ||
                               des.toString().contains('identity'))) {
+                        await fetchNotiInfo(ids);
                         if (des.toString().contains("approved") ||
                             des.toString().contains("rejected")) {
-                          await fetchNotiInfo(ids);
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -218,6 +218,7 @@ class _NotificationsState extends State<Notifications> {
                             },
                           );
                         } else {
+                          fetchNotiInfo(ids);
                           showDialog(
                             context: context,
                             builder: (context) {
