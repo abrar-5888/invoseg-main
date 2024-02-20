@@ -1,4 +1,5 @@
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -115,43 +117,45 @@ class _MyAppState extends State<MyApp> {
         ),
       );
     }
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      builder: EasyLoading.init(),
-      title: 'Invoseg Izmir',
-      theme: ThemeData(
-        fontFamily: 'Urbanist',
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
-        ),
-      ),
-      home: const SplashScreen(),
-      navigatorKey: navigatorKey,
-      routes: {
-        LoginScreen.routename: (ctx) => const LoginScreen(),
-        requestLoginPage.route: (ctx) => const requestLoginPage(),
-        // Home.routeName: (ctx) => const Home(),
-        UserProfile.routename: (ctx) => const UserProfile(),
-        ButtonsHistory.routename: (ctx) => const ButtonsHistory(),
-        ViewEReciept.routename: (ctx) => const ViewEReciept(
-              value: true,
-              id: "",
-              status: "",
+    return ChangeNotifierProvider<NotificationCounter>(
+        create: (_) => NotificationCounter(),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          builder: EasyLoading.init(),
+          title: 'Invoseg Izmir',
+          theme: ThemeData(
+            fontFamily: 'Urbanist',
+            textTheme: GoogleFonts.poppinsTextTheme(
+              Theme.of(context).textTheme,
             ),
-        Prescription.routename: (ctx) => Prescription(
-              id: "",
-            ),
-        FamilyMembers.routename: (ctx) => FamilyMembers(
-              id: "",
-              emailss: "",
-              ownerss: "",
-              addresss: "",
-            ),
-        // Complainform.routename: (ctx) => const Complainform(),
-        '/notification': (ctx) => const Notifications(),
-        '/complaint': (ctx) => const Complainform(),
-        '/tabsScreen': (ctx) => TabsScreen(index: 0)
-      },
-    );
+          ),
+          home: const SplashScreen(),
+          navigatorKey: navigatorKey,
+          routes: {
+            LoginScreen.routename: (ctx) => const LoginScreen(),
+            requestLoginPage.route: (ctx) => const requestLoginPage(),
+            // Home.routeName: (ctx) => const Home(),
+            UserProfile.routename: (ctx) => const UserProfile(),
+            ButtonsHistory.routename: (ctx) => const ButtonsHistory(),
+            ViewEReciept.routename: (ctx) => const ViewEReciept(
+                  value: true,
+                  id: "",
+                  status: "",
+                ),
+            Prescription.routename: (ctx) => Prescription(
+                  id: "",
+                ),
+            FamilyMembers.routename: (ctx) => FamilyMembers(
+                  id: "",
+                  emailss: "",
+                  ownerss: "",
+                  addresss: "",
+                ),
+            // Complainform.routename: (ctx) => const Complainform(),
+            '/notification': (ctx) => const Notifications(),
+            '/complaint': (ctx) => const Complainform(),
+            '/tabsScreen': (ctx) => TabsScreen(index: 0)
+          },
+        ));
   }
 }

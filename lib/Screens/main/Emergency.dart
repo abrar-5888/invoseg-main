@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
@@ -8,6 +10,7 @@ import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -64,8 +67,11 @@ class _EmergencyState extends State<Emergency> {
   void initState() {
     super.initState();
     updateTabs();
-    _fetchConsultationData();
     getAllIsReadStatus();
+    _fetchConsultationData();
+    // Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    //   getAllIsReadStatus();
+    // });
   }
 
   @override
@@ -85,6 +91,15 @@ class _EmergencyState extends State<Emergency> {
         'Status': status,
       }
     ];
+    final notificationCounter =
+        Provider.of<NotificationCounter>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updateCount(snapshot.docs.length);
+    });
     return Scaffold(
       key: _key1,
       drawer: const DrawerWidg(),
@@ -118,30 +133,40 @@ class _EmergencyState extends State<Emergency> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (notification_count > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 15,
-                        minHeight: 15,
-                      ),
-                      child: Text(
-                        "$notification_count",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                Consumer<NotificationCounter>(
+                  builder: (context, counter, child) {
+                    if (notificationCounter.count >
+                        0) // Show the badge only if there are unread notifications
+                    {
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                Colors.red, // You can customize the badge color
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 15,
+                            minHeight: 15,
+                          ),
+                          child: Text(
+                            "${notificationCounter.count}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12, // You can customize the font size
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
               ],
             ),
             onPressed: () async {

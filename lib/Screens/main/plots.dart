@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Plots extends StatefulWidget {
@@ -38,14 +40,25 @@ class _PlotsState extends State<Plots> {
     // TODO: implement initState
     // plot_count = 0;
     updateTabs();
-
     getAllIsReadStatus();
+    // Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    //   getAllIsReadStatus();
+    // });
   }
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
+    final notificationCounter =
+        Provider.of<NotificationCounter>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updateCount(snapshot.docs.length);
+    });
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: const DrawerWidg(),
@@ -80,38 +93,45 @@ class _PlotsState extends State<Plots> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (notification_count > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 15,
-                        minHeight: 15,
-                      ),
-                      child: Text(
-                        "$notification_count",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                Consumer<NotificationCounter>(
+                  builder: (context, counter, child) {
+                    if (notificationCounter.count >
+                        0) // Show the badge only if there are unread notifications
+                    {
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                Colors.red, // You can customize the badge color
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 15,
+                            minHeight: 15,
+                          ),
+                          child: Text(
+                            "${notificationCounter.count}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12, // You can customize the font size
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
               ],
             ),
             onPressed: () async {
               // resetNotificationCount();
 
-              setState(() {
-                notification_count = 0;
-              });
               updateAllIsReadStatus(true);
               // Handle tapping on the notifications icon
               await Navigator.push(
@@ -133,7 +153,7 @@ class _PlotsState extends State<Plots> {
                 color: Colors.black,
               ),
               onPressed: () {
-                _key.currentState!.openDrawer();
+                _key.currentState?.openDrawer();
               },
             ),
           ),
@@ -151,13 +171,13 @@ class _PlotsState extends State<Plots> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                 ),
               );
+            } else if (snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text("No Data Availale"));
             } else if (snapshot.hasError) {
               return Text("Error: ${snapshot.error}");
             } else {
-              final plots = snapshot.data!.docs;
-              print("Data=$plots");
               // var data=discounts;
-
+              final plots = snapshot.data!.docs;
               return ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: plots.length,
@@ -475,31 +495,6 @@ class _PlotsState extends State<Plots> {
                                               const SizedBox(
                                                 width: 5,
                                               ),
-                                              // Container(
-                                              //   decoration: BoxDecoration(
-                                              //       borderRadius:
-                                              //           BorderRadius.circular(5),
-                                              //       color: const Color.fromRGBO(
-                                              //           15, 39, 127, 1)),
-                                              //   child: Padding(
-                                              //     padding:
-                                              //         const EdgeInsets.symmetric(
-                                              //             vertical: 7,
-                                              //             horizontal: 20),
-                                              //     child: Row(
-                                              //       children: [
-                                              //         Icon(
-                                              //           FontAwesomeIcons.whatsapp,
-                                              //           size: 14,
-                                              //           color: Colors.white,
-                                              //         ),
-                                              //         SizedBox(
-                                              //           width: 5,
-                                              //         ),
-                                              //       ],
-                                              //     ),
-                                              //   ),
-                                              // ),
                                             ],
                                           ),
                                         ],
@@ -508,199 +503,6 @@ class _PlotsState extends State<Plots> {
                                   )
                                 ],
                               ),
-                              // ListTile(
-                              //   title: Text(items[index]),
-                              // ),
-
-                              // Padding(
-                              //   padding: EdgeInsets.symmetric(
-                              //       horizontal: 0, vertical: 14),
-                              //   child: Row(
-                              //     mainAxisAlignment:
-                              //         MainAxisAlignment.spaceEvenly,
-                              //     children: [
-                              //       Row(
-                              //         children: [
-                              //           Container(
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(30),
-                              //                 color: const Color(0xffd9d9d9),
-
-                              //                 //    color: Color.fromARGB(255, 189, 183, 183),
-                              //                 border: Border.all(
-                              //                     width: 1,
-                              //                     color:
-                              //                         const Color(0xffd9d9d9))),
-                              //             child: const Padding(
-                              //               padding: EdgeInsets.all(8.0),
-                              //               child: Icon(
-                              //                 Icons.home_work_outlined,
-                              //                 size: 19,
-                              //                 color: Color(0xff2824e5),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //           SizedBox(
-                              //             width: 10,
-                              //           ),
-                              //           const Column(
-                              //             mainAxisAlignment:
-                              //                 MainAxisAlignment.start,
-                              //             crossAxisAlignment:
-                              //                 CrossAxisAlignment.start,
-                              //             children: [
-                              //               Text(
-                              //                 'Flats',
-                              //                 style: TextStyle(
-                              //                     fontWeight: FontWeight.bold,
-                              //                     fontSize: 12),
-                              //               ),
-                              //               Text(
-                              //                 '2.25 Crore - 2.65 Crore',
-                              //                 style: TextStyle(
-                              //                     fontSize: 11,
-                              //                     color: const Color.fromRGBO(
-                              //                         15, 39, 127, 1)),
-                              //               ),
-                              //               Text(
-                              //                 '1.7 Marla - 2 Marla',
-                              //                 style: TextStyle(fontSize: 11),
-                              //               ),
-                              //             ],
-                              //           )
-                              //         ],
-                              //       ),
-                              //       Row(
-                              //         children: [
-                              //           Container(
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(30),
-                              //                 color: const Color(0xffd9d9d9),
-
-                              //                 //    color: Color.fromARGB(255, 189, 183, 183),
-                              //                 border: Border.all(
-                              //                     width: 1,
-                              //                     color:
-                              //                         const Color(0xffd9d9d9))),
-                              //             child: const Padding(
-                              //               padding: EdgeInsets.all(8.0),
-                              //               child: Icon(
-                              //                 Icons.store,
-                              //                 size: 19,
-                              //                 color: Color(0xff2824e5),
-                              //               ),
-                              //             ),
-                              //           ),
-                              //           SizedBox(
-                              //             width: 10,
-                              //           ),
-                              //           const Column(
-                              //             mainAxisAlignment:
-                              //                 MainAxisAlignment.start,
-                              //             crossAxisAlignment:
-                              //                 CrossAxisAlignment.start,
-                              //             children: [
-                              //               Text(
-                              //                 'Shops',
-                              //                 style: TextStyle(
-                              //                     fontWeight: FontWeight.bold,
-                              //                     fontSize: 12),
-                              //               ),
-                              //               Text(
-                              //                 'Up to 5.9 Crore',
-                              //                 style: TextStyle(
-                              //                     fontSize: 11,
-                              //                     color: const Color.fromRGBO(
-                              //                         15, 39, 127, 1)),
-                              //               ),
-                              //               Text(
-                              //                 'Up to 1.9 Marla',
-                              //                 style: TextStyle(fontSize: 11),
-                              //               ),
-                              //             ],
-                              //           )
-                              //         ],
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                              // SizedBox(
-                              //   height: 10,
-                              // ),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              //   children: [
-                              //     Container(
-                              //       decoration: BoxDecoration(
-                              //           borderRadius: BorderRadius.circular(5),
-                              //           color:
-                              //               const Color.fromRGBO(15, 39, 127, 1)),
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             vertical: 5, horizontal: 15),
-                              //         child: Row(
-                              //           children: [
-                              //             Icon(
-                              //               Icons.playlist_add_check_circle_sharp,
-                              //               color: Colors.white,
-                              //             ),
-                              //             SizedBox(
-                              //               width: 5,
-                              //             ),
-                              //             Text(
-                              //               'Reserve',
-                              //               style: TextStyle(color: Colors.white),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ),
-                              //     ),
-                              //     Container(
-                              //       decoration: BoxDecoration(
-                              //           borderRadius: BorderRadius.circular(5),
-                              //           color:
-                              //               const Color.fromRGBO(15, 39, 127, 1)),
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             vertical: 6.5, horizontal: 20),
-                              //         child: Text(
-                              //           'Call',
-                              //           style: TextStyle(color: Colors.white),
-                              //         ),
-                              //       ),
-                              //     ),
-                              //     Container(
-                              //       decoration: BoxDecoration(
-                              //           borderRadius: BorderRadius.circular(5),
-                              //           color:
-                              //               const Color.fromRGBO(15, 39, 127, 1)),
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             vertical: 6.5, horizontal: 20),
-                              //         child: Text(
-                              //           'Email',
-                              //           style: TextStyle(color: Colors.white),
-                              //         ),
-                              //       ),
-                              //     ),
-                              //     Container(
-                              //       decoration: BoxDecoration(
-                              //           borderRadius: BorderRadius.circular(5),
-                              //           color:
-                              //               const Color.fromRGBO(15, 39, 127, 1)),
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             vertical: 5, horizontal: 20),
-                              //         child: Icon(
-                              //           Icons.wechat_sharp,
-                              //           color: Colors.white,
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   ],
-                              // ),
                               const SizedBox(
                                 height: 10,
                               )
@@ -710,10 +512,6 @@ class _PlotsState extends State<Plots> {
                       ]),
                     ),
                   );
-
-                  //  ListTile(
-                  //   title: Text(items[index]),
-                  // );
                 },
               );
             }
@@ -721,282 +519,3 @@ class _PlotsState extends State<Plots> {
     );
   }
 }
-
-//  ListView.builder(
-//         itemCount: listPics.length,
-//         itemBuilder: (BuildContext context, int index) {
-//           return InkWell(
-//             child: Padding(
-//               padding:
-//                   const EdgeInsets.only(top: 8, right: 8, left: 8, bottom: 8),
-//               child: Expanded(
-//                 child: Container(
-//                   width: double.infinity,
-//                   // height: MediaQuery.of(context).size.height / 3.5,
-//                   decoration: BoxDecoration(
-//                       border: Border.all(width: 1),
-//                       borderRadius: BorderRadius.circular(10)),
-//                   child: Column(
-//                     children: [
-//                       Row(
-//                         children: [
-//                           Image(
-//                             fit: BoxFit.cover,
-//                             image: AssetImage(listPics[index]),
-//                             height: MediaQuery.of(context).size.width / 3.7,
-//                             width: MediaQuery.of(context).size.height / 4.5,
-//                           ),
-//                           Padding(
-//                             padding: const EdgeInsets.only(
-//                                 top: 8, right: 8, left: 8),
-//                             child: Container(
-//                               child: Column(
-//                                 mainAxisAlignment: MainAxisAlignment.start,
-//                                 crossAxisAlignment: CrossAxisAlignment.start,
-//                                 children: [
-//                                   Row(
-//                                     children: [
-//                                       Icon(Icons.pin_drop_outlined,
-//                                           size: 13, color: Colors.blue),
-//                                       Text(
-//                                         ' Main Alam Road - Gulberg',
-//                                         style: TextStyle(
-//                                             fontSize: 10, color: Colors.blue),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                   Text(
-//                                     listName[index],
-//                                     style:
-//                                         TextStyle(fontWeight: FontWeight.bold),
-//                                   ),
-//                                   SizedBox(
-//                                     height: 20,
-//                                   ),
-//                                   Row(
-//                                     children: [
-//                                       Icon(
-//                                         Icons.home_work_outlined,
-//                                         size: 13,
-//                                       ),
-//                                       Text(
-//                                         ' Starting From',
-//                                         style: TextStyle(fontSize: 11),
-//                                       ),
-//                                     ],
-//                                   ),
-//                                   Text(
-//                                     'PKR  2.25 Crore',
-//                                     style: TextStyle(
-//                                         fontWeight: FontWeight.bold,
-//                                         fontSize: 12),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           )
-//                         ],
-//                       ),
-//                       // ListTile(
-//                       //   title: Text(items[index]),
-//                       // ),
-//                       Divider(
-//                         thickness: 1,
-//                       ),
-//                       Padding(
-//                         padding:
-//                             EdgeInsets.symmetric(horizontal: 0, vertical: 14),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                           children: [
-//                             Row(
-//                               children: [
-//                                 Container(
-//                                   decoration: BoxDecoration(
-//                                       borderRadius: BorderRadius.circular(30),
-//                                       color: const Color(0xffd9d9d9),
-
-//                                       //    color: Color.fromARGB(255, 189, 183, 183),
-//                                       border: Border.all(
-//                                           width: 1,
-//                                           color: const Color(0xffd9d9d9))),
-//                                   child: const Padding(
-//                                     padding: EdgeInsets.all(8.0),
-//                                     child: Icon(
-//                                       Icons.home_work_outlined,
-//                                       size: 19,
-//                                       color: Color(0xff2824e5),
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 SizedBox(
-//                                   width: 10,
-//                                 ),
-//                                 const Column(
-//                                   mainAxisAlignment: MainAxisAlignment.start,
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: [
-//                                     Text(
-//                                       'Flats',
-//                                       style: TextStyle(
-//                                           fontWeight: FontWeight.bold,
-//                                           fontSize: 12),
-//                                     ),
-//                                     Text(
-//                                       '2.25 Crore - 2.65 Crore',
-//                                       style: TextStyle(
-//                                           fontSize: 11,
-//                                           color: const Color.fromRGBO(
-//                                               15, 39, 127, 1)),
-//                                     ),
-//                                     Text(
-//                                       '1.7 Marla - 2 Marla',
-//                                       style: TextStyle(fontSize: 11),
-//                                     ),
-//                                   ],
-//                                 )
-//                               ],
-//                             ),
-//                             Row(
-//                               children: [
-//                                 Container(
-//                                   decoration: BoxDecoration(
-//                                       borderRadius: BorderRadius.circular(30),
-//                                       color: const Color(0xffd9d9d9),
-
-//                                       //    color: Color.fromARGB(255, 189, 183, 183),
-//                                       border: Border.all(
-//                                           width: 1,
-//                                           color: const Color(0xffd9d9d9))),
-//                                   child: const Padding(
-//                                     padding: EdgeInsets.all(8.0),
-//                                     child: Icon(
-//                                       Icons.store,
-//                                       size: 19,
-//                                       color: Color(0xff2824e5),
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 SizedBox(
-//                                   width: 10,
-//                                 ),
-//                                 const Column(
-//                                   mainAxisAlignment: MainAxisAlignment.start,
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: [
-//                                     Text(
-//                                       'Shops',
-//                                       style: TextStyle(
-//                                           fontWeight: FontWeight.bold,
-//                                           fontSize: 12),
-//                                     ),
-//                                     Text(
-//                                       'Up to 5.9 Crore',
-//                                       style: TextStyle(
-//                                           fontSize: 11,
-//                                           color: const Color.fromRGBO(
-//                                               15, 39, 127, 1)),
-//                                     ),
-//                                     Text(
-//                                       'Up to 1.9 Marla',
-//                                       style: TextStyle(fontSize: 11),
-//                                     ),
-//                                   ],
-//                                 )
-//                               ],
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                       SizedBox(
-//                         height: 10,
-//                       ),
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                         children: [
-//                           Container(
-//                             decoration: BoxDecoration(
-//                                 borderRadius: BorderRadius.circular(5),
-//                                 color: const Color.fromRGBO(15, 39, 127, 1)),
-//                             child: Padding(
-//                               padding: const EdgeInsets.symmetric(
-//                                   vertical: 5, horizontal: 15),
-//                               child: Row(
-//                                 children: [
-//                                   Icon(
-//                                     Icons.playlist_add_check_circle_sharp,
-//                                     color: Colors.white,
-//                                   ),
-//                                   SizedBox(
-//                                     width: 5,
-//                                   ),
-//                                   Text(
-//                                     'Reserve',
-//                                     style: TextStyle(color: Colors.white),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           ),
-//                           Container(
-//                             decoration: BoxDecoration(
-//                                 borderRadius: BorderRadius.circular(5),
-//                                 color: const Color.fromRGBO(15, 39, 127, 1)),
-//                             child: Padding(
-//                               padding: const EdgeInsets.symmetric(
-//                                   vertical: 6.5, horizontal: 20),
-//                               child: Text(
-//                                 'Call',
-//                                 style: TextStyle(color: Colors.white),
-//                               ),
-//                             ),
-//                           ),
-//                           Container(
-//                             decoration: BoxDecoration(
-//                                 borderRadius: BorderRadius.circular(5),
-//                                 color: const Color.fromRGBO(15, 39, 127, 1)),
-//                             child: Padding(
-//                               padding: const EdgeInsets.symmetric(
-//                                   vertical: 6.5, horizontal: 20),
-//                               child: Text(
-//                                 'Email',
-//                                 style: TextStyle(color: Colors.white),
-//                               ),
-//                             ),
-//                           ),
-//                           Container(
-//                             decoration: BoxDecoration(
-//                                 borderRadius: BorderRadius.circular(5),
-//                                 color: const Color.fromRGBO(15, 39, 127, 1)),
-//                             child: Padding(
-//                               padding: const EdgeInsets.symmetric(
-//                                   vertical: 5, horizontal: 20),
-//                               child: Icon(
-//                                 Icons.wechat_sharp,
-//                                 color: Colors.white,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       SizedBox(
-//                         height: 10,
-//                       )
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(builder: (context) => PlotsDetail()),
-//               );
-//             },
-//           );
-
-//           //  ListTile(
-//           //   title: Text(items[index]),
-//           // );
-//         },
-//       ),

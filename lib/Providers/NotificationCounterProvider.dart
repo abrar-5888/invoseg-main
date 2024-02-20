@@ -1,65 +1,28 @@
-// import 'dart:async';
+import 'package:flutter/foundation.dart';
 
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
+// Create a class to hold the notification count
+class NotificationCounter with ChangeNotifier {
+  int _count = 0;
+  int _groceryCount = 0;
+  int _medicalCount = 0;
+  // Getter for the notification count
+  int get count => _count;
+  int get groceryCount => _groceryCount;
+  int get medicalCount => _medicalCount;
 
-// class NotificationCounterProvider extends ChangeNotifier {
-//   int notificationCount = 0;
-//   int groceryCount = 0;
-//   int medicalCount = 0;
-//   int feedCount = 0;
-//   int plotCount = 0;
+  // Method to update the notification count
+  void updateCount(int newCount) {
+    _count = newCount;
+    notifyListeners(); // Notify listeners about the change
+  }
 
-//   final _isReadStreamController = StreamController<List<bool>>.broadcast();
+  void updategroceryCount(int newCount) {
+    _groceryCount = newCount;
+    notifyListeners(); // Notify listeners about the change
+  }
 
-//   Stream<List<bool>> get isReadStream => _isReadStreamController.stream;
-
-//   Future<List<bool>> getAllIsReadStatus() async {
-//     List<bool> isReadList = [];
-//     try {
-//       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-//           .collection('notifications')
-//           .where('isRead', isEqualTo: false)
-//           .get();
-
-//       for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-//         final data = documentSnapshot.data() as Map<String, dynamic>;
-//         final isRead = data['isRead'] ?? false;
-//         isReadList.add(isRead);
-//       }
-
-//       notificationCount = isReadList.length;
-//       _isReadStreamController
-//           .add(isReadList); // Notify listeners about the change
-//     } catch (e) {
-//       print('Error fetching isRead status: $e');
-//     }
-//     return isReadList;
-//   }
-
-//   void resetNotificationCount() {
-//     notificationCount = 0;
-//     notifyListeners();
-//   }
-
-//   Future<void> updateAllIsReadStatus(bool isRead) async {
-//     try {
-//       QuerySnapshot querySnapshot =
-//           await FirebaseFirestore.instance.collection('notifications').get();
-//       WriteBatch batch = FirebaseFirestore.instance.batch();
-
-//       for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-//         batch.update(documentSnapshot.reference, {'isRead': isRead});
-//       }
-
-//       await batch.commit();
-//     } catch (e) {
-//       print('Error updating isRead status for all documents: $e');
-//     }
-//   }
-
-//   void dispose() {
-//     _isReadStreamController
-//         .close(); // Close the stream controller when not needed
-//   }
-// }
+  void updatemedicalCount(int newCount) {
+    _medicalCount = newCount;
+    notifyListeners(); // Notify listeners about the change
+  }
+}

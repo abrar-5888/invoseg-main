@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/feed/feedsLikes.dart';
@@ -10,6 +11,7 @@ import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -42,6 +44,10 @@ class _HomeState extends State<Newsandfeeds> {
   void initState() {
     super.initState();
     fetchData();
+    getAllIsReadStatus();
+    // Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    //   getAllIsReadStatus();
+    // });
     updateTabs();
     userUid = FirebaseAuth.instance.currentUser!.uid; // Initialize userUid
   }
@@ -91,6 +97,15 @@ class _HomeState extends State<Newsandfeeds> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationCounter =
+        Provider.of<NotificationCounter>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updateCount(snapshot.docs.length);
+    });
     return Scaffold(
       backgroundColor: Colors.white,
       key: _key,
@@ -125,30 +140,40 @@ class _HomeState extends State<Newsandfeeds> {
                   Icons.notifications,
                   color: Colors.black,
                 ),
-                if (notification_count > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 15,
-                        minHeight: 15,
-                      ),
-                      child: Text(
-                        "$notification_count",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                Consumer<NotificationCounter>(
+                  builder: (context, counter, child) {
+                    if (notificationCounter.count >
+                        0) // Show the badge only if there are unread notifications
+                    {
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color:
+                                Colors.red, // You can customize the badge color
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 15,
+                            minHeight: 15,
+                          ),
+                          child: Text(
+                            "${notificationCounter.count}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12, // You can customize the font size
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
               ],
             ),
             onPressed: () async {

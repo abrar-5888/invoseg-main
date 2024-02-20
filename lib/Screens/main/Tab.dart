@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Design.dart';
 import 'package:com.invoseg.innovation/Screens/main/Emergency.dart';
 import 'package:com.invoseg.innovation/Screens/main/Grocery.dart';
@@ -8,6 +9,7 @@ import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TabsScreen extends StatefulWidget {
@@ -145,38 +147,54 @@ class _TabsScreenState extends State<TabsScreen> {
 
   //changing this from 0 to 1
 
-  void _selectPage(int index) {
-    setState(() {
-      // _selectedPageIndex = 3;
-      _selectedPageIndex = index;
-      if (_selectedPageIndex == 1) {
-        // updateAllIsReadStatus(true);
-        updateGroisReadbool(true);
-        setState(() {
-          // updateAllIsReadStatus(true);
-          gro_count = 0;
-        });
-      }
-      if (_selectedPageIndex == 2) {
-        updateMedisRead(true);
-        // updateAllIsReadStatus(true);
-        // updateAllIsReadStatus(true);
-        setState(() {
-          med_count = 0;
-        });
-      }
-      if (_selectedPageIndex == 0) {
-        updateTabs();
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final notificationCounter =
+        Provider.of<NotificationCounter>(context, listen: false);
+    void selectPage(int index) {
+      setState(() {
+        // _selectedPageIndex = 3;
+        _selectedPageIndex = index;
+        if (_selectedPageIndex == 1) {
+          // updateAllIsReadStatus(true);
+          updateGroisReadbool(true);
+
+          // updateAllIsReadStatus(true);
+          notificationCounter.updategroceryCount(0);
+        }
+        if (_selectedPageIndex == 2) {
+          updateMedisRead(true);
+          // updateAllIsReadStatus(true);
+          // updateAllIsReadStatus(true);
+
+          notificationCounter.updatemedicalCount(0);
+        }
+        if (_selectedPageIndex == 0) {
+          updateTabs();
+        }
+      });
+    }
+
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .where('title', isEqualTo: 'GROCERY')
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updategroceryCount(snapshot.docs.length);
+    });
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .where('title', isEqualTo: 'DOCTOR')
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updatemedicalCount(snapshot.docs.length);
+    });
     return Scaffold(
       body: _pages[_selectedPageIndex]['Pages'] as Widget,
       bottomNavigationBar: BottomNavigationBar(
-        onTap: _selectPage,
+        onTap: selectPage,
         backgroundColor: Colors.white,
         unselectedItemColor: Colors.grey,
         selectedItemColor: Colors.black,
@@ -188,67 +206,82 @@ class _TabsScreenState extends State<TabsScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: gro_count > 0
-                ? Stack(
-                    children: <Widget>[
-                      const Icon(Icons.shopping_basket_rounded),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
+            icon: Consumer<NotificationCounter>(
+                builder: (context, counter, child) {
+              if (notificationCounter.groceryCount > 0) {
+                return Stack(
+                  children: <Widget>[
+                    const Icon(Icons.shopping_basket_rounded),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                              Colors.red, // You can customize the badge color
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
+                        child: Text(
+                          "${notificationCounter.groceryCount}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12, // You can customize the font size
                           ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            "$gro_count",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ],
-                  )
-                : const Icon(Icons.shopping_basket_rounded),
+                    )
+                  ],
+                );
+              } else {
+                return const Icon(Icons.shopping_basket_rounded);
+              }
+            }),
             label: 'Grocery',
           ),
+
           BottomNavigationBarItem(
-            icon: med_count > 0
-                ? Stack(
-                    children: <Widget>[
-                      const Icon(Icons.medical_services_rounded),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
+            icon: Consumer<NotificationCounter>(
+                builder: (context, counter, child) {
+              if (notificationCounter.medicalCount > 0) {
+                return Stack(
+                  children: <Widget>[
+                    const Icon(Icons.medical_services_rounded),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                              Colors.red, // You can customize the badge color
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
+                        child: Text(
+                          "${notificationCounter.medicalCount}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12, // You can customize the font size
                           ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            med_count.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ],
-                  )
-                : const Icon(Icons.medical_services_rounded),
+                    )
+                  ],
+                );
+              } else {
+                return const Icon(Icons.medical_services_rounded);
+              }
+            }),
             label: 'Medical',
           ),
           BottomNavigationBarItem(

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:badges/badges.dart' as badge;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Grocery extends StatefulWidget {
@@ -28,7 +30,7 @@ class Grocery extends StatefulWidget {
 class _GroceryState extends State<Grocery> {
   bool isButtonEnabled = true;
   String GroceryId = "";
-
+  final bool fals = false;
   Future<void> fetchAndModifyGroceryDocuments() async {
     try {
       var querySnapshot =
@@ -52,9 +54,12 @@ class _GroceryState extends State<Grocery> {
   @override
   void initState() {
     super.initState();
+    getAllIsReadStatus();
     // This line was already there, updating notification count on page load
     // updateAllIsReadStatus(true);
-    getAllIsReadStatus();
+    // Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+    //   getAllIsReadStatus();
+    // });
     updateTabs();
 
     Timer(const Duration(minutes: 5), () {
@@ -64,11 +69,23 @@ class _GroceryState extends State<Grocery> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
+  void query(var notificationCounter) {}
+
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
+
     String uid = "";
 
+    final notificationCounter =
+        Provider.of<NotificationCounter>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      notificationCounter.updateCount(snapshot.docs.length);
+    });
     return Scaffold(
       key: _key,
       drawer: const DrawerWidg(),
@@ -96,56 +113,71 @@ class _GroceryState extends State<Grocery> {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Stack(
-              children: <Widget>[
-                const Icon(
-                  Icons.notifications,
-                  color: Colors.black,
-                ),
-                if (notification_count > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 15,
-                        minHeight: 15,
-                      ),
-                      child: Text(
-                        "$notification_count",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+          Consumer<NotificationCounter>(
+            builder: (context, counter, child) {
+              return IconButton(
+                icon: Stack(
+                  children: <Widget>[
+                    const Icon(
+                      Icons.notifications,
+                      color: Colors.black,
                     ),
-                  ),
-              ],
-            ),
-            onPressed: () async {
-              // resetNotificationCount();
-
-              setState(() {
-                notification_count = 0;
-              });
-              updateAllIsReadStatus(true);
-              // Handle tapping on the notifications icon
-              await Navigator.push(
-                context,
-                PageTransition(
-                  duration: const Duration(milliseconds: 700),
-                  type: PageTransitionType.rightToLeftWithFade,
-                  child: const Notifications(),
+                    Consumer<NotificationCounter>(
+                      builder: (context, counter, child) {
+                        if (notificationCounter.count >
+                            0) // Show the badge only if there are unread notifications
+                        {
+                          return Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors
+                                    .red, // You can customize the badge color
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 15,
+                                minHeight: 15,
+                              ),
+                              child: Text(
+                                "${notificationCounter.count}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize:
+                                      12, // You can customize the font size
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ],
                 ),
+                onPressed: () async {
+                  // resetNotificationCount();
+
+                  setState(() {
+                    notification_count = 0;
+                  });
+                  updateAllIsReadStatus(true);
+                  // Handle tapping on the notifications icon
+                  await Navigator.push(
+                    context,
+                    PageTransition(
+                      duration: const Duration(milliseconds: 700),
+                      type: PageTransitionType.rightToLeftWithFade,
+                      child: const Notifications(),
+                    ),
+                  );
+                  // No need to manually reset the count here
+                },
               );
-              // No need to manually reset the count here
             },
           ),
           Padding(
@@ -292,10 +324,11 @@ class _GroceryState extends State<Grocery> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              if (groceryData['Status'] ==
-                                                      'Processing' ||
-                                                  groceryData['Status'] ==
-                                                      'processing')
+                                              if ((groceryData['Status'] ==
+                                                          'Processing' ||
+                                                      groceryData['Status'] ==
+                                                          'processing') &&
+                                                  fals == true)
                                                 Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(
@@ -313,9 +346,11 @@ class _GroceryState extends State<Grocery> {
                                                               groceryDocs[index]
                                                                   ['canEdit'];
                                                         });
-                                                        if (groceryDocs[index]
-                                                                ['canEdit'] ==
-                                                            true) {
+                                                        if (
+                                                            // groceryDocs[index][
+                                                            //           'canEdit'] ==
+                                                            //       true &&
+                                                            fals == true) {
                                                           showModalBottomSheet(
                                                               context: context,
                                                               shape:
@@ -544,9 +579,10 @@ class _GroceryState extends State<Grocery> {
                                                           MaterialPageRoute(
                                                             builder: (context) =>
                                                                 ViewEReciept(
-                                                              value: groceryDocs[
-                                                                      index]
-                                                                  ['canEdit'],
+                                                              // value: groceryDocs[
+                                                              //         index]
+                                                              //     ['canEdit'],
+                                                              value: false,
                                                               id: groceryDocs[
                                                                       index]
                                                                   .id,

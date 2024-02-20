@@ -40,6 +40,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
     });
   }
 
+  final fals = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String manuallySpecifiedUID = "";
@@ -447,7 +448,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
                             width: MediaQuery.of(context).size.width / 1.1,
                             height: 50,
                             child: Visibility(
-                              visible: Status == "Processing",
+                              visible: fals == true,
                               child: Container(
                                 child: ElevatedButton(
                                   onPressed: () {
@@ -662,7 +663,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
               "uid": userinfo["uid"],
               "pressedTime": FieldValue.serverTimestamp(),
             });
-            canEdit(id);
+            // canEdit(id);
             popAndSnackBar();
           } else {
             print("No matching documents found in the Sub collection.");
@@ -697,7 +698,7 @@ class _ViewERecieptState extends State<ViewEReciept> {
               "uid": userinfo["uid"],
               "pressedTime": FieldValue.serverTimestamp(),
             });
-            canEdit(id);
+            // canEdit(id);
             popAndSnackBar();
           }
         });
@@ -724,10 +725,10 @@ class _ViewERecieptState extends State<ViewEReciept> {
     );
   }
 
-  Future<void> canEdit(String id) async {
-    await FirebaseFirestore.instance
-        .collection('grocery')
-        .doc(id)
-        .update({'canEdit': false, 'Status': 'Delivered'});
-  }
+  // Future<void> canEdit(String id) async {
+  //   await FirebaseFirestore.instance
+  //       .collection('grocery')
+  //       .doc(id)
+  //       .update({'canEdit': false, 'Status': 'Delivered'});
+  // }
 }
