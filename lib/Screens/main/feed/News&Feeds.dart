@@ -4,10 +4,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/feed/feedsLikes.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -105,6 +107,23 @@ class _HomeState extends State<Newsandfeeds> {
         .snapshots()
         .listen((snapshot) {
       notificationCounter.updateCount(snapshot.docs.length);
+    });
+    final visitorProvider =
+        Provider.of<VisitorProvider>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('description',
+            isEqualTo: 'please confirm identity of your friend')
+        .orderBy('pressedTime', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      var doc = snapshot.docs.first;
+      var data = doc.data();
+      String id = data['id'];
+      visitorProvider.notiDocId = doc.id;
+      print(id);
+      visitorProvider.fetchNotiInfo(id);
+      visitorProvider.showVisitorDialogs(true);
     });
     return Scaffold(
       backgroundColor: Colors.white,
@@ -208,12 +227,22 @@ class _HomeState extends State<Newsandfeeds> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: feedDataList.length,
-        itemBuilder: (context, index) {
-          return _buildFeedItem(feedDataList[index]);
-        },
-      ),
+      body: Stack(children: [
+        ListView.builder(
+          itemCount: feedDataList.length,
+          itemBuilder: (context, index) {
+            return _buildFeedItem(feedDataList[index]);
+          },
+        ),
+        Consumer<VisitorProvider>(builder: (context, counter, child) {
+          if (visitorProvider.showVisitorDialog == true) {
+            // visitorProvider.playAlarmSound();
+            return visitorAlertBox(visitorProvider: visitorProvider);
+          } else {
+            return Container();
+          }
+        }),
+      ]),
     );
   }
 

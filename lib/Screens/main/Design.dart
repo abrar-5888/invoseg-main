@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
@@ -13,6 +14,7 @@ import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
 import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
@@ -1111,6 +1113,23 @@ class _HomeDesign1State extends State<HomeDesign1> {
         .listen((snapshot) {
       notificationCounter.updateCount(snapshot.docs.length);
     });
+    final visitorProvider =
+        Provider.of<VisitorProvider>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('description',
+            isEqualTo: 'please confirm identity of your friend')
+        .orderBy('pressedTime', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      var doc = snapshot.docs.first;
+      var data = doc.data();
+      String id = data['id'];
+      visitorProvider.notiDocId = doc.id;
+      print(id);
+      visitorProvider.fetchNotiInfo(id);
+      visitorProvider.showVisitorDialogs(true);
+    });
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : isLoading
@@ -1218,514 +1237,516 @@ class _HomeDesign1State extends State<HomeDesign1> {
                     ),
                   ],
                 ),
-                body: Column(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        decoration: const BoxDecoration(
-                            // borderRadius: BorderRadius.circular(15),
-                            // image: DecorationImage(
-                            //     alignment: Alignment.bottomRight,
-                            //     image: AssetImage(
-                            //         ''),
-                            //     fit: BoxFit.contain),
-                            ),
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 4,
-                        child: Card(
-                          elevation: 1,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          child: ClipRRect(
-                            // borderRadius: BorderRadius.circular(15),
-                            child: AspectRatio(
-                              aspectRatio: 16 /
-                                  9, // You can adjust this aspect ratio as needed
-                              child: YoutubePlayer(
-                                  controller: y_controller,
-                                  showVideoProgressIndicator: true,
-                                  bottomActions: [
-                                    const SizedBox(width: 8.0),
-                                    CurrentPosition(),
-                                    const SizedBox(width: 175.0),
-                                    RemainingDuration(),
-                                    const SizedBox(width: 10.0),
-                                    const PlaybackSpeedButton(),
-                                  ]),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Padding(
-                      //   padding: const EdgeInsets.only(
-                      //       top: 3.0, bottom: 1),
-                      //   child: Container(
-                      //     decoration: BoxDecoration(
-                      //       borderRadius: BorderRadius.circular(
-                      //           10.0), // Adjust the radius as needed
-
-                      //       color: const Color.fromARGB(
-                      //           179, 229, 229, 229),
-                      //     ),
-                      //     // width: 220,
-                      //     child: Padding(
-                      //       padding: const EdgeInsets.all(2.0),
-                      //       child: Container(
-                      //         width: 300,
-                      //         decoration: BoxDecoration(
-                      //           borderRadius: BorderRadius.circular(
-                      //               10.0), // Adjust the radius as needed
-
-                      //           color: Color.fromRGBO(
-                      //               222, 226, 231, 1),
-                      //         ),
-                      //         child: Padding(
-                      //           padding: const EdgeInsets.all(2.0),
-                      //           child: Align(
-                      //             child: Text(
-                      //                 "What are you Looking for ?"),
-                      //             alignment: Alignment.center,
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      const Row(
-                        // mainAxisAlignment: MainAxisAlignment.start,
-                        // crossAxisAlignment:
-                        //     CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 8, right: 4, top: 5, bottom: 5),
-                            child: Text(
-                              "Emergency Calls",
-                              style: TextStyle(fontWeight: FontWeight.w900),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Expanded(
-                      //   child:
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 8),
-                        child:
-
-                            //  Card(
-                            //   color: Colors.grey[200],
-                            //   shape: RoundedRectangleBorder(
-                            //     borderRadius:
-                            //         BorderRadius.circular(20),
-                            //   ),
-                            //   elevation: 20,
-                            //   child: Padding(
-                            //     padding: const EdgeInsets.all(4.0),
-                            //     child:
-
-                            SizedBox(
-                          height: MediaQuery.of(context).size.height / 6.8,
-                          width: double.infinity,
-                          child: Column(
-                            // mainAxisAlignment:
-                            //     MainAxisAlignment.spaceAround,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 5, bottom: 10, left: 1, right: 1),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          // top: 5,
-                                          // bottom: 10,
-                                          left: 1,
-                                          right: 1),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                2.2,
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                18,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
-                                                15, 39, 127, 1),
-                                            // gradient:
-                                            //     LinearGradient(
-                                            //   colors: [
-                                            //     Color.fromRGBO(
-                                            //         242, 13, 54, 1),
-                                            //     Color.fromRGBO(104,
-                                            //         109, 224, 1),
-                                            //   ],
-                                            // ),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                    0.3), // Shadow color
-                                                offset: const Offset(1,
-                                                    4), // Offset of the shadow (x, y)
-                                                blurRadius: 5, // Blur radius
-                                              ),
-                                            ],
-                                          ),
-                                          child: TextButton.icon(
-                                            onPressed: () async {
-                                              medAlertMe('button-two');
-                                            },
-                                            label: Text('  ' + buttonLabels[1],
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            icon: const Icon(
-                                              Icons.emergency,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(1.0),
-                                      child: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                2.2,
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                18,
-                                        child: Container(
-                                          // height: 50,
-                                          decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
-                                                15, 39, 127, 1),
-
-                                            // gradient:
-                                            //     LinearGradient(
-                                            //   colors: [
-                                            //     Color.fromRGBO(
-                                            //         242, 13, 54, 1),
-                                            //     Color.fromRGBO(104,
-                                            //         109, 224, 1),
-                                            //   ],
-                                            // ),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                    0.3), // Shadow color
-                                                offset: const Offset(1,
-                                                    4), // Offset of the shadow (x, y)
-                                                blurRadius: 5, // Blur radius
-                                              ),
-                                            ],
-                                          ),
-                                          child: TextButton.icon(
-                                            onPressed: () async {
-                                              groAlertMe("button-three");
-                                            },
-                                            label: Text(
-                                              '  ' + buttonLabels[2],
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            icon: const Icon(
-                                              Icons.local_grocery_store_sharp,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                body: Stack(
+                  children: [
+                    Column(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          // if (visitorProvider.showVisitorDialog == true)
+                          //   Positioned(
+                          //     top: 50,
+                          //     bottom: 50,
+                          //     left: 50,
+                          //     right: 50,
+                          //     child: Container(
+                          //       height: 300,
+                          //       width: 300,
+                          //       color: Colors.red,
+                          //     ),
+                          //   ),
+                          Container(
+                            decoration: const BoxDecoration(
+                                // borderRadius: BorderRadius.circular(15),
+                                // image: DecorationImage(
+                                //     alignment: Alignment.bottomRight,
+                                //     image: AssetImage(
+                                //         ''),
+                                //     fit: BoxFit.contain),
+                                ),
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 4,
+                            child: Card(
+                              elevation: 1,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                              child: ClipRRect(
+                                // borderRadius: BorderRadius.circular(15),
+                                child: AspectRatio(
+                                  aspectRatio: 16 /
+                                      9, // You can adjust this aspect ratio as needed
+                                  child: YoutubePlayer(
+                                      controller: y_controller,
+                                      showVideoProgressIndicator: true,
+                                      bottomActions: [
+                                        const SizedBox(width: 8.0),
+                                        CurrentPosition(),
+                                        const SizedBox(width: 175.0),
+                                        RemainingDuration(),
+                                        const SizedBox(width: 10.0),
+                                        const PlaybackSpeedButton(),
+                                      ]),
                                 ),
                               ),
+                            ),
+                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(
+                          //       top: 3.0, bottom: 1),
+                          //   child: Container(
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(
+                          //           10.0), // Adjust the radius as needed
+
+                          //       color: const Color.fromARGB(
+                          //           179, 229, 229, 229),
+                          //     ),
+                          //     // width: 220,
+                          //     child: Padding(
+                          //       padding: const EdgeInsets.all(2.0),
+                          //       child: Container(
+                          //         width: 300,
+                          //         decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(
+                          //               10.0), // Adjust the radius as needed
+
+                          //           color: Color.fromRGBO(
+                          //               222, 226, 231, 1),
+                          //         ),
+                          //         child: Padding(
+                          //           padding: const EdgeInsets.all(2.0),
+                          //           child: Align(
+                          //             child: Text(
+                          //                 "What are you Looking for ?"),
+                          //             alignment: Alignment.center,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          const Row(
+                            // mainAxisAlignment: MainAxisAlignment.start,
+                            // crossAxisAlignment:
+                            //     CrossAxisAlignment.start,
+                            children: [
                               Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width / 1,
-                                  height:
-                                      MediaQuery.of(context).size.height / 18,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromRGBO(15, 39, 127, 1),
-                                      // gradient:
-                                      //     LinearGradient(
-                                      //   colors: [
-                                      //     Color.fromRGBO(
-                                      //         242, 13, 54, 1),
-                                      //     Color.fromRGBO(104,
-                                      //         109, 224, 1),
-                                      //   ],
-                                      // ),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      // boxShadow: [
-                                      //   BoxShadow(
-                                      //     color: Colors.black
-                                      //         .withOpacity(
-                                      //             0.3), // Shadow color
-                                      //     offset: Offset(1,
-                                      //         4), // Offset of the shadow (x, y)
-                                      //     blurRadius:
-                                      //         5, // Blur radius
-                                      //   ),
-                                      // ],
-                                    ),
-                                    child: TextButton.icon(
-                                      onPressed: () async {
-                                        secAlertMe("button-one");
-                                      },
-                                      icon: const Icon(
-                                        Icons.security,
-                                        // Icons.home_repair_service,
-                                        color: Colors.white,
-                                      ),
-                                      label: Text('  ' + buttonLabels[0],
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                  ),
+                                padding: EdgeInsets.only(
+                                    left: 8, right: 4, top: 5, bottom: 5),
+                                child: Text(
+                                  "Emergency Calls",
+                                  style: TextStyle(fontWeight: FontWeight.w900),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        //   ),
-                        // ),
-                      ),
-                      // ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 0, vertical: 3),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            InkWell(
-                              onTap: () async {
-                                //  await generatePDF();
-                                updateMainIcons();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            // PDFViewerPage(pdfPath: filePath)
-                                            const Visitors()));
-                              },
-                              child: SizedBox(
-                                // color: Colors.green,
-                                // height: 80,
-                                width: MediaQuery.of(context).size.width / 4,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                          color: const Color.fromRGBO(
-                                              236, 238, 240, 1),
-                                          borderRadius:
-                                              BorderRadius.circular(30)),
-                                      child: const Icon(Icons.car_rental,
-                                          //  Icons.table_chart_outlined,
-                                          color:
-                                              Color.fromRGBO(15, 39, 127, 1)),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.all(5.0),
-                                      child: Text(
-                                        'Visitors',
-                                        // "Bills",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            // ),
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                updateMainIcons();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const Discounts()));
-                              },
-                              child: SizedBox(
-                                // color: Colors.green,
-                                // height: 80,
-                                width: MediaQuery.of(context).size.width / 4,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                          color: const Color.fromRGBO(
-                                              236, 238, 240, 1),
-                                          borderRadius:
-                                              BorderRadius.circular(30)),
-                                      child: const Icon(Icons.wb_sunny_outlined,
-                                          color:
-                                              Color.fromRGBO(15, 39, 127, 1)),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.all(5.0),
-                                      child: Text(
-                                        "Discount",
-                                        style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                updateMainIcons();
-                                Navigator.push(
-                                    context,
-                                    PageTransition(
-                                        duration:
-                                            const Duration(milliseconds: 700),
-                                        type: PageTransitionType
-                                            .rightToLeftWithFade,
-                                        child: const Complainform()));
-                              },
-                              child: SizedBox(
-                                // color: Colors.green,
-                                // height: 80,
-                                width: MediaQuery.of(context).size.width / 4,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          color: const Color.fromRGBO(
-                                              236, 238, 240, 1),
-                                          borderRadius:
-                                              BorderRadius.circular(30)),
-                                      height: 50,
-                                      width: 50,
-                                      child: const Icon(
-                                          Icons.line_style_outlined,
-                                          //   Icons.line_style_sharp,
-                                          color:
-                                              Color.fromRGBO(15, 39, 127, 1)),
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.all(5.0),
-                                      child: FittedBox(
-                                        child: Text(
-                                          "Complaint",
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
+                          // Expanded(
+                          //   child:
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 8),
+                            child:
 
-                            InkWell(
-                                child: SizedBox(
-                                  // color: Colors.green,
-                                  // height: 80,
-                                  width: MediaQuery.of(context).size.width / 4,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
-                                                236, 238, 240, 1),
-                                            borderRadius:
-                                                BorderRadius.circular(30)),
-                                        child: const Icon(Icons.home,
-                                            color:
-                                                Color.fromRGBO(15, 39, 127, 1)),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.all(5.0),
-                                        child: FittedBox(
-                                          child: Text(
-                                            "Not Home",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600),
+                                //  Card(
+                                //   color: Colors.grey[200],
+                                //   shape: RoundedRectangleBorder(
+                                //     borderRadius:
+                                //         BorderRadius.circular(20),
+                                //   ),
+                                //   elevation: 20,
+                                //   child: Padding(
+                                //     padding: const EdgeInsets.all(4.0),
+                                //     child:
+
+                                SizedBox(
+                              height: MediaQuery.of(context).size.height / 6.8,
+                              width: double.infinity,
+                              child: Column(
+                                // mainAxisAlignment:
+                                //     MainAxisAlignment.spaceAround,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 5, bottom: 10, left: 1, right: 1),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              // top: 5,
+                                              // bottom: 10,
+                                              left: 1,
+                                              right: 1),
+                                          child: SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                2.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                18,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    15, 39, 127, 1),
+                                                // gradient:
+                                                //     LinearGradient(
+                                                //   colors: [
+                                                //     Color.fromRGBO(
+                                                //         242, 13, 54, 1),
+                                                //     Color.fromRGBO(104,
+                                                //         109, 224, 1),
+                                                //   ],
+                                                // ),
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(
+                                                            0.3), // Shadow color
+                                                    offset: const Offset(1,
+                                                        4), // Offset of the shadow (x, y)
+                                                    blurRadius:
+                                                        5, // Blur radius
+                                                  ),
+                                                ],
+                                              ),
+                                              child: TextButton.icon(
+                                                onPressed: () async {
+                                                  medAlertMe('button-two');
+                                                },
+                                                label: Text(
+                                                    '  ' + buttonLabels[1],
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                icon: const Icon(
+                                                  Icons.emergency,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(1.0),
+                                          child: SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                2.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                18,
+                                            child: Container(
+                                              // height: 50,
+                                              decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    15, 39, 127, 1),
+
+                                                // gradient:
+                                                //     LinearGradient(
+                                                //   colors: [
+                                                //     Color.fromRGBO(
+                                                //         242, 13, 54, 1),
+                                                //     Color.fromRGBO(104,
+                                                //         109, 224, 1),
+                                                //   ],
+                                                // ),
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(
+                                                            0.3), // Shadow color
+                                                    offset: const Offset(1,
+                                                        4), // Offset of the shadow (x, y)
+                                                    blurRadius:
+                                                        5, // Blur radius
+                                                  ),
+                                                ],
+                                              ),
+                                              child: TextButton.icon(
+                                                onPressed: () async {
+                                                  groAlertMe("button-three");
+                                                },
+                                                label: Text(
+                                                  '  ' + buttonLabels[2],
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                icon: const Icon(
+                                                  Icons
+                                                      .local_grocery_store_sharp,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: SizedBox(
+                                      width:
+                                          MediaQuery.of(context).size.width / 1,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              18,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromRGBO(
+                                              15, 39, 127, 1),
+                                          // gradient:
+                                          //     LinearGradient(
+                                          //   colors: [
+                                          //     Color.fromRGBO(
+                                          //         242, 13, 54, 1),
+                                          //     Color.fromRGBO(104,
+                                          //         109, 224, 1),
+                                          //   ],
+                                          // ),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          // boxShadow: [
+                                          //   BoxShadow(
+                                          //     color: Colors.black
+                                          //         .withOpacity(
+                                          //             0.3), // Shadow color
+                                          //     offset: Offset(1,
+                                          //         4), // Offset of the shadow (x, y)
+                                          //     blurRadius:
+                                          //         5, // Blur radius
+                                          //   ),
+                                          // ],
+                                        ),
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            secAlertMe("button-one");
+                                          },
+                                          icon: const Icon(
+                                            Icons.security,
+                                            // Icons.home_repair_service,
+                                            color: Colors.white,
+                                          ),
+                                          label: Text('  ' + buttonLabels[0],
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
                                       ),
-                                    ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            //   ),
+                            // ),
+                          ),
+                          // ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 3),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                InkWell(
+                                  onTap: () async {
+                                    //  await generatePDF();
+                                    updateMainIcons();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                // PDFViewerPage(pdfPath: filePath)
+                                                const Visitors()));
+                                  },
+                                  child: SizedBox(
+                                    // color: Colors.green,
+                                    // height: 80,
+                                    width:
+                                        MediaQuery.of(context).size.width / 4,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          height: 50,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                              color: const Color.fromRGBO(
+                                                  236, 238, 240, 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(30)),
+                                          child: const Icon(Icons.car_rental,
+                                              //  Icons.table_chart_outlined,
+                                              color: Color.fromRGBO(
+                                                  15, 39, 127, 1)),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.all(5.0),
+                                          child: Text(
+                                            'Visitors',
+                                            // "Bills",
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                // ),
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                onTap: () async {
-                                  updateMainIcons();
+                                InkWell(
+                                  onTap: () {
+                                    updateMainIcons();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Discounts()));
+                                  },
+                                  child: SizedBox(
+                                    // color: Colors.green,
+                                    // height: 80,
+                                    width:
+                                        MediaQuery.of(context).size.width / 4,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          height: 50,
+                                          width: 50,
+                                          decoration: BoxDecoration(
+                                              color: const Color.fromRGBO(
+                                                  236, 238, 240, 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(30)),
+                                          child: const Icon(
+                                              Icons.wb_sunny_outlined,
+                                              color: Color.fromRGBO(
+                                                  15, 39, 127, 1)),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.all(5.0),
+                                          child: Text(
+                                            "Discount",
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    updateMainIcons();
+                                    Navigator.push(
+                                        context,
+                                        PageTransition(
+                                            duration: const Duration(
+                                                milliseconds: 700),
+                                            type: PageTransitionType
+                                                .rightToLeftWithFade,
+                                            child: const Complainform()));
+                                  },
+                                  child: SizedBox(
+                                    // color: Colors.green,
+                                    // height: 80,
+                                    width:
+                                        MediaQuery.of(context).size.width / 4,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              color: const Color.fromRGBO(
+                                                  236, 238, 240, 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(30)),
+                                          height: 50,
+                                          width: 50,
+                                          child: const Icon(
+                                              Icons.line_style_outlined,
+                                              //   Icons.line_style_sharp,
+                                              color: Color.fromRGBO(
+                                                  15, 39, 127, 1)),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.all(5.0),
+                                          child: FittedBox(
+                                            child: Text(
+                                              "Complaint",
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
 
-                                  var connectivityResult = await (Connectivity()
-                                      .checkConnectivity());
-                                  print(
-                                      "Connectivity == ${connectivityResult.toString()}");
-                                  if (connectivityResult ==
-                                      ConnectivityResult.none) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: const Text(
-                                        "This Feature is not available in Offline mode",
-                                        style: TextStyle(color: Colors.black),
+                                InkWell(
+                                    child: SizedBox(
+                                      // color: Colors.green,
+                                      // height: 80,
+                                      width:
+                                          MediaQuery.of(context).size.width / 4,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    236, 238, 240, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(30)),
+                                            child: const Icon(Icons.home,
+                                                color: Color.fromRGBO(
+                                                    15, 39, 127, 1)),
+                                          ),
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: FittedBox(
+                                              child: Text(
+                                                "Not Home",
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      action: SnackBarAction(
-                                        label: 'OK',
-                                        textColor: Colors.black,
-                                        onPressed: () {},
-                                      ),
-                                      backgroundColor: Colors.grey[400],
-                                    ));
-                                  } else {
-                                    try {
-                                      // EasyLoading.show(status: ' Processing');
-                                      // Attempt to make a GET request to a reliable server
-                                      final response = await http.get(
-                                          Uri.parse('https://www.google.com'));
+                                    ),
+                                    onTap: () async {
+                                      updateMainIcons();
 
-                                      if (response.statusCode == 200) {
-                                        EasyLoading.dismiss();
-                                        if (status == false) {
-                                          notHomeStatusFalse();
-
-                                          // _selectDate(context);
-                                        } else if (status.toString().isEmpty) {
-                                          notHomeStatusFalse();
-
-                                          // _selectDate(context);
-                                        } else if (status == true) {
-                                          cancelRequest(formattedTime);
-                                        }
-                                      } else {
+                                      var connectivityResult =
+                                          await (Connectivity()
+                                              .checkConnectivity());
+                                      print(
+                                          "Connectivity == ${connectivityResult.toString()}");
+                                      if (connectivityResult ==
+                                          ConnectivityResult.none) {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
                                           content: const Text(
-                                            "Your Internet connection is not stable. Please try again later",
+                                            "This Feature is not available in Offline mode",
                                             style:
                                                 TextStyle(color: Colors.black),
                                           ),
@@ -1736,213 +1757,271 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                           ),
                                           backgroundColor: Colors.grey[400],
                                         ));
-                                        EasyLoading.dismiss();
-                                      }
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: const Text(
-                                          "Your Internet connection is not stable. Please try again later",
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        action: SnackBarAction(
-                                          label: 'OK',
-                                          textColor: Colors.black,
-                                          onPressed: () {},
-                                        ),
-                                        backgroundColor: Colors.grey[400],
-                                      ));
-                                      EasyLoading.dismiss();
-                                    }
-                                  }
-                                }
-//hello
+                                      } else {
+                                        try {
+                                          // EasyLoading.show(status: ' Processing');
+                                          // Attempt to make a GET request to a reliable server
+                                          final response = await http.get(
+                                              Uri.parse(
+                                                  'https://www.google.com'));
 
-                                ), //
-                          ],
-                        ),
-                      ),
-                      const Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 8, bottom: 3, right: 1, top: 6),
-                            child: Text(
-                              "Trending Properties",
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w800),
+                                          if (response.statusCode == 200) {
+                                            EasyLoading.dismiss();
+                                            if (status == false) {
+                                              notHomeStatusFalse();
+
+                                              // _selectDate(context);
+                                            } else if (status
+                                                .toString()
+                                                .isEmpty) {
+                                              notHomeStatusFalse();
+
+                                              // _selectDate(context);
+                                            } else if (status == true) {
+                                              cancelRequest(formattedTime);
+                                            }
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              content: const Text(
+                                                "Your Internet connection is not stable. Please try again later",
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                              action: SnackBarAction(
+                                                label: 'OK',
+                                                textColor: Colors.black,
+                                                onPressed: () {},
+                                              ),
+                                              backgroundColor: Colors.grey[400],
+                                            ));
+                                            EasyLoading.dismiss();
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: const Text(
+                                              "Your Internet connection is not stable. Please try again later",
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            action: SnackBarAction(
+                                              label: 'OK',
+                                              textColor: Colors.black,
+                                              onPressed: () {},
+                                            ),
+                                            backgroundColor: Colors.grey[400],
+                                          ));
+                                          EasyLoading.dismiss();
+                                        }
+                                      }
+                                    }
+                                    //hello
+
+                                    ), //
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: InkWell(
-                          onTap: () {},
-                          child: SizedBox(
-                            // color: Colors.amber,
-                            height: MediaQuery.of(context).size.width / 3,
-                            child: ListView.builder(
-                              itemCount: plotsDetails.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 6,
-                                    top: 6,
-                                    bottom: 2,
-                                  ),
-                                  child: Container(
-                                    height: MediaQuery.of(context).size.height /
-                                        3.2,
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.3,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                          15.0), // Adjust the radius as needed
-                                      color: const Color.fromRGBO(
-                                          236, 238, 240, 1),
-                                    ),
-                                    child: Padding(
+                          const Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 8, bottom: 3, right: 1, top: 6),
+                                child: Text(
+                                  "Trending Properties",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: InkWell(
+                              onTap: () {},
+                              child: SizedBox(
+                                // color: Colors.amber,
+                                height: MediaQuery.of(context).size.width / 3,
+                                child: ListView.builder(
+                                  itemCount: plotsDetails.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
                                       padding: const EdgeInsets.only(
-                                          left: 8, top: 3, bottom: 3),
-                                      child: Row(
-                                        // mainAxisAlignment:
-                                        //     MainAxisAlignment
-                                        //         .spaceBetween,
-                                        children: [
-                                          // Padding(
-                                          // padding:
-                                          // const EdgeInsets.all(8.0),
-                                          // child:
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                            child: Image.network(
-                                              plotsDetails[index]['image'],
-                                              // height: 300,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2.5,
-                                            ),
-                                          ),
-                                          // ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 2,
-                                              right: 2,
-                                              top: 3,
-                                              // bottom: 2,
-                                            ),
-                                            child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  SizedBox(
-                                                    height:
-                                                        MediaQuery.of(context)
+                                        left: 10,
+                                        right: 6,
+                                        top: 6,
+                                        bottom: 2,
+                                      ),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                3.2,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                1.3,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                              15.0), // Adjust the radius as needed
+                                          color: const Color.fromRGBO(
+                                              236, 238, 240, 1),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 8, top: 3, bottom: 3),
+                                          child: Row(
+                                            // mainAxisAlignment:
+                                            //     MainAxisAlignment
+                                            //         .spaceBetween,
+                                            children: [
+                                              // Padding(
+                                              // padding:
+                                              // const EdgeInsets.all(8.0),
+                                              // child:
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Image.network(
+                                                  plotsDetails[index]['image'],
+                                                  // height: 300,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2.5,
+                                                ),
+                                              ),
+                                              // ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 2,
+                                                  right: 2,
+                                                  top: 3,
+                                                  // bottom: 2,
+                                                ),
+                                                child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      SizedBox(
+                                                        height: MediaQuery.of(
+                                                                    context)
                                                                 .size
                                                                 .height /
                                                             9,
-                                                    width:
-                                                        MediaQuery.of(context)
+                                                        width: MediaQuery.of(
+                                                                    context)
                                                                 .size
                                                                 .width /
                                                             3,
-                                                    child: ListTile(
-                                                      onTap: () {
-                                                        updateTrendingP();
-                                                        Navigator.push(
-                                                            context,
-                                                            PageTransition(
-                                                                duration:
-                                                                    const Duration(
+                                                        child: ListTile(
+                                                          onTap: () {
+                                                            updateTrendingP();
+                                                            Navigator.push(
+                                                                context,
+                                                                PageTransition(
+                                                                    duration: const Duration(
                                                                         milliseconds:
                                                                             700),
-                                                                type: PageTransitionType
-                                                                    .rightToLeftWithFade,
-                                                                child: PlotsDetail(
-                                                                    ids: plotsDetails[
-                                                                            index]
-                                                                        [
-                                                                        'id'])));
-                                                      },
-                                                      title: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          FittedBox(
-                                                            child: Text(
-                                                              "PKR " +
+                                                                    type: PageTransitionType
+                                                                        .rightToLeftWithFade,
+                                                                    child: PlotsDetail(
+                                                                        ids: plotsDetails[index]
+                                                                            [
+                                                                            'id'])));
+                                                          },
+                                                          title: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              FittedBox(
+                                                                child: Text(
+                                                                  "PKR " +
+                                                                      plotsDetails[
+                                                                              index]
+                                                                          [
+                                                                          'price'],
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              FittedBox(
+                                                                child: Text(
                                                                   plotsDetails[
                                                                           index]
-                                                                      ['price'],
-                                                              style: const TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 5,
-                                                          ),
-                                                          FittedBox(
-                                                            child: Text(
-                                                              plotsDetails[
-                                                                      index]
-                                                                  ['address'],
-                                                              style: const TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .black45),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 5,
-                                                          ),
-                                                          FittedBox(
-                                                            child: Text(
-                                                              "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']},\n${plotsDetails[index]['bath']}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                                      [
+                                                                      'address'],
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      color: Colors
+                                                                          .black45),
+                                                                ),
                                                               ),
-                                                            ),
+                                                              const SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              FittedBox(
+                                                                child: Text(
+                                                                  "${plotsDetails[index]['area']}, ${plotsDetails[index]['room']},\n${plotsDetails[index]['bath']}",
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
+                                                          //subtitle: ,
+                                                        ),
                                                       ),
-                                                      //subtitle: ,
-                                                    ),
-                                                  ),
-                                                ]),
+                                                    ]),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ]),
+                        ]),
+                    Consumer<VisitorProvider>(
+                        builder: (context, counter, child) {
+                      if (visitorProvider.showVisitorDialog == true) {
+                        // visitorProvider.playAlarmSound();
+                        return visitorAlertBox(
+                            visitorProvider: visitorProvider);
+                      } else {
+                        return Container();
+                      }
+                    }),
+                  ],
+                ),
               );
     // ));
   }

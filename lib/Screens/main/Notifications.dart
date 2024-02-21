@@ -36,20 +36,20 @@ class _NotificationsState extends State<Notifications> {
   String notiVehicle = "";
   Future<void> fetchNotiInfo(String ids) async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
+      var querySnapshot = await FirebaseFirestore.instance
           .collection('entryUser')
-          .where('id', isEqualTo: ids)
+          .doc(ids)
+          // .where('status', isEqualTo: 'pending')
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-        var data = documentSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          notiImage = data['photo'];
-          notiName = data['firstName'];
-          notiPurpose = data['purpose'];
-          notiVehicle = data['vehicleNo'];
-        });
+      if (querySnapshot.data() != null) {
+        // DocumentSnapshot documentSnapshot = querySnapshot.data
+        var data = querySnapshot.data() as Map<String, dynamic>;
+
+        notiImage = data['photo'];
+        notiName = data['firstName'];
+        notiPurpose = data['purpose'];
+        notiVehicle = data['vehicleNo'];
       } else {
         print('No documents found for the specified ID.');
       }
@@ -137,249 +137,9 @@ class _NotificationsState extends State<Notifications> {
                         await fetchNotiInfo(ids);
                         if (des.toString().contains("approved") ||
                             des.toString().contains("rejected")) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height / 3.1,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        height: 100,
-                                        width: 100,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 3,
-                                                color: Colors.grey,
-                                                spreadRadius: 1)
-                                          ],
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: CircleAvatar(
-                                          backgroundImage:
-                                              NetworkImage(notiImage),
-                                          radius: 52,
-                                          backgroundColor: Colors.white,
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 10,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Name : $notiName',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 5,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Purpose : $notiPurpose',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 5,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Vehicle No & Type : $notiVehicle',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          detailsShowDialog();
                         } else {
-                          fetchNotiInfo(ids);
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height / 3.1,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        height: 100,
-                                        width: 100,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                                blurRadius: 3,
-                                                color: Colors.grey,
-                                                spreadRadius: 1)
-                                          ],
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: CircleAvatar(
-                                          backgroundImage:
-                                              NetworkImage(notiImage),
-                                          radius: 52,
-                                          backgroundColor: Colors.white,
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 10,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Name : $notiName',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 5,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Purpose : $notiPurpose ',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.only(
-                                        top: 5,
-                                      )),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          'Vehicle No & type : $notiVehicle',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                content: const Text(
-                                  'Please confirm identity of your visitor',
-                                ),
-                                actions: <Widget>[
-                                  ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.black),
-                                    ),
-                                    onPressed: () async {
-                                      DateTime dateTime = DateTime.now();
-                                      String formattedDate =
-                                          DateFormat('dd/MM/yyyy')
-                                              .format(dateTime);
-                                      print(formattedDate);
-
-                                      String formattedTime =
-                                          DateFormat('h:mm:ss a')
-                                              .format(dateTime);
-                                      print(formattedTime);
-                                      String description =
-                                          "You Have approved your freinds / relative identity";
-
-                                      await FirebaseFirestore.instance
-                                          .collection('entryUser')
-                                          .doc(ids)
-                                          .update({
-                                        'status': 'Approved',
-                                        'date': formattedDate,
-                                        'time': formattedTime
-                                      });
-                                      await FirebaseFirestore.instance
-                                          .collection('notifications')
-                                          .doc(docid)
-                                          .update({'description': description});
-
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('confirm',
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                  ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.black),
-                                    ),
-                                    onPressed: () async {
-                                      DateTime dateTime = DateTime.now();
-                                      String formattedDate =
-                                          DateFormat('dd/MM/yyyy')
-                                              .format(dateTime);
-                                      print(formattedDate);
-
-                                      String formattedTime =
-                                          DateFormat('h:mm:ss a')
-                                              .format(dateTime);
-                                      print(formattedTime);
-                                      String description =
-                                          "You Have rejected a Person";
-
-                                      await FirebaseFirestore.instance
-                                          .collection('entryUser')
-                                          .doc(ids)
-                                          .update({
-                                        'status': 'Rejected',
-                                        'date': formattedDate,
-                                        'time': formattedTime
-                                      });
-                                      await FirebaseFirestore.instance
-                                          .collection('notifications')
-                                          .doc(docid)
-                                          .update({'description': description});
-
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('reject',
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          aceeptRjectDialog(ids, docid);
                         }
                       } else if (des.isNotEmpty &&
                           des.toString().contains("Prescription")) {
@@ -457,6 +217,233 @@ class _NotificationsState extends State<Notifications> {
           );
         },
       ),
+    );
+  }
+
+  void detailsShowDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: SizedBox(
+            height: MediaQuery.of(context).size.height / 3.1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3, color: Colors.grey, spreadRadius: 1)
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(notiImage),
+                    radius: 52,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 10,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Name : $notiName',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 5,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Purpose : $notiPurpose',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 5,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Vehicle No & Type : $notiVehicle',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void aceeptRjectDialog(ids, String docid) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: SizedBox(
+            height: MediaQuery.of(context).size.height / 3.1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3, color: Colors.grey, spreadRadius: 1)
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(notiImage),
+                    radius: 52,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 10,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Name : $notiName',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 5,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Purpose : $notiPurpose ',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(
+                  top: 5,
+                )),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Vehicle No & type : $notiVehicle',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+              ],
+            ),
+          ),
+          content: const Text(
+            'Please confirm identity of your visitor',
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black),
+                  ),
+                  onPressed: () async {
+                    DateTime dateTime = DateTime.now();
+                    String formattedDate =
+                        DateFormat('dd/MM/yyyy').format(dateTime);
+                    print(formattedDate);
+
+                    String formattedTime =
+                        DateFormat('h:mm:ss a').format(dateTime);
+                    print(formattedTime);
+                    String description =
+                        "You Have approved your freinds / relative identity";
+
+                    await FirebaseFirestore.instance
+                        .collection('entryUser')
+                        .doc(ids)
+                        .update({
+                      'status': 'Approved',
+                      'date': formattedDate,
+                      'time': formattedTime
+                    });
+                    await FirebaseFirestore.instance
+                        .collection('notifications')
+                        .doc(docid)
+                        .update({'description': description});
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text('confirm',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.black),
+                  ),
+                  onPressed: () async {
+                    DateTime dateTime = DateTime.now();
+                    String formattedDate =
+                        DateFormat('dd/MM/yyyy').format(dateTime);
+                    print(formattedDate);
+
+                    String formattedTime =
+                        DateFormat('h:mm:ss a').format(dateTime);
+                    print(formattedTime);
+                    String description = "You Have rejected a Person";
+
+                    await FirebaseFirestore.instance
+                        .collection('entryUser')
+                        .doc(ids)
+                        .update({
+                      'status': 'Rejected',
+                      'date': formattedDate,
+                      'time': formattedTime
+                    });
+                    await FirebaseFirestore.instance
+                        .collection('notifications')
+                        .doc(docid)
+                        .update({'description': description});
+
+                    Navigator.pop(context);
+                  },
+                  child: const Text('reject',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

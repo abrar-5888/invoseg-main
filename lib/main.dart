@@ -1,5 +1,6 @@
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
@@ -117,8 +118,15 @@ class _MyAppState extends State<MyApp> {
         ),
       );
     }
-    return ChangeNotifierProvider<NotificationCounter>(
-        create: (_) => NotificationCounter(),
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<NotificationCounter>(
+            create: (_) => NotificationCounter(),
+          ),
+          ChangeNotifierProvider<VisitorProvider>(
+            create: (_) => VisitorProvider(),
+          ),
+        ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           builder: EasyLoading.init(),

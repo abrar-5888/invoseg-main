@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
 import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -99,6 +101,23 @@ class _EmergencyState extends State<Emergency> {
         .snapshots()
         .listen((snapshot) {
       notificationCounter.updateCount(snapshot.docs.length);
+    });
+    final visitorProvider =
+        Provider.of<VisitorProvider>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('description',
+            isEqualTo: 'please confirm identity of your friend')
+        .orderBy('pressedTime', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      var doc = snapshot.docs.first;
+      var data = doc.data();
+      String id = data['id'];
+      visitorProvider.notiDocId = doc.id;
+      print(id);
+      visitorProvider.fetchNotiInfo(id);
+      visitorProvider.showVisitorDialogs(true);
     });
     return Scaffold(
       key: _key1,
@@ -202,291 +221,322 @@ class _EmergencyState extends State<Emergency> {
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: SharedPreferences.getInstance(),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // Decode user info from SharedPreferences
-            var userinfo =
-                json.decode(snapshot.data.getString('userinfo') as String);
-            if (user != null) {
-              uid = user!.uid;
-            }
-            return Container(
-              color: Colors.white,
-              height: MediaQuery.of(context).size.height / 1.2,
-              child: FutureBuilder<QuerySnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection("consultation")
-                    // .orderBy('time', descending: true)
-                    .where('uid', isEqualTo: userinfo['uid'])
-                    .limit(30)
-                    .get(),
-                builder: (context, consultationSnapshot) {
-                  if (consultationSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                      ),
-                    );
-                  } else if (consultationSnapshot.hasError) {
-                    return Text("Error: ${consultationSnapshot.error}");
-                  } else if (consultationSnapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text("No data available"));
-                  } else {
-                    final consultationDocs = consultationSnapshot.data!.docs;
-                    return ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: consultationDocs.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final consultationData = consultationDocs[index].data()
-                            as Map<String, dynamic>;
-                        final consultationId = consultationDocs[index].id;
+      body: Stack(
+        children: [
+          FutureBuilder(
+            future: SharedPreferences.getInstance(),
+            builder: (context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                // Decode user info from SharedPreferences
+                var userinfo =
+                    json.decode(snapshot.data.getString('userinfo') as String);
+                if (user != null) {
+                  uid = user!.uid;
+                }
+                return Container(
+                  color: Colors.white,
+                  height: MediaQuery.of(context).size.height / 1.2,
+                  child: FutureBuilder<QuerySnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection("consultation")
+                        // .orderBy('time', descending: true)
+                        .where('uid', isEqualTo: userinfo['uid'])
+                        .limit(30)
+                        .get(),
+                    builder: (context, consultationSnapshot) {
+                      if (consultationSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.black),
+                          ),
+                        );
+                      } else if (consultationSnapshot.hasError) {
+                        return Text("Error: ${consultationSnapshot.error}");
+                      } else if (consultationSnapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text("No data available"));
+                      } else {
+                        final consultationDocs =
+                            consultationSnapshot.data!.docs;
+                        return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: consultationDocs.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final consultationData = consultationDocs[index]
+                                .data() as Map<String, dynamic>;
+                            final consultationId = consultationDocs[index].id;
 
-                        var doctorData =
-                            consultationData['doctor'] as Map<String, dynamic>;
+                            var doctorData = consultationData['doctor']
+                                as Map<String, dynamic>;
 
-                        // Now the documents are sorted by "meetingStatus"
-                        // Documents with "link generated" status will appear at the top
-                        // You can access the "meetingStatus" field as needed
-                        String meetingStatus =
-                            consultationData['meetingStatus'];
-                        String meetingID = doctorData["meetingId"];
+                            // Now the documents are sorted by "meetingStatus"
+                            // Documents with "link generated" status will appear at the top
+                            // You can access the "meetingStatus" field as needed
+                            String meetingStatus =
+                                consultationData['meetingStatus'];
+                            String meetingID = doctorData["meetingId"];
 
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Material(
-                            color: Colors.white,
-                            shadowColor: const Color(0xffBDBDBD),
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Material(
+                                color: Colors.white,
+                                shadowColor: const Color(0xffBDBDBD),
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            // consultationData['DateTime'],
-                                            "Meetings",
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w700,
+                                          Column(
+                                            children: [
+                                              const Text(
+                                                // consultationData['DateTime'],
+                                                "Meetings",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Text(
+                                                // consultationData['DateTime'],
+                                                consultationData['date'],
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromRGBO(
+                                                    15, 39, 127, 1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(6.0),
+                                              child: Text(
+                                                // consultationData['DateTime'],
+                                                consultationData[
+                                                    'meetingStatus'],
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
                                             ),
                                           ),
+                                          // You can display status here
+                                          // using consultationData['Status']
+                                        ],
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0),
+                                        child: Text(
+                                          userinfo['name'],
+                                          style: const TextStyle(
+                                            color: Color(0xff212121),
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                           Text(
-                                            // consultationData['DateTime'],
-                                            consultationData['date'],
+                                            userinfo['address'] ?? "OKA",
                                             style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xff757575),
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color: const Color.fromRGBO(
-                                                15, 39, 127, 1),
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6.0),
-                                          child: Text(
-                                            // consultationData['DateTime'],
-                                            consultationData['meetingStatus'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w700,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (consultationData[
+                                                  'meetingStatus'] ==
+                                              'Link Generated')
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                              child: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2,
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    if (meetingID
+                                                        .contains("meet")) {
+                                                      launch(meetingID);
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                              SnackBar(
+                                                        content: const Text(
+                                                            "Meeting link expired.Please request a new one"),
+                                                        action: SnackBarAction(
+                                                            label: 'ok',
+                                                            onPressed: () {}),
+                                                      ));
+                                                    }
+                                                  },
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(100),
+                                                        side: const BorderSide(
+                                                          color: Colors.black,
+                                                          width: 0.0,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      const Color.fromRGBO(
+                                                          15, 39, 127, 1),
+                                                    ),
+                                                    padding:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 20),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Start Meeting',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      // You can display status here
-                                      // using consultationData['Status']
-                                    ],
-                                  ),
-                                ),
-                                ListTile(
-                                  title: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0),
-                                    child: Text(
-                                      userinfo['name'],
-                                      style: const TextStyle(
-                                        color: Color(0xff212121),
-                                        fontWeight: FontWeight.w700,
+                                          if (consultationData[
+                                                  'meetingStatus'] ==
+                                              'Meeting Held')
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                              child: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2,
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    // Navigate to view prescription screen
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                Prescription(
+                                                                    id: consultationDocs[
+                                                                            index]
+                                                                        .id)));
+                                                  },
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(100),
+                                                        side: const BorderSide(
+                                                          color: Colors.black,
+                                                          width: 0.0,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      const Color.fromRGBO(
+                                                          15, 39, 127, 1),
+                                                    ),
+                                                    padding:
+                                                        MaterialStateProperty
+                                                            .all(
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 20),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'View Prescription',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        userinfo['address'] ?? "OKA",
-                                        style: const TextStyle(
-                                          color: Color(0xff757575),
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (consultationData['meetingStatus'] ==
-                                          'Link Generated')
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                if (meetingID
-                                                    .contains("meet")) {
-                                                  launch(meetingID);
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                    content: const Text(
-                                                        "Meeting link expired.Please request a new one"),
-                                                    action: SnackBarAction(
-                                                        label: 'ok',
-                                                        onPressed: () {}),
-                                                  ));
-                                                }
-                                              },
-                                              style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all<
-                                                        RoundedRectangleBorder>(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100),
-                                                    side: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 0.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                  const Color.fromRGBO(
-                                                      15, 39, 127, 1),
-                                                ),
-                                                padding:
-                                                    MaterialStateProperty.all(
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                'Start Meeting',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      if (consultationData['meetingStatus'] ==
-                                          'Meeting Held')
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                // Navigate to view prescription screen
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            Prescription(
-                                                                id: consultationDocs[
-                                                                        index]
-                                                                    .id)));
-                                              },
-                                              style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all<
-                                                        RoundedRectangleBorder>(
-                                                  RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100),
-                                                    side: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 0.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                  const Color.fromRGBO(
-                                                      15, 39, 127, 1),
-                                                ),
-                                                padding:
-                                                    MaterialStateProperty.all(
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                'View Prescription',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         );
-                      },
-                    );
-                  }
-                },
-              ),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
-            );
-          }
-        },
+                      }
+                    },
+                  ),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                  ),
+                );
+              }
+            },
+          ),
+          Consumer<VisitorProvider>(builder: (context, counter, child) {
+            if (visitorProvider.showVisitorDialog == true) {
+              // visitorProvider.playAlarmSound();
+              return visitorAlertBox(visitorProvider: visitorProvider);
+            } else {
+              return Container();
+            }
+          }),
+        ],
       ),
     );
   }
