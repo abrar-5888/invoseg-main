@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/drawer.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';

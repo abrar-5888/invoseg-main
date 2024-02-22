@@ -1,5 +1,5 @@
-import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/LoginPage.dart';
+import 'package:com.invoseg.innovation/Screens/Tab.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

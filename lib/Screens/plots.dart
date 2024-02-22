@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
-import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
-import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
+import 'package:com.invoseg.innovation/Screens/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:flutter/material.dart';
@@ -496,12 +496,13 @@ class _PlotsState extends State<Plots> {
                                                     },
                                                     child: Container(
                                                       decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(5),
-                                                          color: const Color
-                                                              .fromRGBO(
-                                                              15, 39, 127, 1)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                        color: const Color
+                                                            .fromRGBO(
+                                                            15, 39, 127, 1),
+                                                      ),
                                                       child: const Padding(
                                                         padding: EdgeInsets
                                                             .symmetric(
@@ -545,7 +546,7 @@ class _PlotsState extends State<Plots> {
                                     ],
                                   ),
                                   const SizedBox(
-                                    height: 10,
+                                    height : 10,
                                   )
                                 ],
                               ),

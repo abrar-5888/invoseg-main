@@ -163,8 +163,8 @@ Future<void> addCount() async {
         .get();
     var doc = querySnapshot.docs;
     var length = doc.length;
-    print(
-        "length++++++++++++++++++++++++++++++++++++++++++++++++++++{{{{{{{{{{{{{{{{{{{{{{{{$length}}}}}}}}}}}}}}}}}}}}}}}}");
+    // print(
+    //     "length++++++++++++++++++++++++++++++++++++++++++++++++++++{{{{{{{{{{{{{{{{{{{{{{{{$length}}}}}}}}}}}}}}}}}}}}}}}}")
     if (length <= 0) {
       await FirebaseFirestore.instance.collection('counts').add({
         'uid': FirebaseAuth.instance.currentUser!.uid,

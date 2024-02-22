@@ -1,8 +1,8 @@
 import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
-import 'package:com.invoseg.innovation/Screens/main/E-Reciept.dart';
-import 'package:com.invoseg.innovation/Screens/main/Prescription.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
-import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
+import 'package:com.invoseg.innovation/Screens/E-Reciept.dart';
+import 'package:com.invoseg.innovation/Screens/Prescription.dart';
+import 'package:com.invoseg.innovation/Screens/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
 import 'package:com.invoseg.innovation/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';

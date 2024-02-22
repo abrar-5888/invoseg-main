@@ -1,4 +1,4 @@
-import 'package:assets_audio_player/assets_audio_player.dart';
+// import 'package:assets_audio_player/assets_audio_player.dart';
 // import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -12,24 +12,16 @@ class VisitorProvider with ChangeNotifier {
   String notiVehicle = "";
   String id = "";
   String notiDocId = "";
-  void playAlarmSound() async {
-    try {
-      AssetsAudioPlayer.newPlayer().open(
-        Audio("assets/sounds/applepay.mp3"),
+  // void playAlarmSound() async {
+  //   try {
+  //     AssetsAudioPlayer.newPlayer().open(
+  //       Audio("assets/sounds/applepay.mp3"),
 
-        // autoPlay: true,
-        // showNotification: true,
-      );
-      // AssetsAudioPlayer.newPlayer().open(
-      //   Audio("assets/sounds/applepay.mp3"),
-
-      //   // autoPlay: true,
-      //   // showNotification: true,
-      // );
-    } catch (e) {
-      print("Failed to load audio asset: $e");
-    }
-  }
+  //     );
+  //   } catch (e) {
+  //     print("Failed to load audio asset: $e");
+  //   }
+  // }
 
   void showVisitorDialogs(bool newshowVisitorDialog) {
     showVisitorDialog = newshowVisitorDialog;

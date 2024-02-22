@@ -1,20 +1,19 @@
 import 'dart:async';
 
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:chewie/chewie.dart';
+// import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
-import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
-import 'package:com.invoseg.innovation/Screens/main/feed/feedsLikes.dart';
+import 'package:com.invoseg.innovation/Screens/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/feed/feedsLikes.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class Newsandfeeds extends StatefulWidget {
@@ -512,11 +511,10 @@ class _HomeState extends State<Newsandfeeds> {
   Widget getUrlWidget(String url, int count, int index) {
     // return
     // child: count != 1 ? Text(count.toString()) : const Text("one"));
-    if (url.contains('.mp4')) {
-      return VideoPlayerWidget(videoUrl: url);
-    } else if (url.contains('.jpg') ||
-        url.contains('.jpeg') ||
-        url.contains('.png')) {
+    // if (url.contains('.mp4')) {
+    //   return VideoPlayerWidget(videoUrl: url);
+    // } else
+    if (url.contains('.jpg') || url.contains('.jpeg') || url.contains('.png')) {
       return Image(
         image: NetworkImage(url),
         fit: BoxFit.cover,
@@ -536,45 +534,45 @@ class _HomeState extends State<Newsandfeeds> {
   }
 }
 
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoUrl;
+// class VideoPlayerWidget extends StatefulWidget {
+//   final String videoUrl;
 
-  const VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
+//   const VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
 
-  @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
-}
+//   @override
+//   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+// }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _videoPlayerController;
-  late ChewieController _chewieController;
+// class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+//   late VideoPlayerController _videoPlayerController;
+// late ChewieController _chewieController;
 
-  @override
-  void initState() {
-    super.initState();
-    _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
-      autoPlay: true,
-      looping: true,
-      allowFullScreen: false,
-    );
-  }
+// @override
+// void initState() {
+//   super.initState();
+//   _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
+//   _chewieController = ChewieController(
+//     videoPlayerController: _videoPlayerController,
+//     autoPlay: true,
+//     looping: true,
+//     allowFullScreen: false,
+//   );
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return Chewie(
-      controller: _chewieController,
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Chewie(
+//       controller: _chewieController,
+//     );
+//   }
 
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    super.dispose();
-  }
-}
+//   @override
+//   void dispose() {
+//     _videoPlayerController.dispose();
+//     _chewieController.dispose();
+//     super.dispose();
+//   }
+// }
 
 class YoutubePlayerWidget extends StatelessWidget {
   final String videoUrl;

@@ -1,10 +1,10 @@
 // ignore_for_file: file_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Models/NewUsers.dart';
+import 'package:com.invoseg.innovation/Screens/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:com.invoseg.innovation/Models/NewUsers.dart';
-import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
 
 class requestLoginPage extends StatefulWidget {
   static const route = '/RequestLogin';

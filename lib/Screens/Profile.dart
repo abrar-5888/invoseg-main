@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:com.invoseg.innovation/Screens/main/AddFamilyMembers.dart';
-import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
+import 'package:com.invoseg.innovation/Screens/AddFamilyMembers.dart';
+import 'package:com.invoseg.innovation/Screens/LoginPage.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';

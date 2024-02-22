@@ -6,13 +6,13 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
+import 'package:com.invoseg.innovation/Screens/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
-import 'package:com.invoseg.innovation/Screens/main/Complaint.dart';
-import 'package:com.invoseg.innovation/Screens/main/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
-import 'package:com.invoseg.innovation/Screens/main/drawer.dart';
-import 'package:com.invoseg.innovation/Screens/main/plots_detail.dart';
-import 'package:com.invoseg.innovation/Screens/main/visitors.dart';
+import 'package:com.invoseg.innovation/Screens/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/drawer.dart';
+import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
+import 'package:com.invoseg.innovation/Screens/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:connectivity/connectivity.dart';
@@ -2262,8 +2262,8 @@ class _HomeDesign1State extends State<HomeDesign1> {
                                                           'Subcollection is empty.');
                                                     }
                                                   } else {
-                                                    print(
-                                                        'Document with ID $parentId does not exist.');
+                                                    // print(
+                                                    //     'Document with ID $parentId does not exist.')
                                                   }
                                                   String month =
                                                       DateFormat('MM').format(

@@ -3,11 +3,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:com.invoseg.innovation/Screens/main/History.dart';
-import 'package:com.invoseg.innovation/Screens/main/LoginPage.dart';
-import 'package:com.invoseg.innovation/Screens/main/Profile.dart';
-import 'package:com.invoseg.innovation/Screens/main/Tab.dart';
-import 'package:com.invoseg.innovation/Screens/main/residentId.dart';
+import 'package:com.invoseg.innovation/Screens/History.dart';
+import 'package:com.invoseg.innovation/Screens/LoginPage.dart';
+import 'package:com.invoseg.innovation/Screens/Profile.dart';
+import 'package:com.invoseg.innovation/Screens/Tab.dart';
+import 'package:com.invoseg.innovation/Screens/residentId.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
