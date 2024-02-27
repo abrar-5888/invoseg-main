@@ -1,5 +1,6 @@
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/announcementProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/Complaint.dart';
@@ -125,6 +126,9 @@ class _MyAppState extends State<MyApp> {
           ),
           ChangeNotifierProvider<VisitorProvider>(
             create: (_) => VisitorProvider(),
+          ),
+          ChangeNotifierProvider<AnnouncementProvider>(
+            create: (_) => AnnouncementProvider(),
           ),
         ],
         child: MaterialApp(

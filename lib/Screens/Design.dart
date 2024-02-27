@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
+import 'package:com.invoseg.innovation/Providers/announcementProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
@@ -14,6 +15,7 @@ import 'package:com.invoseg.innovation/Screens/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
 import 'package:com.invoseg.innovation/Screens/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
+import 'package:com.invoseg.innovation/widgets/announcemnetAlertBox.dart';
 import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -980,9 +982,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
       });
       _collectionRef.doc('Button').snapshots().listen((snap) {
         buttonLabels = [
-          (snap.data() as Map)["btn1"],
-          (snap.data() as Map)["btn2"],
-          (snap.data() as Map)["btn3"]
+          (snap.data() as Map)["btn5"],
+          (snap.data() as Map)["btn6"],
+          (snap.data() as Map)["btn7"]
         ];
         setState(() {
           _isLoading = false;
@@ -1126,10 +1128,36 @@ class _HomeDesign1State extends State<HomeDesign1> {
       var data = doc.data();
       String id = data['id'];
       visitorProvider.notiDocId = doc.id;
-      print(id);
+
       visitorProvider.fetchNotiInfo(id);
       visitorProvider.showVisitorDialogs(true);
     });
+    final announceMentProvider =
+        Provider.of<AnnouncementProvider>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('announcements')
+        .orderBy('pressedTime', descending: true)
+        .limit(1)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        var doc = snapshot.docs.first;
+        var data = doc.data();
+
+        var seenUids = data['seenUids'] ?? [];
+
+        if (seenUids.contains(FirebaseAuth.instance.currentUser!.uid)) {
+          announceMentProvider.announcementDialog(false);
+        } else {
+          var id = doc.id;
+          announceMentProvider.fetchAnnouncement(id);
+          announceMentProvider.announcementDialog(true);
+        }
+      } else {
+        announceMentProvider.announcementDialog(false);
+      }
+    });
+
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : isLoading
@@ -2020,6 +2048,17 @@ class _HomeDesign1State extends State<HomeDesign1> {
                         return Container();
                       }
                     }),
+                    Consumer<AnnouncementProvider>(
+                      builder: (context, announcementProvider, child) {
+                        if (announceMentProvider.showAnnouncementDialog ==
+                            true) {
+                          return AnnouncementAlertBox(
+                              announceMentProvider: announceMentProvider);
+                        } else {
+                          return Container(); // Return an empty container as a placeholder
+                        }
+                      },
+                    ),
                   ],
                 ),
               );
