@@ -982,9 +982,9 @@ class _HomeDesign1State extends State<HomeDesign1> {
       });
       _collectionRef.doc('Button').snapshots().listen((snap) {
         buttonLabels = [
-          (snap.data() as Map)["btn5"],
-          (snap.data() as Map)["btn6"],
-          (snap.data() as Map)["btn7"]
+          (snap.data() as Map)["btn1"],
+          (snap.data() as Map)["btn2"],
+          (snap.data() as Map)["btn3"]
         ];
         setState(() {
           _isLoading = false;
@@ -1135,25 +1135,30 @@ class _HomeDesign1State extends State<HomeDesign1> {
     final announceMentProvider =
         Provider.of<AnnouncementProvider>(context, listen: false);
     FirebaseFirestore.instance
-        .collection('announcements')
+        .collection('Annoucements')
         .orderBy('pressedTime', descending: true)
-        .limit(1)
+        // .limit(1)
         .snapshots()
         .listen((snapshot) {
+      print("SNAPSHOT +++++$snapshot");
       if (snapshot.docs.isNotEmpty) {
+        print("NOT EMPTY");
         var doc = snapshot.docs.first;
         var data = doc.data();
 
         var seenUids = data['seenUids'] ?? [];
 
         if (seenUids.contains(FirebaseAuth.instance.currentUser!.uid)) {
+          print("FOUND");
           announceMentProvider.announcementDialog(false);
         } else {
+          print("NOT FOUND");
           var id = doc.id;
           announceMentProvider.fetchAnnouncement(id);
           announceMentProvider.announcementDialog(true);
         }
       } else {
+        print("EMPTY");
         announceMentProvider.announcementDialog(false);
       }
     });
@@ -2049,7 +2054,7 @@ class _HomeDesign1State extends State<HomeDesign1> {
                       }
                     }),
                     Consumer<AnnouncementProvider>(
-                      builder: (context, announcementProvider, child) {
+                      builder: (context, counter, child) {
                         if (announceMentProvider.showAnnouncementDialog ==
                             true) {
                           return AnnouncementAlertBox(

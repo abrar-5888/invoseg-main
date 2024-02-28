@@ -10,51 +10,52 @@ class AnnouncementAlertBox extends StatelessWidget {
     return Positioned.fill(
         child: Center(
       child: AnimatedContainer(
+        // color: Colors.white,
         duration: const Duration(milliseconds: 300),
         child: announceMentProvider.showAnnouncementDialog == true
             ? AlertDialog(
-                title: SizedBox(
-                  height: MediaQuery.of(context).size.height / 3.1,
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 10),
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
+                backgroundColor: Colors.white,
+                title: Container(
+                    // color: Colors.white,
+                    // height: MediaQuery.of(context).size.height / 3.1,
+                    child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/Images/izmir.jpg')),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
                           announceMentProvider.title,
                           style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text(
+                      announceMentProvider.description,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        announceMentProvider.date,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.normal),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 5),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '${announceMentProvider.description} ',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                    ],
-                  ),
-                ),
+                    ),
+                  ],
+                )),
                 actions: <Widget>[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
                         style: ButtonStyle(
@@ -63,6 +64,8 @@ class AnnouncementAlertBox extends StatelessWidget {
                         ),
                         onPressed: () async {
                           // Navigator.pop(context);
+                          announceMentProvider
+                              .updateAnnouncemnet(announceMentProvider.docIds);
                         },
                         child: const Text('Ok',
                             style: TextStyle(color: Colors.white)),
