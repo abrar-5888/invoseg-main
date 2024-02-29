@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
-import 'package:com.invoseg.innovation/Screens/Design.dart';
 import 'package:com.invoseg.innovation/Screens/Emergency.dart';
 import 'package:com.invoseg.innovation/Screens/Grocery.dart';
 import 'package:com.invoseg.innovation/Screens/feed/News&Feeds.dart';
+import 'package:com.invoseg.innovation/Screens/home.dart';
 import 'package:com.invoseg.innovation/Screens/plots.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -106,7 +106,7 @@ class _TabsScreenState extends State<TabsScreen> {
       {
         // 'Pages': Plots(),
 
-        'Pages': const HomeDesign1(),
+        'Pages': const HomePage(),
         'title': 'Home',
       },
       {

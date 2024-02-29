@@ -130,6 +130,9 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider<AnnouncementProvider>(
             create: (_) => AnnouncementProvider(),
           ),
+          // ChangeNotifierProvider<AlertBTNS>(
+          //   create: (_) => AlertBTNS(),
+          // ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

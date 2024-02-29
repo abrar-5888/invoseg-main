@@ -43,12 +43,15 @@ class AnnouncementAlertBox extends StatelessWidget {
                       announceMentProvider.description,
                       style: const TextStyle(fontSize: 18),
                     ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
                         announceMentProvider.date,
                         style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.normal),
+                            fontSize: 14, fontWeight: FontWeight.normal),
                       ),
                     ),
                   ],
