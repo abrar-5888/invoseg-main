@@ -893,14 +893,11 @@ class _HomePageState extends State<HomePage> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () async {
-              // Alertbtns.showMedConfirmDialogs(false);
               // Alertbtns.showGroConfirmDialogs(false);
-              // Alertbtns.showSecConfirmDialogs(false);
               if (button_count_med <= 25) {
                 setState(() {
                   button_count_med = button_count_med + 1;
                 });
-
                 var connectivityResult =
                     await (Connectivity().checkConnectivity());
                 print("Connectivity == ${connectivityResult.toString()}");
@@ -919,24 +916,48 @@ class _HomePageState extends State<HomePage> {
                   ));
                 } else {
                   Navigator.pop(context);
-                  try {
-                    // EasyLoading.show(status: 'Processing');
-
-                    // Attempt to make a GET request to a reliable server
-                    final response =
-                        await http.get(Uri.parse('https://www.google.com'));
-                    print(response.statusCode);
-                    if (response.statusCode == 200) {
-                      // Alertbtns.showMedConfirmDialogs(false);
-                      // Alertbtns.showGroConfirmDialogs(false);
-                      // // Alertbtns.showSecConfirmDialogs(false);
-                      EasyLoading.dismiss();
-                      Navigator.pop(context);
-                      alertMe(collect);
-                    } else {
-                      // Alertbtns.showMedConfirmDialogs(false);
-                      // Alertbtns.showGroConfirmDialogs(false);
-                      // Alertbtns.showSecConfirmDialogs(false);
+                  var connectivityResult =
+                      await (Connectivity().checkConnectivity());
+                  print("Connectivity == ${connectivityResult.toString()}");
+                  if (connectivityResult == ConnectivityResult.none) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                        "This Feature is not available in Offline mode",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      action: SnackBarAction(
+                        label: 'OK',
+                        textColor: Colors.black,
+                        onPressed: () {},
+                      ),
+                      backgroundColor: Colors.grey[400],
+                    ));
+                  } else {
+                    try {
+                      // EasyLoading.show(status: ' Processing');
+                      // Attempt to make a GET request to a reliable server
+                      final response =
+                          await http.get(Uri.parse('https://www.google.com'));
+                      print(response.statusCode);
+                      if (response.statusCode == 200) {
+                        EasyLoading.dismiss();
+                        alertMe(collect);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: const Text(
+                            "Your Internet connection is not stable. Please try again later",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          action: SnackBarAction(
+                            label: 'OK',
+                            textColor: Colors.black,
+                            onPressed: () {},
+                          ),
+                          backgroundColor: Colors.grey[400],
+                        ));
+                        EasyLoading.dismiss();
+                      }
+                    } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: const Text(
                           "Your Internet connection is not stable. Please try again later",
@@ -951,23 +972,6 @@ class _HomePageState extends State<HomePage> {
                       ));
                       EasyLoading.dismiss();
                     }
-                  } catch (e) {
-                    // Alertbtns.showMedConfirmDialogs(false);
-                    // Alertbtns.showGroConfirmDialogs(false);
-                    // Alertbtns.showSecConfirmDialogs(false);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text(
-                        "Your Internet connection is not stable. Please try again later",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      action: SnackBarAction(
-                        label: 'OK',
-                        textColor: Colors.black,
-                        onPressed: () {},
-                      ),
-                      backgroundColor: Colors.grey[400],
-                    ));
-                    EasyLoading.dismiss();
                   }
                 }
               } else {
@@ -990,10 +994,8 @@ class _HomePageState extends State<HomePage> {
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.black)),
             onPressed: () {
-              Navigator.of(ctx).pop(false);
-              // Alertbtns.showMedConfirmDialogs(false);
               // Alertbtns.showGroConfirmDialogs(false);
-              // Alertbtns.showSecConfirmDialogs(false);
+              Navigator.of(ctx).pop(false);
             },
             child: const Text(
               'No',
