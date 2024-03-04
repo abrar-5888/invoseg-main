@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -1134,12 +1136,12 @@ class _HomePageState extends State<HomePage> {
         DateFormat.d().format(DateTime.now()); // Day of the month
     final formattedMonth =
         DateFormat.yMMMM().format(DateTime.now()); // Full month name
-    final formattedYear = DateFormat.y().format(DateTime.now()); // Year
+    // final formattedYear = DateFormat.y().format(DateTime.now()); // Year
     final formattedTime = DateFormat('hh:mm:ss a')
         .format(DateTime.now()); // Time in 24-hour format
 
-    final formattedDateTime =
-        '$formattedDate $formattedMonth at $formattedTime UTC+5';
+    // final formattedDateTime =
+    //     '$formattedDate $formattedMonth at $formattedTime UTC+5';
     final notificationCounter =
         Provider.of<NotificationCounter>(context, listen: false);
     FirebaseFirestore.instance
@@ -1227,68 +1229,71 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 24),
                   ),
                   actions: <Widget>[
-                    IconButton(
-                      icon: Stack(
-                        children: <Widget>[
-                          const Icon(
-                            Icons.notifications,
-                            color: Colors.black,
-                          ),
-                          Consumer<NotificationCounter>(
-                            builder: (context, counter, child) {
-                              if (notificationCounter.count >
-                                  0) // Show the badge only if there are unread notifications
-                              {
-                                return Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors
-                                          .red, // You can customize the badge color
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 15,
-                                      minHeight: 15,
-                                    ),
-                                    child: Text(
-                                      "${notificationCounter.count}",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize:
-                                            12, // You can customize the font size
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        icon: Stack(
+                          children: <Widget>[
+                            const Icon(
+                              Icons.notifications,
+                              color: Colors.black,
+                            ),
+                            Consumer<NotificationCounter>(
+                              builder: (context, counter, child) {
+                                if (notificationCounter.count >
+                                    0) // Show the badge only if there are unread notifications
+                                {
+                                  return Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors
+                                            .red, // You can customize the badge color
                                       ),
-                                      textAlign: TextAlign.center,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 15,
+                                        minHeight: 15,
+                                      ),
+                                      child: Text(
+                                        "${notificationCounter.count}",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize:
+                                              12, // You can customize the font size
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              } else {
-                                return Container();
-                              }
-                            },
-                          ),
-                        ],
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        onPressed: () async {
+                          // Handle tapping on the notifications icon
+                          setState(() {
+                            notification_count = 0;
+                          });
+                          await Navigator.push(
+                            context,
+                            PageTransition(
+                              duration: const Duration(milliseconds: 700),
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: const Notifications(),
+                            ),
+                          );
+                          setState(() {
+                            updateAllIsReadStatus(true);
+                            notification_count = 0;
+                          });
+                        },
                       ),
-                      onPressed: () async {
-                        // Handle tapping on the notifications icon
-                        setState(() {
-                          notification_count = 0;
-                        });
-                        await Navigator.push(
-                          context,
-                          PageTransition(
-                            duration: const Duration(milliseconds: 700),
-                            type: PageTransitionType.rightToLeftWithFade,
-                            child: const Notifications(),
-                          ),
-                        );
-                        setState(() {
-                          updateAllIsReadStatus(true);
-                          notification_count = 0;
-                        });
-                      },
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
@@ -1499,7 +1504,7 @@ class _HomePageState extends State<HomePage> {
                                                   // }
                                                 },
                                                 label: Text(
-                                                    '  ' + buttonLabels[1],
+                                                    '   ${buttonLabels[1]}',
                                                     style: const TextStyle(
                                                         color: Colors.white,
                                                         fontWeight:
@@ -1569,7 +1574,7 @@ class _HomePageState extends State<HomePage> {
                                                   // }
                                                 },
                                                 label: Text(
-                                                  '  ' + buttonLabels[2],
+                                                  '  ${buttonLabels[2]}',
                                                   style: const TextStyle(
                                                       color: Colors.white,
                                                       fontWeight:
@@ -1641,7 +1646,7 @@ class _HomePageState extends State<HomePage> {
                                             // Icons.home_repair_service,
                                             color: Colors.white,
                                           ),
-                                          label: Text('  ' + buttonLabels[0],
+                                          label: Text('  ${buttonLabels[0]}',
                                               style: const TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold)),
@@ -2045,11 +2050,7 @@ class _HomePageState extends State<HomePage> {
                                                             children: [
                                                               FittedBox(
                                                                 child: Text(
-                                                                  "PKR " +
-                                                                      plotsDetails[
-                                                                              index]
-                                                                          [
-                                                                          'price'],
+                                                                  "PKR ${plotsDetails[index]['price']}",
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           10,
@@ -2236,7 +2237,8 @@ class _HomePageState extends State<HomePage> {
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
-                              if (DateTime.now() != toField || status == true) {
+                              if (DateTime.now().toString() != toField ||
+                                  status == true) {
                                 print("feild == $toField");
                                 // Uncomment this code to show the confirmation dialog
                                 showDialog(

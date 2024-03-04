@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -145,67 +147,70 @@ class _EmergencyState extends State<Emergency> {
               fontSize: 24),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: Stack(
-              children: <Widget>[
-                const Icon(
-                  Icons.notifications,
-                  color: Colors.black,
-                ),
-                Consumer<NotificationCounter>(
-                  builder: (context, counter, child) {
-                    if (notificationCounter.count >
-                        0) // Show the badge only if there are unread notifications
-                    {
-                      return Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color:
-                                Colors.red, // You can customize the badge color
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 15,
-                            minHeight: 15,
-                          ),
-                          child: Text(
-                            "${notificationCounter.count}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12, // You can customize the font size
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              icon: Stack(
+                children: <Widget>[
+                  const Icon(
+                    Icons.notifications,
+                    color: Colors.black,
+                  ),
+                  Consumer<NotificationCounter>(
+                    builder: (context, counter, child) {
+                      if (notificationCounter.count >
+                          0) // Show the badge only if there are unread notifications
+                      {
+                        return Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors
+                                  .red, // You can customize the badge color
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 15,
+                              minHeight: 15,
+                            ),
+                            child: Text(
+                              "${notificationCounter.count}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12, // You can customize the font size
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                      );
-                    } else {
-                      return Container();
-                    }
-                  },
-                ),
-              ],
-            ),
-            onPressed: () async {
-              // resetNotificationCount();
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ),
+                ],
+              ),
+              onPressed: () async {
+                // resetNotificationCount();
 
-              setState(() {
-                notification_count = 0;
-              });
-              updateAllIsReadStatus(true);
-              // Handle tapping on the notifications icon
-              await Navigator.push(
-                context,
-                PageTransition(
-                  duration: const Duration(milliseconds: 700),
-                  type: PageTransitionType.rightToLeftWithFade,
-                  child: const Notifications(),
-                ),
-              );
-              // No need to manually reset the count here
-            },
+                setState(() {
+                  notification_count = 0;
+                });
+                updateAllIsReadStatus(true);
+                // Handle tapping on the notifications icon
+                await Navigator.push(
+                  context,
+                  PageTransition(
+                    duration: const Duration(milliseconds: 700),
+                    type: PageTransitionType.rightToLeftWithFade,
+                    child: const Notifications(),
+                  ),
+                );
+                // No need to manually reset the count here
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),

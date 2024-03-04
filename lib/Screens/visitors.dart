@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:com.invoseg.innovation/global.dart'; // Import your NotificationCounterProvider
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -16,48 +17,10 @@ class _VisitorsState extends State<Visitors> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      notification_count = 0;
-    });
-    resetNotificationCount();
-    updateAllIsReadStatus(true);
-  }
-
-  String notiImage = "";
-  String notiName = "";
-  String notiPurpose = "";
-  String notiVehicle = "";
-  Future<void> fetchNotiInfo(String ids) async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('entryUser')
-          .where('id', isEqualTo: ids)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-        var data = documentSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          notiImage = data['photo'];
-          notiName = data['firstName'];
-          notiPurpose = data['purpose'];
-          notiVehicle = data['vehicleNo'];
-        });
-      } else {
-        print('No documents found for the specified ID.');
-      }
-    } catch (e) {
-      print('Error fetching notification info: $e');
-    }
-  }
+  Future<void> fetchNotiInfo(String ids) async {}
 
   @override
   Widget build(BuildContext context) {
-    final id = _auth.currentUser!.uid;
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -129,12 +92,35 @@ class _VisitorsState extends State<Visitors> {
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(10),
-                      onTap: () {
-                        fetchNotiInfo(ids);
-                        if (des.toString().contains("identity")) {
-                          dialog();
-                        } else if (des.toString().contains("Person")) {
-                          reject();
+                      onTap: () async {
+                        try {
+                          QuerySnapshot querySnapshot = await _firestore
+                              .collection('entryUser')
+                              .where('id', isEqualTo: ids)
+                              .get();
+
+                          if (querySnapshot.docs.isNotEmpty) {
+                            DocumentSnapshot documentSnapshot =
+                                querySnapshot.docs.first;
+                            var data =
+                                documentSnapshot.data() as Map<String, dynamic>;
+                            if (data.isNotEmpty) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    fetchNotiInfo(ids);
+                                    return dialog(
+                                        data['photo'],
+                                        data['firstName'],
+                                        data['purpose'],
+                                        data['vehicleNo']);
+                                  });
+                            }
+                          } else {
+                            print('No documents found for the specified ID.');
+                          }
+                        } catch (e) {
+                          print('Error fetching notification info: $e');
                         }
                       },
                       tileColor: Colors.grey[100],
@@ -175,153 +161,73 @@ class _VisitorsState extends State<Visitors> {
     );
   }
 
-  void reject() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: SizedBox(
-            height: MediaQuery.of(context).size.height / 3.1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  height: 100,
-                  width: 100,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 3, color: Colors.grey, spreadRadius: 1)
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(notiImage),
-                    radius: 52,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 10,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Name : $notiName',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 5,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Purpose : $notiPurpose',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 5,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Vehicle No & Type : $notiVehicle',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-              ],
+  Widget dialog(String notiImage, String notiName, String notiPurpose,
+      String notiVehicle) {
+    return AlertDialog(
+      title: SizedBox(
+        height: MediaQuery.of(context).size.height / 3.1,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              height: 100,
+              width: 100,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(blurRadius: 3, color: Colors.grey, spreadRadius: 1)
+                ],
+              ),
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(notiImage),
+                radius: 52,
+                backgroundColor: Colors.white,
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  void dialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: SizedBox(
-            height: MediaQuery.of(context).size.height / 3.1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  height: 100,
-                  width: 100,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 3, color: Colors.grey, spreadRadius: 1)
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(notiImage),
-                    radius: 52,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 10,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Name : $notiName',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 5,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Purpose : $notiPurpose',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(
-                  top: 5,
-                )),
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Vehicle No & Type : $notiVehicle',
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-              ],
+            const Padding(
+                padding: EdgeInsets.only(
+              top: 10,
+            )),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Name : $notiName',
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
             ),
-          ),
-        );
-      },
+            const Padding(
+                padding: EdgeInsets.only(
+              top: 5,
+            )),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Purpose : $notiPurpose',
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
+            ),
+            const Padding(
+                padding: EdgeInsets.only(
+              top: 5,
+            )),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Vehicle No & Type : $notiVehicle',
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
