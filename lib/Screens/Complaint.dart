@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -10,9 +12,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Complainform extends StatefulWidget {
-  const Complainform({Key? key}) : super(key: key);
-  // static const routename = 'Complaint';
-
   @override
   State<Complainform> createState() => _ComplainformState();
 }
@@ -20,7 +19,6 @@ class Complainform extends StatefulWidget {
 class _ComplainformState extends State<Complainform> {
   CollectionReference complain =
       FirebaseFirestore.instance.collection("complian");
-  bool show_res = false;
   TextEditingController complian = TextEditingController();
   var name;
   int myVariable = 0;
@@ -70,333 +68,299 @@ class _ComplainformState extends State<Complainform> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          centerTitle: true,
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back_ios_new),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          toolbarHeight: 70,
-          foregroundColor: const Color(0xff212121),
-          title: const Text(
-            'Submit Complaints',
-            style: TextStyle(
-              color: Color(0xff212121),
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-            ),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios_new),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 70,
+        foregroundColor: const Color(0xff212121),
+        title: const Text(
+          'Submit Complaints',
+          style: TextStyle(
+            color: Color(0xff212121),
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
           ),
         ),
-        body: FutureBuilder(
-            future: SharedPreferences.getInstance(),
-            builder: (context, AsyncSnapshot snapshot) {
-              return Container(
-                  color: Colors.white,
-                  child: Column(children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey.withOpacity(0.5),
-                          width: 1.0,
+      ),
+      body: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.5),
+                  width: 1.0,
+                ),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              margin: const EdgeInsets.symmetric(
+                vertical: 20.0,
+                horizontal: 20.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 10.0,
+                          horizontal: 15.0,
                         ),
-                        borderRadius: BorderRadius.circular(20.0),
+                        child: Icon(
+                          Icons.feedback_outlined,
+                          color: Colors.black,
+                        ),
                       ),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 20.0,
-                        horizontal: 20.0,
+                      Container(
+                        height: 10.0,
+                        width: 1.0,
+                        color: Colors.grey.withOpacity(0.5),
+                        margin: const EdgeInsets.only(
+                          left: 00.0,
+                          right: 10.0,
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 15.0,
-                                ),
-                                child: Icon(
-                                  Icons.feedback_outlined,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Container(
-                                height: 10.0,
-                                width: 1.0,
-                                color: Colors.grey.withOpacity(0.5),
-                                margin: const EdgeInsets.only(
-                                  left: 00.0,
-                                  right: 10.0,
-                                ),
-                              ),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: complian,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      name = val;
-                                    });
-                                  },
-                                  keyboardType: TextInputType.name,
-                                  maxLines: 5,
-                                  decoration: const InputDecoration(
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 20.0,
-                                    ),
-                                    labelText: 'Enter Complaint',
-                                    border: InputBorder.none,
-                                    hintText: 'Enter your Complaint',
-                                    hintStyle: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return 'Complain required!';
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (value) {},
-                                ),
-                              ),
-                            ],
+                      Expanded(
+                        child: TextFormField(
+                          controller: complian,
+                          onChanged: (val) {
+                            setState(() {
+                              name = val;
+                            });
+                          },
+                          keyboardType: TextInputType.name,
+                          maxLines: 5,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 20.0,
+                            ),
+                            labelText: 'Enter Complaint',
+                            border: InputBorder.none,
+                            hintText: 'Enter your Complaint',
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 10,
+                            ),
                           ),
-                        ],
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Complain required!';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 1.1,
+                height: 50,
+                child: Container(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      var connectivityResult =
+                          await (Connectivity().checkConnectivity());
+                      print("Connectivity == ${connectivityResult.toString()}");
+                      if (connectivityResult == ConnectivityResult.none) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text(
+                                "This Feature is not available in Offline mode")));
+                      } else {
+                        try {
+                          final response = await http
+                              .get(Uri.parse('https://www.google.com'));
+                          print(response.statusCode);
+                          if (response.statusCode == 200) {
+                            EasyLoading.dismiss();
+                            String compan = complian.text.trim();
+                            complian.clear();
+                            alertMe(compan);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        "Your Internet connection is not stable.Please try again later")));
+                            EasyLoading.dismiss();
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text(
+                                  "Your Internet connection is not stable.Please try again later")));
+                          EasyLoading.dismiss();
+                        }
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                      backgroundColor: MaterialStateProperty.all(
+                        const Color.fromRGBO(15, 39, 127, 1),
+                      ),
+                      padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.1,
-                        height: 50,
-                        child: Container(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              var connectivityResult =
-                                  await (Connectivity().checkConnectivity());
-                              print(
-                                  "Connectivity == ${connectivityResult.toString()}");
-                              if (connectivityResult ==
-                                  ConnectivityResult.none) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "This Feature is not available in Offline mode")));
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 4,
+                        color: Colors.grey[350],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text("Response to Previous Complains "),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15.0,
+                        ),
+                        child: Card(
+                          color: const Color.fromARGB(255, 245, 245, 245),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          elevation: 5,
+                          child: StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection('complian')
+                                .limit(2)
+                                .orderBy('pressedTime', descending: true)
+                                .where('uid',
+                                    isEqualTo:
+                                        FirebaseAuth.instance.currentUser!.uid)
+                                .snapshots(),
+                            builder: (context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Container();
+                              } else if (snapshot.hasError) {
+                                return Container();
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('No complaints available'),
+                                );
                               } else {
-                                try {
-                                  // EasyLoading.show(status: 'Loading Please Wait');
-                                  // Attempt to make a GET request to a reliable server
-                                  final response = await http
-                                      .get(Uri.parse('https://www.google.com'));
-                                  print(response.statusCode);
-                                  if (response.statusCode == 200) {
-                                    EasyLoading.dismiss();
-                                    alertMe();
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                "Your Internet connection is not stable.Please try again later")));
-                                    EasyLoading.dismiss();
+                                List<DocumentSnapshot> documents =
+                                    snapshot.data!.docs;
+
+                                List<Widget> complaintWidgets = [];
+
+                                for (var document in documents) {
+                                  Map<String, dynamic>? documentData =
+                                      document.data() as Map<String, dynamic>?;
+
+                                  if (documentData == null) {
+                                    print("Document data is null");
+                                    continue;
                                   }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "Your Internet connection is not stable.Please try again later")));
-                                  EasyLoading.dismiss();
+
+                                  complaintWidgets.add(
+                                    Card(
+                                      margin: const EdgeInsets.all(8.0),
+                                      child: ListTile(
+                                        title: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            children: [
+                                              const Text(
+                                                "Response : ",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  documentData['response'] ??
+                                                      'No response',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 3,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        subtitle: Row(
+                                          children: [
+                                            const Text(
+                                              "Complaint Status : ",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              documentData['complainStatus'] ??
+                                                  'No status',
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 }
+
+                                return Column(
+                                  children: complaintWidgets,
+                                );
                               }
                             },
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                              ),
-                              backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(15, 39, 127, 1),
-                              ),
-                              padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 20,
-                                ),
-                              ),
-                            ),
-                            child: const Text(
-                              'Submit',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 4,
-                                  color: Colors.grey[350],
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(15.0),
-                                  child:
-                                      Text("Response to Previous Complains "),
-                                ),
-                                Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 15.0,
-                                    ),
-                                    child: Card(
-                                        color: const Color.fromARGB(
-                                            255, 245, 245, 245),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
-                                        ),
-                                        elevation: 5,
-                                        child: FutureBuilder(
-                                          future: FirebaseFirestore.instance
-                                              .collection('complian')
-                                              .limit(2)
-                                              .orderBy('pressedTime',
-                                                  descending: true)
-                                              .where('uid',
-                                                  isEqualTo: FirebaseAuth
-                                                      .instance
-                                                      .currentUser!
-                                                      .uid)
-                                              .get(),
-                                          builder: (context,
-                                              AsyncSnapshot<QuerySnapshot>
-                                                  snapshot) {
-                                            if (snapshot.connectionState ==
-                                                ConnectionState.waiting) {
-                                              return const CircularProgressIndicator();
-                                            }
-
-                                            if (snapshot.hasError) {
-                                              return Text(
-                                                  'Error: ${snapshot.error}');
-                                            }
-
-                                            if (!snapshot.hasData ||
-                                                snapshot.data!.docs.isEmpty) {
-                                              return const Padding(
-                                                padding: EdgeInsets.all(8.0),
-                                                child: Text(
-                                                    'No complaints available'),
-                                              );
-                                            } else {
-                                              List<DocumentSnapshot> documents =
-                                                  snapshot.data!.docs;
-                                              print(
-                                                  "documents: ${documents.length}");
-
-                                              List<Widget> complaintWidgets =
-                                                  [];
-
-                                              for (var document in documents) {
-                                                Map<String, dynamic>?
-                                                    documentData =
-                                                    document.data() as Map<
-                                                        String, dynamic>?;
-
-                                                print(
-                                                    "Document data: $documentData");
-
-                                                if (documentData == null) {
-                                                  print(
-                                                      "Document data is null");
-                                                  continue; // Skip to the next iteration
-                                                }
-
-                                                complaintWidgets.add(
-                                                  Card(
-                                                    margin:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: ListTile(
-                                                      title: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: Row(
-                                                          children: [
-                                                            const Text(
-                                                              "Response : ",
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              child: Text(
-                                                                documentData[
-                                                                        'response'] ??
-                                                                    'No response',
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                maxLines: 3,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      subtitle: Row(
-                                                        children: [
-                                                          const Text(
-                                                            "Complaint Status : ",
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          Text(documentData[
-                                                                  'complainStatus'] ??
-                                                              'No status'),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-
-                                              return Column(
-                                                children: complaintWidgets,
-                                              );
-                                            }
-                                          },
-                                        )))
-                              ],
-                            ),
-                          ),
-                        ))
-                  ]));
-            }));
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
-  void alertMe() async {
+  void alertMe(String compan) async {
     String fmphoneNo = "", fmName = "", fmphoneNo1 = "", fmName1 = "";
     SharedPreferences oka = await SharedPreferences.getInstance();
     var userinfo = json.decode(oka.getString('userinfo') as String);
@@ -405,11 +369,11 @@ class _ComplainformState extends State<Complainform> {
       setState(() {
         btnDisable = true;
       });
-      print(myVariable);
+
       if (myVariable == 5) {
         snack();
       } else {
-        if (complian.text.isNotEmpty) {
+        if (compan.isNotEmpty) {
           String FCMtoken = oka.getString('tokens')!;
 
           final mainCollectionQuery = await FirebaseFirestore.instance
@@ -432,14 +396,12 @@ class _ComplainformState extends State<Complainform> {
                     .doc(parentId)
                     .get();
                 if (parentDoc.exists) {
-                  // Step 2: Access the subcollection
                   QuerySnapshot subcollectionSnapshot = await parentDoc
                       .reference
                       .collection('FMData')
                       .limit(2)
                       .get();
                   if (subcollectionSnapshot.docs.isNotEmpty) {
-                    // Access subcollection document data for the first document
                     Map<String, dynamic> firstDocData =
                         subcollectionSnapshot.docs[0].data()
                             as Map<String, dynamic>;
@@ -448,36 +410,23 @@ class _ComplainformState extends State<Complainform> {
                       fmName = firstDocData['Name'];
                       fmphoneNo = firstDocData['phonenumber'];
                     });
-                    print('First Subcollection Document Data: $firstDocData');
 
-                    // Check if there is a second document before accessing
                     if (subcollectionSnapshot.docs.length > 1) {
-                      // Access subcollection document data for the second document
                       Map<String, dynamic> secondDocData =
                           subcollectionSnapshot.docs[1].data()
                               as Map<String, dynamic>;
-                      print(
-                          'Second Subcollection Document Data: $secondDocData');
+
                       setState(() {
                         fmName1 = secondDocData['Name'];
                         fmphoneNo1 = secondDocData['phonenumber'];
                       });
-
-                      print("FM 1 $fmName1    +++++++++++   $fmphoneNo1");
-                    } else {
-                      print('Subcollection has only one document.');
                     }
-                  } else {
-                    print('Subcollection is empty.');
                   }
-                } else {
-                  print('Document with ID $parentId does not exist.');
                 }
                 await Future.delayed(const Duration(seconds: 1));
 
-                String compla = complian.text.trim();
                 complain.add({
-                  'complain': compla,
+                  'complain': compan,
                   'noti': true,
                   'fmName': fmName,
                   'fmphoneNo': fmphoneNo,
@@ -499,21 +448,19 @@ class _ComplainformState extends State<Complainform> {
                   "edit": false,
                 }).then((value) {
                   myVariable++;
-                  print("Complain Added");
-                  complian.clear();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text(
                       "Your complain has been generated",
                     ),
                   ));
-                }).catchError(
-                  (error) => print("Failed to add Complaint : $error"),
-                );
+                }).catchError((error) {
+                  print("Failed to add Complaint : $error");
+                });
               } else {
                 await Future.delayed(const Duration(seconds: 1));
-                String compla = complian.text.trim();
+
                 complain.add({
-                  'complain': compla,
+                  'complain': compan,
                   'noti': true,
                   'fmName': fmName,
                   'fmphoneNo': fmphoneNo,
@@ -535,23 +482,21 @@ class _ComplainformState extends State<Complainform> {
                   "edit": false,
                 }).then((value) {
                   myVariable++;
-                  print("Complain Added");
-                  complian.clear();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text(
                       "Your complain has been generated",
                     ),
                   ));
-                }).catchError(
-                  (error) => print("Failed to add Complaint : $error"),
-                );
+                }).catchError((error) {
+                  print("Failed to add Complaint : $error");
+                });
               }
             });
           }
           await Future.delayed(const Duration(seconds: 5));
           if (btnDisable) {
             setState(() {
-              btnDisable = false; // Re-enable the button
+              btnDisable = false;
             });
           }
         } else {

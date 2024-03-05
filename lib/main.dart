@@ -168,7 +168,7 @@ class _MyAppState extends State<MyApp> {
                 ),
             // Complainform.routename: (ctx) => const Complainform(),
             '/notification': (ctx) => const Notifications(),
-            '/complaint': (ctx) => const Complainform(),
+            '/complaint': (ctx) => Complainform(),
             '/tabsScreen': (ctx) => TabsScreen(index: 0)
           },
         ));

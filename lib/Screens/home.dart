@@ -439,6 +439,7 @@ class _HomePageState extends State<HomePage> {
                 } else {
                   print('Document with ID $parentId does not exist.');
                 }
+                print(userinfo);
 
                 // Process the second document if it exists
 
@@ -1765,7 +1766,7 @@ class _HomePageState extends State<HomePage> {
                                                 milliseconds: 700),
                                             type: PageTransitionType
                                                 .rightToLeftWithFade,
-                                            child: const Complainform()));
+                                            child: Complainform()));
                                   },
                                   child: SizedBox(
                                     // color: Colors.green,
@@ -1865,6 +1866,8 @@ class _HomePageState extends State<HomePage> {
                                         ));
                                       } else {
                                         try {
+                                          EasyLoading.show(
+                                              status: "Please wait");
                                           // EasyLoading.show(status: ' Processing');
                                           // Attempt to make a GET request to a reliable server
                                           final response = await http.get(
@@ -1874,19 +1877,23 @@ class _HomePageState extends State<HomePage> {
                                           if (response.statusCode == 200) {
                                             EasyLoading.dismiss();
                                             if (status == false) {
+                                              EasyLoading.dismiss();
                                               notHomeStatusFalse();
 
                                               // _selectDate(context);
                                             } else if (status
                                                 .toString()
                                                 .isEmpty) {
+                                              EasyLoading.dismiss();
                                               notHomeStatusFalse();
 
                                               // _selectDate(context);
                                             } else if (status == true) {
+                                              EasyLoading.dismiss();
                                               cancelRequest(formattedTime);
                                             }
                                           } else {
+                                            EasyLoading.dismiss();
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(SnackBar(
                                               content: const Text(
@@ -1904,6 +1911,7 @@ class _HomePageState extends State<HomePage> {
                                             EasyLoading.dismiss();
                                           }
                                         } catch (e) {
+                                          EasyLoading.dismiss();
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             content: const Text(
@@ -2265,6 +2273,14 @@ class _HomePageState extends State<HomePage> {
                                                     Colors.black),
                                           ),
                                           onPressed: () async {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      TabsScreen(
+                                                    index: 0,
+                                                  ),
+                                                ));
                                             SharedPreferences token =
                                                 await SharedPreferences
                                                     .getInstance();
@@ -2450,15 +2466,6 @@ class _HomePageState extends State<HomePage> {
                                                       'pressedTime':
                                                           DateTime.now(),
                                                     }).then((value) => {
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                    builder:
-                                                                        (context) =>
-                                                                            TabsScreen(
-                                                                      index: 0,
-                                                                    ),
-                                                                  )),
                                                               ScaffoldMessenger.of(context).showSnackBar(
                                                                   SnackBar(
                                                                       action:
@@ -2552,15 +2559,6 @@ class _HomePageState extends State<HomePage> {
                                                           DateTime.now(),
                                                     });
                                                   });
-
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            TabsScreen(
-                                                          index: 0,
-                                                        ),
-                                                      ));
 
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(SnackBar(
@@ -3013,6 +3011,14 @@ class _HomePageState extends State<HomePage> {
                                                             .all(Colors.black),
                                                   ),
                                                   onPressed: () async {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              TabsScreen(
+                                                            index: 0,
+                                                          ),
+                                                        ));
                                                     print(
                                                         "KDDDDDDDDDDDDDDDDDD$docid");
                                                     await FirebaseFirestore
@@ -3048,15 +3054,6 @@ class _HomePageState extends State<HomePage> {
 
                                                     print(
                                                         "NOT HOMEE STATUS $status");
-
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              TabsScreen(
-                                                            index: 0,
-                                                          ),
-                                                        ));
 
                                                     ScaffoldMessenger.of(
                                                             context)
