@@ -2403,6 +2403,8 @@ class _HomePageState extends State<HomePage> {
                                                   String month =
                                                       DateFormat('MM').format(
                                                           DateTime.now());
+                                                  String day = DateFormat('dd')
+                                                      .format(DateTime.now());
 
                                                   await FirebaseFirestore
                                                       .instance
@@ -2420,7 +2422,7 @@ class _HomePageState extends State<HomePage> {
                                                     "fmphoneNo1": fmphoneNo1,
                                                     // 'from': currentdate.text,
                                                     'from':
-                                                        "${DateTime.now().year}-$month-${DateTime.now().day}",
+                                                        "${DateTime.now().year}-$month-$day",
                                                     'to': _dateController.text,
                                                     "days": _daysDifference,
                                                     'Name':
