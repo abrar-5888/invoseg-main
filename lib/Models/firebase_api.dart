@@ -37,6 +37,8 @@ class FirebaseApi {
       message1 = message;
       String? title = message1!.notification!.title;
       String? body = message1!.notification!.body;
+      print("Title = $title");
+      print("Body = $body");
       if (title.toString().contains("Complain")) {
         navigatorKey.currentState?.pushNamed('/complaint', arguments: message1);
       } else if (title.toString() == "Order Completed") {
@@ -64,7 +66,7 @@ class FirebaseApi {
             builder: (context) => Prescription(
                   id: data,
                 )));
-      } else if (body.toString().contains('post')) {
+      } else if (title.toString().contains('post')) {
         navigatorKey.currentState?.push(MaterialPageRoute(
             builder: (context) => TabsScreen(
                   index: 3,

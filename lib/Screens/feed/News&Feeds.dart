@@ -87,11 +87,13 @@ class _HomeState extends State<Newsandfeeds> {
         setState(() {
           feedDataList.clear();
           feedDataList = snapshot.docs.map((doc) {
+            final id = doc.id;
             final data = doc.data();
-            return FeedData.fromMap(doc.id, data);
+            print("data+++++$data");
+            return FeedData.fromMap(data);
           }).toList();
         });
-        print(feedDataList);
+        print("Data =");
       }
     } catch (error) {
       print("Error: $error");
@@ -118,13 +120,18 @@ class _HomeState extends State<Newsandfeeds> {
         .orderBy('pressedTime', descending: true)
         .snapshots()
         .listen((snapshot) {
-      var doc = snapshot.docs.first;
-      var data = doc.data();
-      String id = data['id'];
-      visitorProvider.notiDocId = doc.id;
-      print(id);
-      visitorProvider.fetchNotiInfo(id);
-      visitorProvider.showVisitorDialogs(true);
+      var doc = snapshot.docs;
+      if (doc.isNotEmpty) {
+        var data = doc[0].data();
+        String id = data['id'];
+
+        visitorProvider.notiDocId = doc[0].id;
+
+        visitorProvider.fetchNotiInfo(id);
+        visitorProvider.showVisitorDialogs(true);
+      } else {
+        print("Snapshot Empty");
+      }
     });
     return Scaffold(
       backgroundColor: Colors.white,
@@ -470,17 +477,21 @@ class _HomeState extends State<Newsandfeeds> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: InkWell(
                   child: Text(
-                    "${feedData.likes} Likes",
+                    feedData.likes == 0 || feedData.likes == 1
+                        ? "${feedData.likes} Like"
+                        : "${feedData.likes} Likes",
                     style: const TextStyle(color: Colors.black),
                   ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            LikesPage(documentId: feedData.documentId),
-                      ),
-                    );
+                    if (feedData.likes >= 1) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              LikesPage(documentId: feedData.documentId),
+                        ),
+                      );
+                    }
                   },
                 ),
               ),
@@ -628,15 +639,31 @@ class FeedData {
     required this.timestamp,
   });
 
-  factory FeedData.fromMap(String documentId, Map<String, dynamic> data) {
-    return FeedData(
-        documentId: documentId,
-        logo: data['logo'],
-        title: data['title'],
-        mediaUrls: List<String>.from(data['mediaUrls']),
-        likes: data['likes'],
-        description: data['description'],
+  factory FeedData.fromMap(Map<String, dynamic> data) {
+    try {
+      return FeedData(
+        documentId: data['id'] ?? '', // Handle case where 'id' is not present
+        logo: data['logo'] ?? '',
+        title: data['title'] ?? '',
+        mediaUrls: List<String>.from(data['mediaUrls'] ?? []),
+        likes: data['likes'] ?? 0,
+        description: data['description'] ?? '',
         Likesuids: List<String>.from(data['Likesuids'] ?? []),
-        timestamp: data['timestamp']);
+        timestamp: data['timestamp'] ?? Timestamp.now(),
+      );
+    } catch (e) {
+      print('Error converting FeedData from map: $e');
+      // Return a default FeedData or handle the error accordingly
+      return FeedData(
+        documentId: '',
+        logo: '',
+        title: '',
+        mediaUrls: [],
+        likes: 0,
+        description: '',
+        Likesuids: [],
+        timestamp: Timestamp.now(),
+      );
+    }
   }
 }
