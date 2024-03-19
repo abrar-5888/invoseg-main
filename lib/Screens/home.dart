@@ -1161,13 +1161,18 @@ class _HomePageState extends State<HomePage> {
         .orderBy('pressedTime', descending: true)
         .snapshots()
         .listen((snapshot) {
-      var doc = snapshot.docs.first;
-      var data = doc.data();
-      String id = data['id'];
-      visitorProvider.notiDocId = doc.id;
+      var doc = snapshot.docs;
+      if (doc.isNotEmpty) {
+        var data = doc[0].data();
+        String id = data['id'];
 
-      visitorProvider.fetchNotiInfo(id);
-      visitorProvider.showVisitorDialogs(true);
+        visitorProvider.notiDocId = doc.first.id;
+
+        visitorProvider.fetchNotiInfo(id);
+        visitorProvider.showVisitorDialogs(true);
+      } else {
+        print("Snapshot Empty");
+      }
     });
     final announceMentProvider =
         Provider.of<AnnouncementProvider>(context, listen: false);
