@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Providers/announcementProvider.dart';
+import 'package:com.invoseg.innovation/Providers/medicalProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/Complaint.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discounts.dart';
@@ -18,6 +19,7 @@ import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
 import 'package:com.invoseg.innovation/Screens/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:com.invoseg.innovation/widgets/announcemnetAlertBox.dart';
+import 'package:com.invoseg.innovation/widgets/medicalAlertBox.dart';
 import 'package:com.invoseg.innovation/widgets/visitorAlertBox.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -1204,7 +1206,26 @@ class _HomePageState extends State<HomePage> {
         announceMentProvider.announcementDialog(false);
       }
     });
-
+    final medProvider = Provider.of<MedicalProvider>(context, listen: false);
+    FirebaseFirestore.instance
+        .collection('consultation')
+        .where('meetingStatus', isEqualTo: 'Link Generated')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .orderBy('pressedTime', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      var docs = snapshot.docs.first;
+      medProvider.saveId(docs.id);
+      medProvider.changeShowMedBox(true);
+    });
+    //! final groProvider = Provider.of<GroceryProvider>(context, listen: false);
+    // FirebaseFirestore.instance
+    //     .collection('notifications')
+    //     .where('isRead', isEqualTo: false)
+    //     .snapshots()
+    //     .listen((snapshot) {
+    //   notificationCounter.updateCount(snapshot.docs.length);
+    // });
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : isLoading
@@ -2141,6 +2162,15 @@ class _HomePageState extends State<HomePage> {
                             true) {
                           return AnnouncementAlertBox(
                               announceMentProvider: announceMentProvider);
+                        } else {
+                          return Container(); // Return an empty container as a placeholder
+                        }
+                      },
+                    ),
+                    Consumer<MedicalProvider>(
+                      builder: (context, counter, child) {
+                        if (medProvider.showMedBox == true) {
+                          return MedicalAlertBox(medicalProvider: medProvider);
                         } else {
                           return Container(); // Return an empty container as a placeholder
                         }

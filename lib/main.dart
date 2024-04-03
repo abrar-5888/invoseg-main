@@ -1,6 +1,8 @@
 import 'package:com.invoseg.innovation/Models/firebase_api.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
 import 'package:com.invoseg.innovation/Providers/announcementProvider.dart';
+import 'package:com.invoseg.innovation/Providers/groceryProvider.dart';
+import 'package:com.invoseg.innovation/Providers/medicalProvider.dart';
 import 'package:com.invoseg.innovation/Providers/visitorProvider.dart';
 import 'package:com.invoseg.innovation/Screens/AddFamilyMembers.dart';
 import 'package:com.invoseg.innovation/Screens/Complaint.dart';
@@ -129,6 +131,12 @@ class _MyAppState extends State<MyApp> {
           ),
           ChangeNotifierProvider<AnnouncementProvider>(
             create: (_) => AnnouncementProvider(),
+          ),
+          ChangeNotifierProvider<MedicalProvider>(
+            create: (_) => MedicalProvider(),
+          ),
+          ChangeNotifierProvider<GroceryProvider>(
+            create: (_) => GroceryProvider(),
           ),
           // ChangeNotifierProvider<AlertBTNS>(
           //   create: (_) => AlertBTNS(),

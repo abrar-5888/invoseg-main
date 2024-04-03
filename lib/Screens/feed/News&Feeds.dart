@@ -293,43 +293,44 @@ class _HomeState extends State<Newsandfeeds> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Container(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          height: 40,
-                          width: 40,
-                          child: Image.network(feedData.logo),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        Text(
-                          feedData.title,
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
+                        height: 40,
+                        width: 40,
+                        child: Image.network(feedData.logo),
+                      ),
+                      Text(
+                        feedData.title,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            CarouselSlider(
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            // height: MediaQuery.of(context).size.height / 2,
+            width: MediaQuery.of(context).size.width,
+            child: CarouselSlider(
               items: feedData.mediaUrls.map((url) {
                 return Builder(
                   builder: (BuildContext context) {
                     return SizedBox(
-                      height: MediaQuery.of(context).size.height / 2.5,
-                      width: MediaQuery.of(context).size.width,
+                      // height: 12000,
                       child: getUrlWidget(
                           url, feedData.mediaUrls.length, _currentIndex),
                     );
@@ -338,11 +339,12 @@ class _HomeState extends State<Newsandfeeds> {
               }).toList(),
               carouselController: _carouselController,
               options: CarouselOptions(
+                height: 400,
                 viewportFraction: 1.0,
                 initialPage: 0,
                 enableInfiniteScroll: feedData.mediaUrls.length > 1,
                 reverse: false,
-                enlargeFactor: 0.3,
+                enlargeFactor: 0.5,
                 scrollDirection: Axis.horizontal,
                 onPageChanged: (index, reason) {
                   setState(() {
@@ -358,168 +360,168 @@ class _HomeState extends State<Newsandfeeds> {
                 autoPlayCurve: Curves.fastOutSlowIn,
               ),
             ),
-// Custom dots
-            Center(
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: feedData.mediaUrls.length != 1
-                      ? SizedBox(
-                          width: MediaQuery.of(context).size.width / 3,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(feedData.mediaUrls.length,
-                                (index) {
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 700),
-                                curve: Curves.decelerate,
-                                width: _currentIndex == index ? 7.0 : 7.0,
-                                height: 7.0,
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 4.0),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape
-                                      .rectangle, // Set to circle for selected index
-                                  borderRadius: _currentIndex == index
-                                      ? const BorderRadius.all(Radius.circular(
-                                          6.0)) // Adjust the radius as needed
-                                      : const BorderRadius.all(
-                                          Radius.circular(8.0)),
-                                  color: _currentIndex == index
-                                      ? const Color.fromRGBO(15, 39, 127, 1)
-                                      : const Color(0xffC0C0C0),
-                                ),
-                              );
-                            }),
-                          ),
-                        )
-                      : const SizedBox()),
-            ),
+          ),
+          // Custom dots
+          Center(
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: feedData.mediaUrls.length != 1
+                    ? SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children:
+                              List.generate(feedData.mediaUrls.length, (index) {
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 700),
+                              curve: Curves.decelerate,
+                              width: _currentIndex == index ? 7.0 : 7.0,
+                              height: 7.0,
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 4.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape
+                                    .rectangle, // Set to circle for selected index
+                                borderRadius: _currentIndex == index
+                                    ? const BorderRadius.all(Radius.circular(
+                                        6.0)) // Adjust the radius as needed
+                                    : const BorderRadius.all(
+                                        Radius.circular(8.0)),
+                                color: _currentIndex == index
+                                    ? const Color.fromRGBO(15, 39, 127, 1)
+                                    : const Color(0xffC0C0C0),
+                              ),
+                            );
+                          }),
+                        ),
+                      )
+                    : const SizedBox()),
+          ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  splashColor: Colors.transparent,
-                  onPressed: () async {
-                    if (isProcessing) {
-                      return;
-                    }
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              IconButton(
+                splashColor: Colors.transparent,
+                onPressed: () async {
+                  if (isProcessing) {
+                    return;
+                  }
 
-                    isProcessing = true;
+                  isProcessing = true;
 
-                    try {
-                      DocumentSnapshot docSnapshot = await FirebaseFirestore
-                          .instance
+                  try {
+                    DocumentSnapshot docSnapshot = await FirebaseFirestore
+                        .instance
+                        .collection('feed')
+                        .doc(feedData.documentId)
+                        .get();
+
+                    int updatedLikes = docSnapshot['likes'];
+                    List<String>? updatedLikesuids =
+                        List<String>.from(docSnapshot['Likesuids'] ?? []);
+
+                    if (updatedLikesuids.contains(userUid)) {
+                      await FirebaseFirestore.instance
                           .collection('feed')
                           .doc(feedData.documentId)
-                          .get();
-
-                      int updatedLikes = docSnapshot['likes'];
-                      List<String>? updatedLikesuids =
-                          List<String>.from(docSnapshot['Likesuids'] ?? []);
-
-                      if (updatedLikesuids.contains(userUid)) {
-                        await FirebaseFirestore.instance
-                            .collection('feed')
-                            .doc(feedData.documentId)
-                            .update({
-                          'likes': updatedLikes - 1,
-                          'Likesuids': FieldValue.arrayRemove([userUid]),
-                        });
-
-                        updatedLikesuids.remove(userUid);
-                        fetchLikesAndUpdateList(feedData.documentId, feedData);
-                      } else {
-                        await FirebaseFirestore.instance
-                            .collection('feed')
-                            .doc(feedData.documentId)
-                            .update({
-                          'likes': updatedLikes + 1,
-                          'Likesuids': FieldValue.arrayUnion([userUid]),
-                        });
-
-                        updatedLikesuids.add(userUid);
-                        fetchLikesAndUpdateList(feedData.documentId, feedData);
-                      }
-
-                      // Update local state with the latest data
-                      setState(() {
-                        feedData.likes = updatedLikes;
-                        feedData.Likesuids = updatedLikesuids;
+                          .update({
+                        'likes': updatedLikes - 1,
+                        'Likesuids': FieldValue.arrayRemove([userUid]),
                       });
 
-                      print("Likes and fav data updated: $feedDataList");
-                    } catch (error) {
-                      print("Error: $error");
-                    } finally {
-                      debounceTimer =
-                          Timer(const Duration(milliseconds: 100), () {
-                        isProcessing = false;
-                        debounceTimer?.cancel();
+                      updatedLikesuids.remove(userUid);
+                      fetchLikesAndUpdateList(feedData.documentId, feedData);
+                    } else {
+                      await FirebaseFirestore.instance
+                          .collection('feed')
+                          .doc(feedData.documentId)
+                          .update({
+                        'likes': updatedLikes + 1,
+                        'Likesuids': FieldValue.arrayUnion([userUid]),
                       });
+
+                      updatedLikesuids.add(userUid);
+                      fetchLikesAndUpdateList(feedData.documentId, feedData);
                     }
-                  },
-                  icon: feedData.Likesuids != null &&
-                          feedData.Likesuids!.contains(userUid)
-                      ? const Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                        )
-                      : const Icon(
-                          Icons.favorite_border,
-                        ),
-                ),
-              ],
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: InkWell(
-                  child: Text(
-                    feedData.likes == 0 || feedData.likes == 1
-                        ? "${feedData.likes} Like"
-                        : "${feedData.likes} Likes",
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  onTap: () {
-                    if (feedData.likes >= 1) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              LikesPage(documentId: feedData.documentId),
-                        ),
-                      );
-                    }
-                  },
-                ),
+
+                    // Update local state with the latest data
+                    setState(() {
+                      feedData.likes = updatedLikes;
+                      feedData.Likesuids = updatedLikesuids;
+                    });
+
+                    print("Likes and fav data updated: $feedDataList");
+                  } catch (error) {
+                    print("Error: $error");
+                  } finally {
+                    debounceTimer =
+                        Timer(const Duration(milliseconds: 100), () {
+                      isProcessing = false;
+                      debounceTimer?.cancel();
+                    });
+                  }
+                },
+                icon: feedData.Likesuids != null &&
+                        feedData.Likesuids!.contains(userUid)
+                    ? const Icon(
+                        Icons.favorite,
+                        color: Colors.red,
+                      )
+                    : const Icon(
+                        Icons.favorite_border,
+                      ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: InkWell(
                 child: Text(
-                  feedData.description,
-                  style: const TextStyle(fontSize: 15),
+                  feedData.likes == 0 || feedData.likes == 1
+                      ? "${feedData.likes} Like"
+                      : "${feedData.likes} Likes",
+                  style: const TextStyle(color: Colors.black),
                 ),
+                onTap: () {
+                  if (feedData.likes >= 1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            LikesPage(documentId: feedData.documentId),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
-            const SizedBox(height: 5),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  timeagoText,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                feedData.description,
+                style: const TextStyle(fontSize: 15),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 5),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                timeagoText,
+                style: const TextStyle(fontSize: 10, color: Colors.black54),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -533,7 +535,7 @@ class _HomeState extends State<Newsandfeeds> {
     if (url.contains('.jpg') || url.contains('.jpeg') || url.contains('.png')) {
       return Image(
         image: NetworkImage(url),
-        fit: BoxFit.cover,
+        fit: BoxFit.fill,
         height: double.infinity,
         width: double.infinity,
       );
