@@ -11,6 +11,7 @@ class MedicalAlertBox extends StatelessWidget {
         child: Center(
             child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
+                //
                 child: medicalProvider.showMedBox == true
                     ? AlertDialog.adaptive(
                         content: const Center(child: Text("OKA")),
