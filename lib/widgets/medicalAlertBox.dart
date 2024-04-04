@@ -10,17 +10,48 @@ class MedicalAlertBox extends StatelessWidget {
     return Positioned.fill(
         child: Center(
             child: AnimatedContainer(
+                height: MediaQuery.of(context).size.height / 2,
                 duration: const Duration(milliseconds: 300),
                 //
                 child: medicalProvider.showMedBox == true
                     ? AlertDialog.adaptive(
-                        content: const Center(child: Text("OKA")),
+                        content: const Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 12),
+                              child: Text('Link Generated',style: TextStyle(fontSize: 20),),
+                            ),
+
+                          ],
+                        ),
                         actions: [
-                          TextButton(
-                              onPressed: () {
-                                medicalProvider.changeShowMedBox(false);
-                              },
-                              child: const Text("oka"))
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.black)),
+                                onPressed: () {},
+                                child: const Text(
+                                  'Start Meeting',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.black)),
+                                onPressed: () {
+                                  medicalProvider.changeShowMedBox(false);
+                                },
+                                child: const Text(
+                                  'No',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          )
                         ],
                       )
                     : const SizedBox.shrink())));
