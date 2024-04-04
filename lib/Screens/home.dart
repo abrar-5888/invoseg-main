@@ -1215,8 +1215,10 @@ class _HomePageState extends State<HomePage> {
         .snapshots()
         .listen((snapshot) {
       var docs = snapshot.docs.first;
+      print("o chal chal${docs.id}");
       medProvider.saveId(docs.id);
       medProvider.changeShowMedBox(true);
+      medProvider.fetchData();
     });
     //! final groProvider = Provider.of<GroceryProvider>(context, listen: false);
     // FirebaseFirestore.instance
