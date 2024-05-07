@@ -151,7 +151,6 @@ class _FamilyMembersState extends State<FamilyMembers> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     remain();
   }
@@ -231,6 +230,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
               "status": "Approve",
               "email": FirebaseAuth.instance.currentUser!.email,
               "uid": user?.uid,
+              "societyName": societyName,
               "password": addFMmodel.password,
               "residentID": "INVOSEG$fourDigitCode",
               // "CM_Token": FCMtoken,

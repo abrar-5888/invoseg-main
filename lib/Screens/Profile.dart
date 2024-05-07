@@ -386,7 +386,7 @@ class _UserProfileState extends State<UserProfile> {
                                                       child: Text(
                                                         "Other Family Member Name",
                                                         style: TextStyle(
-                                                          fontSize: 15.0,
+                                                          fontSize: 13.0,
                                                         ),
                                                       ),
                                                     ),
@@ -425,14 +425,13 @@ class _UserProfileState extends State<UserProfile> {
                                                       child: Text(
                                                         "Other Family Member Phone",
                                                         style: TextStyle(
-                                                          fontSize: 15.0,
+                                                          fontSize: 14.0,
                                                         ),
                                                       ),
                                                     ),
                                                     Text(
                                                       userinfo["fphoneNo"] ??
                                                           "Not Mentioned",
-                                                      // "TEST",
                                                       style: TextStyle(
                                                         fontSize: 12.0,
                                                         color: Colors.grey[400],

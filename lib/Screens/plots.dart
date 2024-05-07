@@ -58,6 +58,7 @@ class _PlotsState extends State<Plots> {
         Provider.of<NotificationCounter>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
+        .where('societyName', isEqualTo: societyName)
         .where('isRead', isEqualTo: false)
         .snapshots()
         .listen((snapshot) {
@@ -67,6 +68,7 @@ class _PlotsState extends State<Plots> {
         Provider.of<VisitorProvider>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
+        .where('societyName', isEqualTo: societyName)
         .where('description',
             isEqualTo: 'please confirm identity of your friend')
         .orderBy('pressedTime', descending: true)
