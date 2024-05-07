@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:page_transition/page_transition.dart';
@@ -68,6 +69,7 @@ class _EducationState extends State<Education> {
                     future: FirebaseFirestore.instance
                         .collection("discounts")
                         .orderBy('timestamp', descending: true)
+                        .where('societyName', isEqualTo: societyName)
                         .where("category", isEqualTo: 'Education')
                         .get(),
                     builder: (context, discountSnapshot) {

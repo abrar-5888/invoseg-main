@@ -148,6 +148,9 @@ class _PlotsDetailState extends State<PlotsDetail> {
                 var address = data['address'];
                 // var discount = data['discount'];
                 var description = data['description'];
+
+                // var description = "";
+
                 var bath = data['bath'];
                 var room = data['room'];
                 var price = data['price'];
@@ -452,11 +455,11 @@ class _PlotsDetailState extends State<PlotsDetail> {
                                   padding: const EdgeInsets.all(10.0),
                                   child: Column(
                                     children: [
-                                      Row(
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
+                                          Text(
                                             'Description',
                                             style: TextStyle(
                                                 fontSize: 15,
@@ -464,9 +467,9 @@ class _PlotsDetailState extends State<PlotsDetail> {
                                           ),
                                           FittedBox(
                                             child: Text(
-                                              "$description" ?? "Luxury",
-                                              style:
-                                                  const TextStyle(fontSize: 15),
+                                              // description ?? "Luxury",
+                                              "Luxury",
+                                              style: TextStyle(fontSize: 15),
                                             ),
                                           )
                                         ],

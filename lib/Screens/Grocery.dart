@@ -34,11 +34,13 @@ class Grocery extends StatefulWidget {
 class _GroceryState extends State<Grocery> {
   bool isButtonEnabled = true;
   String GroceryId = "";
-  final bool fals = false;
+  final bool fals = true;
   Future<void> fetchAndModifyGroceryDocuments() async {
     try {
-      var querySnapshot =
-          await FirebaseFirestore.instance.collection('grocery').get();
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('grocery')
+          .where('societyName', isEqualTo: societyName)
+          .get();
       var docs = querySnapshot.docs;
       for (var doc in docs) {
         var canEdit = doc['canEdit'];
@@ -114,12 +116,12 @@ class _GroceryState extends State<Grocery> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/TransparentLogo.png"),
+              image: NetworkImage(logo),
               height: 40,
               width: 40,
             ),
@@ -785,6 +787,7 @@ class _GroceryState extends State<Grocery> {
       final mainCollectionQuery = await FirebaseFirestore.instance
           .collection("UserRequest") // Replace with your main collection
           .where("email", isEqualTo: userinfo['email'])
+          .where('societyName', isEqualTo: societyName)
           .get();
 
       if (mainCollectionQuery.docs.isNotEmpty) {
@@ -833,6 +836,7 @@ class _GroceryState extends State<Grocery> {
               "time": formattedTime,
               "date": formattedDate,
               // "FM${num}": userinfo["FM${num}"],
+              "societyName": societyName,
               "uid": userinfo["uid"],
               "owner": userinfo["owner"],
               "email": userinfo["email"],
@@ -865,7 +869,7 @@ class _GroceryState extends State<Grocery> {
               "pressedTime": FieldValue.serverTimestamp(),
               "type": collect,
               "isProcessed": false,
-              "time": formattedTime,
+              "time": formattedTime, "societyName": societyName,
               "date": formattedDate,
               // "FM${num}": userinfo["FM${num}"],
               "uid": userinfo["uid"],

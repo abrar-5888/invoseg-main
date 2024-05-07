@@ -58,6 +58,7 @@ class MedicalAlertBox extends StatelessWidget {
                                     const Color.fromRGBO(15, 39, 127, 1),
                                   )),
                                   onPressed: () {
+                                    medicalProvider.changeShowMedBox(false);
                                     if (medicalProvider.meetId
                                         .contains("meet")) {
                                       launch(medicalProvider.meetId);
@@ -70,7 +71,6 @@ class MedicalAlertBox extends StatelessWidget {
                                             label: 'ok', onPressed: () {}),
                                       ));
                                     }
-                                    medicalProvider.changeShowMedBox(false);
                                   },
                                   child: const Text(
                                     'Start Meeting',

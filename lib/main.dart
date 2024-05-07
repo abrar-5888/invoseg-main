@@ -94,7 +94,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     //  _fc.subscribeToTopic("Events");
     getAllIsReadStatus();
-    getLogo();
   }
 
   @override

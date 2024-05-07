@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -47,6 +48,7 @@ class _VisitorsState extends State<Visitors> {
       body: FutureBuilder<QuerySnapshot>(
         future: _firestore
             .collection('notifications')
+            .where('societyName', isEqualTo: societyName)
             .where('description', whereIn: [
               "You Have approved your freinds / relative identity",
               "You Have rejected a Person",

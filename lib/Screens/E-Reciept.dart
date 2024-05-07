@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:math';
 
@@ -49,7 +51,6 @@ class _ViewERecieptState extends State<ViewEReciept> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     manuallySpecifiedUID = widget.id;
     Status = widget.status;

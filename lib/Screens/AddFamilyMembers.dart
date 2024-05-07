@@ -1,7 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Models/addFM.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +110,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
     String? emailaaa = userinfo.getString('email');
     var userrecord = FirebaseFirestore.instance
         .collection("UserRequest")
+        .where('societyName', isEqualTo: societyName)
         .where('email', isEqualTo: emailaaa)
         .where('uid', isEqualTo: widget.id);
     print(widget.id);
@@ -183,6 +187,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
 
         var userrecord = FirebaseFirestore.instance
             .collection("UserRequest")
+            .where('societyName', isEqualTo: societyName)
             .where('email', isEqualTo: emailaaa)
             .where('uid', isEqualTo: widget.id);
         print(widget.id);

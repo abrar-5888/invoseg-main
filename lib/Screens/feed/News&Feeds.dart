@@ -81,6 +81,7 @@ class _HomeState extends State<Newsandfeeds> {
       final snapshot = await FirebaseFirestore.instance
           .collection('feed')
           .where('izmir', isEqualTo: true)
+          .where('societyName', isEqualTo: societyName)
           .orderBy('timestamp', descending: true)
           .get();
       if (snapshot.docs.isNotEmpty) {
@@ -107,6 +108,7 @@ class _HomeState extends State<Newsandfeeds> {
     FirebaseFirestore.instance
         .collection('notifications')
         .where('isRead', isEqualTo: false)
+        .where('societyName', isEqualTo: societyName)
         .snapshots()
         .listen((snapshot) {
       notificationCounter.updateCount(snapshot.docs.length);
@@ -115,6 +117,7 @@ class _HomeState extends State<Newsandfeeds> {
         Provider.of<VisitorProvider>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
+        .where('societyName', isEqualTo: societyName)
         .where('description',
             isEqualTo: 'please confirm identity of your friend')
         .orderBy('pressedTime', descending: true)
@@ -141,12 +144,12 @@ class _HomeState extends State<Newsandfeeds> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 2.0),
           child: Padding(
-            padding: EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/TransparentLogo.png"),
+              image: NetworkImage(logo),
               height: 40,
               width: 40,
             ),
@@ -172,7 +175,7 @@ class _HomeState extends State<Newsandfeeds> {
                   Consumer<NotificationCounter>(
                     builder: (context, counter, child) {
                       if (notificationCounter.count >
-                          0) // Show the badge only if there are unread notifications
+                          0) 
                       {
                         return Positioned(
                           right: 0,
@@ -182,7 +185,7 @@ class _HomeState extends State<Newsandfeeds> {
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors
-                                  .red, // You can customize the badge color
+                                  .red,
                             ),
                             constraints: const BoxConstraints(
                               minWidth: 15,

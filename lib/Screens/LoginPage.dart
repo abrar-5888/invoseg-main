@@ -132,6 +132,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     });
                                     // num++;
                                     await prefs.setString('userinfo', userinfo);
+                                    print("chal jai login 1");
+                                    print(info['societyName']);
+                                    prefs.setString(
+                                        'societyName', info['societyName']);
+                                    societyName = info['societyName'];
                                     await prefs.setString(
                                         'email', info["email"]);
                                     await prefs.setString('pass',
@@ -198,6 +203,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // num++;
                                 await prefs.setString('userinfo', userinfo);
                                 await prefs.setString('email', info["email"]);
+                                print("chal jai login 2");
+                                print(info['societyName']);
+                                prefs.setString(
+                                    'societyName', info['societyName']);
+                                societyName = info['societyName'];
                                 await prefs.setString(
                                     'pass', logins['pass'].toString().trim());
 
@@ -250,6 +260,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     // num++;
                     await prefs.setString('userinfo', userinfo);
                     await prefs.setString('email', info["email"]);
+                    print("chal jai login 3");
+                    print(info['societyName']);
+                    prefs.setString('societyName', info['societyName']);
+                    societyName = info['societyName'];
                     await prefs.setString(
                         'pass', logins['pass'].toString().trim());
                     await prefs.setBool("token", true);
@@ -297,6 +311,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 // num++;
                 await prefs.setString('userinfo', userinfo);
                 await prefs.setString('email', info["email"]);
+                print("chal jai login 4");
+                prefs.setString('societyName', info['societyName']);
+                print(info['societyName']);
+                societyName = info['societyName'];
                 await prefs.setString('pass', logins['pass'].toString().trim());
 
                 await prefs.setBool("token", true);
@@ -383,6 +401,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       // num++;
                       await prefs.setString('userinfo', userinfo);
                       await prefs.setString('email', info["email"]);
+                      print("chal jai login 5");
+                      print(info['societyName']);
+                      prefs.setString('societyName', info['societyName']);
+                      societyName = info['societyName'];
                       await prefs.setString(
                           'pass', logins['pass'].toString().trim());
 
@@ -481,6 +503,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     // "FM${num}": info["FM1"][0]['FamilyName']
                                   });
                                   // num++;
+                                  print("chal jai login 6");
+                                  print(info['societyName']);
+                                  prefs.setString(
+                                      'societyName', info['societyName']);
+                                  societyName = info['societyName'];
                                   await prefs.setString('userinfo', userinfo);
                                   await prefs.setString('email', info["email"]);
                                   await prefs.setString(
@@ -533,12 +560,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "id": id,
                                 "email": info["email"],
                                 "parentID": info['parentID']
+
                                 // "FM${num}": info["FM${num}"]['FamilyName']
                                 // ? "test"
                                 // : info["FM${num}"]['FamilyName']
                               });
                               // num++;
                               await prefs.setString('userinfo', userinfo);
+                              print("chal jai login 7");
+                              print(info['societyName']);
+                              prefs.setString(
+                                  'societyName', info['societyName']);
+                              societyName = info['societyName'];
                               await prefs.setString('email', info["email"]);
                               await prefs.setString(
                                   'pass', logins['pass'].toString().trim());
@@ -621,30 +654,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  String logos = "";
-  Future<void> getLogo1() async {
-    EasyLoading.show();
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('Logo').limit(1).get();
-    DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-    final data = documentSnapshot.data() as Map<String, dynamic>;
-    print(data['logoId']);
-
-    setState(() {
-      logos = data['logoId'];
-
-      EasyLoading.dismiss();
-    });
-
-    isLoading = false;
-  }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getLogo1();
-    getLogo();
   }
 
   @override
@@ -685,19 +698,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: Column(
                               children: <Widget>[
-                                logos.isNotEmpty
-                                    ? const Image(
-                                        image: AssetImage(
-                                            'assets/Images/izmir.jpg'),
-                                        // image: NetworkImage(logos),
-                                        height: 150,
-                                        width: 150,
-                                      )
-                                    : const SizedBox(
-                                        height: 150,
-                                        width: 150,
-                                        child: Text("Failed to Load LOGO"),
-                                      ),
+                                const Image(
+                                  image: AssetImage(
+                                      'assets/Images/TransparentLogo.png'),
+                                  // image: NetworkImage(logos),
+                                  height: 150,
+                                  width: 150,
+                                ),
+
                                 // FittedBox(
                                 //   fit: BoxFit.fitWidth,
                                 //   child: Container(

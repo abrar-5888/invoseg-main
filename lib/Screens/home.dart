@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:convert';
@@ -63,13 +63,11 @@ class _HomePageState extends State<HomePage> {
     print(FirebaseAuth.instance.currentUser!.uid);
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('not_Home') // Replace with your collection name
-
+          .collection('not_Home')
+          .where('societyName', isEqualTo: societyName)
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-          // .orderBy('time', descending: true)
           .limit(1)
           .get();
-      // Initialize the link variable
 
       if (querySnapshot.docs.isNotEmpty) {
         Map<String, dynamic> data =
@@ -105,6 +103,7 @@ class _HomePageState extends State<HomePage> {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('VideoPanel') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
+          .where('societyName', isEqualTo: societyName)
           .orderBy('time', descending: true)
           .limit(1)
           .get();
@@ -272,6 +271,7 @@ class _HomePageState extends State<HomePage> {
           .collection('not_Home') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('societyName', isEqualTo: societyName)
           .where('Status', isEqualTo: true)
           .limit(1)
           .get();
@@ -378,6 +378,7 @@ class _HomePageState extends State<HomePage> {
         // Step 1: Query the main collection based on parentID
         final mainCollectionQuery = await FirebaseFirestore.instance
             .collection("UserRequest")
+            .where('societyName', isEqualTo: societyName)
             .where("parentID", isEqualTo: userinfo['parentID'])
             .get();
 
@@ -467,6 +468,7 @@ class _HomePageState extends State<HomePage> {
                     "owner": userinfo["owner"],
                     "email": userinfo["email"],
                     "noti": true,
+                    "societyName": societyName,
                     "residentID": "Invoseg$fourDigitCode",
                     "FCMtoken": FCMtoken
                   },
@@ -505,6 +507,7 @@ class _HomePageState extends State<HomePage> {
                     "pressedTime": FieldValue.serverTimestamp(),
                     "type": collect,
                     "time": formattedTime,
+                    "societyName": societyName,
                     "date": formattedDate,
                     "uid": userinfo["uid"],
                     "owner": userinfo["owner"],
@@ -1134,17 +1137,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    // final Alertbtns = Provider.of<AlertBTNS>(context, listen: false);
-    final formattedDate =
-        DateFormat.d().format(DateTime.now()); // Day of the month
-    final formattedMonth =
-        DateFormat.yMMMM().format(DateTime.now()); // Full month name
-    // final formattedYear = DateFormat.y().format(DateTime.now()); // Year
-    final formattedTime = DateFormat('hh:mm:ss a')
-        .format(DateTime.now()); // Time in 24-hour format
-
-    // final formattedDateTime =
-    //     '$formattedDate $formattedMonth at $formattedTime UTC+5';
+    final formattedTime = DateFormat('hh:mm:ss a').format(DateTime.now());
     final notificationCounter =
         Provider.of<NotificationCounter>(context, listen: false);
     FirebaseFirestore.instance
@@ -1215,7 +1208,7 @@ class _HomePageState extends State<HomePage> {
         .snapshots()
         .listen((snapshot) {
       var docs = snapshot.docs.first;
-      print("o chal chal${docs.id}");
+      // print("o chal chal${docs.id}");
       medProvider.saveId(docs.id);
       medProvider.changeShowMedBox(true);
       medProvider.fetchData();
@@ -1239,12 +1232,12 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   centerTitle: true,
-                  leading: const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
+                  leading: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
                     child: Padding(
-                      padding: EdgeInsets.all(1.0),
+                      padding: const EdgeInsets.all(1.0),
                       child: Image(
-                        image: AssetImage("assets/Images/izmir.jpg"),
+                        image: NetworkImage(logo),
                         height: 70,
                         width: 70,
                       ),
@@ -1269,9 +1262,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             Consumer<NotificationCounter>(
                               builder: (context, counter, child) {
-                                if (notificationCounter.count >
-                                    0) // Show the badge only if there are unread notifications
-                                {
+                                if (notificationCounter.count > 0) {
                                   return Positioned(
                                     right: 0,
                                     top: 0,
@@ -1279,8 +1270,7 @@ class _HomePageState extends State<HomePage> {
                                       padding: const EdgeInsets.all(2),
                                       decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: Colors
-                                            .red, // You can customize the badge color
+                                        color: Colors.red,
                                       ),
                                       constraints: const BoxConstraints(
                                         minWidth: 15,
@@ -1290,8 +1280,7 @@ class _HomePageState extends State<HomePage> {
                                         "${notificationCounter.count}",
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize:
-                                              12, // You can customize the font size
+                                          fontSize: 12,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -3179,6 +3168,7 @@ class _HomePageState extends State<HomePage> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('plots')
+          .where('societyName', isEqualTo: societyName)
           .orderBy('timestamp', descending: true)
           .get();
 
@@ -3219,6 +3209,7 @@ class _HomePageState extends State<HomePage> {
       final mainCollectionQuery = await FirebaseFirestore.instance
           .collection("UserRequest") // Replace with your main collection
           .where("owner", isEqualTo: owner)
+          .where('societyName', isEqualTo: societyName)
           .get();
 
       if (mainCollectionQuery.docs.isNotEmpty) {

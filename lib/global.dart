@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,17 +11,23 @@ int history_count = 0;
 int plot_count = 0;
 int feed_count = 0;
 String logo = "";
+String societyName = '';
 bool isLoading = false;
 FirebaseApp secondApp = Firebase.app('CMS-All');
 
-Future<void> getLogo() async {
+Future<void> getLogo(String societyName) async {
   isLoading = true;
-  QuerySnapshot querySnapshot =
-      await FirebaseFirestore.instance.collection('Logo').limit(1).get();
+  print("Chala $societyName");
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('Logo')
+      .where('societyName', isEqualTo: societyName)
+      .limit(1)
+      .get();
   DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
   final data = documentSnapshot.data() as Map<String, dynamic>;
-  print(data['logoId']);
+
   logo = data['logoId'];
+  print(logo);
   isLoading = false;
 }
 

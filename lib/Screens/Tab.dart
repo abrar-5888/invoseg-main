@@ -100,6 +100,16 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   int _selectedPageIndex = 0;
 
+  void getSocietyLogo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      societyName = prefs.getString('societyName')!;
+    });
+    if (logo.isEmpty) {
+      getLogo(societyName);
+    }
+  }
+
   @override
   void initState() {
     _pages = [
@@ -110,6 +120,10 @@ class _TabsScreenState extends State<TabsScreen> {
         'title': 'Home',
       },
       {
+        'Pages': const Newsandfeeds(),
+        'title': 'News & Feeds',
+      },
+      {
         'Pages': const Grocery(),
         'title': 'Grocery',
       },
@@ -117,10 +131,7 @@ class _TabsScreenState extends State<TabsScreen> {
         'Pages': const Emergency(),
         'title': 'Emergency',
       },
-      {
-        'Pages': const Newsandfeeds(),
-        'title': 'News & Feeds',
-      },
+
       // {
       //   'Pages': ButtonsHistory(),
       //   'title': 'History',
@@ -149,20 +160,21 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    getSocietyLogo();
     final notificationCounter =
         Provider.of<NotificationCounter>(context, listen: false);
     void selectPage(int index) {
       setState(() {
         // _selectedPageIndex = 3;
         _selectedPageIndex = index;
-        if (_selectedPageIndex == 1) {
+        if (_selectedPageIndex == 2) {
           // updateAllIsReadStatus(true);
           updateGroisReadbool(true);
 
           // updateAllIsReadStatus(true);
           notificationCounter.updategroceryCount(0);
         }
-        if (_selectedPageIndex == 2) {
+        if (_selectedPageIndex == 3) {
           updateMedisRead(true);
           // updateAllIsReadStatus(true);
           // updateAllIsReadStatus(true);
@@ -204,6 +216,38 @@ class _TabsScreenState extends State<TabsScreen> {
           const BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: feed_count > 0
+                ? Stack(
+                    children: <Widget>[
+                      const Icon(Icons.ondemand_video_sharp),
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            feed_count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : const Icon(Icons.ondemand_video_sharp),
+            label: 'Feeds',
           ),
           BottomNavigationBarItem(
             icon: Consumer<NotificationCounter>(
@@ -284,38 +328,7 @@ class _TabsScreenState extends State<TabsScreen> {
             }),
             label: 'Medical',
           ),
-          BottomNavigationBarItem(
-            icon: feed_count > 0
-                ? Stack(
-                    children: <Widget>[
-                      const Icon(Icons.feed_rounded),
-                      Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            feed_count.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : const Icon(Icons.feed_rounded),
-            label: 'Feeds',
-          ),
+
           // BottomNavigationBarItem(
           //   icon: history_count > 0
           //       ? Stack(

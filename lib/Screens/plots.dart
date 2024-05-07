@@ -88,12 +88,12 @@ class _PlotsState extends State<Plots> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 8.0),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(3.0),
             child: Image(
-              image: AssetImage("assets/Images/TransparentLogo.png"),
+              image: NetworkImage(logo),
               height: 40,
               width: 40,
             ),
@@ -196,6 +196,7 @@ class _PlotsState extends State<Plots> {
           FutureBuilder<QuerySnapshot>(
               future: FirebaseFirestore.instance
                   .collection("plots")
+                  .where('societyName', isEqualTo: societyName)
                   .orderBy('timestamp', descending: true)
                   .get(),
               builder: (context, snapshot) {
@@ -342,12 +343,12 @@ class _PlotsState extends State<Plots> {
                                               const SizedBox(
                                                 height: 2,
                                               ),
-                                              Text(
-                                                "${data['address']}",
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
+                                              // Text(
+                                              //   "${data['address']}",
+                                              //   style: const TextStyle(
+                                              //       fontWeight:
+                                              //           FontWeight.bold),
+                                              // ),
                                               const SizedBox(
                                                 height: 2,
                                               ),

@@ -74,6 +74,7 @@ class _ResidentIDState extends State<ResidentID> {
 
           QuerySnapshot querySnapshot = await FirebaseFirestore.instance
               .collection('UserRequest')
+              .where('societyName', isEqualTo: societyName)
               .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
               .get();
 

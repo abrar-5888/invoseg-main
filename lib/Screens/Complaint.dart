@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -263,6 +264,7 @@ class _ComplainformState extends State<Complainform> {
                           child: StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('complian')
+                                .where('societyName', isEqualTo: societyName)
                                 .limit(2)
                                 .orderBy('pressedTime', descending: true)
                                 .where('uid',
@@ -378,6 +380,7 @@ class _ComplainformState extends State<Complainform> {
 
           final mainCollectionQuery = await FirebaseFirestore.instance
               .collection("UserRequest")
+              .where('societyName', isEqualTo: societyName)
               .where("parentID", isEqualTo: userinfo['parentID'])
               .get();
           if (mainCollectionQuery.docs.isNotEmpty) {
@@ -444,6 +447,7 @@ class _ComplainformState extends State<Complainform> {
                   'pressedTime': DateTime.now(),
                   'owner': '${userinfo["owner"]}',
                   'complainStatus': 'pending',
+                  "societyName": societyName,
                   'FCMtoken': FCMtoken,
                   "edit": false,
                 }).then((value) {
@@ -466,6 +470,7 @@ class _ComplainformState extends State<Complainform> {
                   'fmphoneNo': fmphoneNo,
                   'fmName1': fmName1,
                   'fmphoneNo1': fmphoneNo1,
+                  "societyName": societyName,
                   'name': '${userinfo['name']}',
                   'email': '${userinfo['email']}',
                   'uid': '${userinfo["uid"]}',

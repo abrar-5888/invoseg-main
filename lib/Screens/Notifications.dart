@@ -89,6 +89,7 @@ class _NotificationsState extends State<Notifications> {
         future: _firestore
             .collection('notifications')
             .where('uid', isEqualTo: id)
+            .where('societyName', isEqualTo: societyName)
             .orderBy('pressedTime', descending: true)
             .get(),
         builder: (context, snapshot) {

@@ -18,12 +18,7 @@ class ButtonsHistory extends StatefulWidget {
 }
 
 class _ButtonsHistoryState extends State<ButtonsHistory> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    // history_count = 0;
-    // getAllIsReadStatus();
-  }
+
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
@@ -154,6 +149,7 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                   future: FirebaseFirestore.instance
                       .collection("UserButtonRequest")
                       .where("uid", isEqualTo: myListData[0])
+                      .where('societyName', isEqualTo: societyName)
                       // .snapshots(includeMetadataChanges: true),
                       .limit(30)
                       .get(),
