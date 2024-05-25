@@ -99,7 +99,7 @@ class _EmergencyState extends State<Emergency> {
         Provider.of<NotificationCounter>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('isRead', isEqualTo: false)
         .snapshots()
         .listen((snapshot) {
@@ -109,7 +109,7 @@ class _EmergencyState extends State<Emergency> {
         Provider.of<VisitorProvider>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('description',
             isEqualTo: 'please confirm identity of your friend')
         .orderBy('pressedTime', descending: true)
@@ -130,12 +130,12 @@ class _EmergencyState extends State<Emergency> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage('assets/Images/logoBGR.png'),
               height: 40,
               width: 40,
             ),
@@ -246,7 +246,7 @@ class _EmergencyState extends State<Emergency> {
                   child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection("consultation")
-                        .where('societyName', isEqualTo: societyName)
+                        //.where('societyName', isEqualTo: societyName)
                         // .orderBy('time', descending: true)
                         .where('uid', isEqualTo: userinfo['uid'])
                         .limit(30)

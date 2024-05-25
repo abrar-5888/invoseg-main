@@ -16,7 +16,6 @@ import 'package:com.invoseg.innovation/Screens/Notifications.dart';
 import 'package:com.invoseg.innovation/Screens/Tab.dart';
 import 'package:com.invoseg.innovation/Screens/drawer.dart';
 import 'package:com.invoseg.innovation/Screens/plots_detail.dart';
-import 'package:com.invoseg.innovation/Screens/visitors.dart';
 import 'package:com.invoseg.innovation/global.dart';
 import 'package:com.invoseg.innovation/widgets/announcemnetAlertBox.dart';
 import 'package:com.invoseg.innovation/widgets/medicalAlertBox.dart';
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('not_Home')
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .limit(1)
           .get();
@@ -103,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('VideoPanel') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .orderBy('time', descending: true)
           .limit(1)
           .get();
@@ -271,7 +270,7 @@ class _HomePageState extends State<HomePage> {
           .collection('not_Home') // Replace with your collection name
           // .where('Email' == "oka1@gmail.com")
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .where('Status', isEqualTo: true)
           .limit(1)
           .get();
@@ -378,7 +377,7 @@ class _HomePageState extends State<HomePage> {
         // Step 1: Query the main collection based on parentID
         final mainCollectionQuery = await FirebaseFirestore.instance
             .collection("UserRequest")
-            .where('societyName', isEqualTo: societyName)
+            //.where('societyName', isEqualTo: societyName)
             .where("parentID", isEqualTo: userinfo['parentID'])
             .get();
 
@@ -468,7 +467,7 @@ class _HomePageState extends State<HomePage> {
                     "owner": userinfo["owner"],
                     "email": userinfo["email"],
                     "noti": true,
-                    "societyName": societyName,
+                    // "societyName": societyName,
                     "residentID": "Invoseg$fourDigitCode",
                     "FCMtoken": FCMtoken
                   },
@@ -507,7 +506,7 @@ class _HomePageState extends State<HomePage> {
                     "pressedTime": FieldValue.serverTimestamp(),
                     "type": collect,
                     "time": formattedTime,
-                    "societyName": societyName,
+                    // "societyName": societyName,
                     "date": formattedDate,
                     "uid": userinfo["uid"],
                     "owner": userinfo["owner"],
@@ -1232,12 +1231,12 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   centerTitle: true,
-                  leading: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                  leading: const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
                     child: Padding(
-                      padding: const EdgeInsets.all(1.0),
+                      padding: EdgeInsets.all(1.0),
                       child: Image(
-                        image: NetworkImage(logo),
+                        image: AssetImage('assets/Images/logoBGR.png'),
                         height: 70,
                         width: 70,
                       ),
@@ -1463,85 +1462,89 @@ class _HomePageState extends State<HomePage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              // top: 5,
-                                              // bottom: 10,
-                                              left: 1,
-                                              right: 1),
-                                          child: SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2.2,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                18,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: const Color.fromRGBO(
-                                                    15, 39, 127, 1),
-                                                // gradient:
-                                                //     LinearGradient(
-                                                //   colors: [
-                                                //     Color.fromRGBO(
-                                                //         242, 13, 54, 1),
-                                                //     Color.fromRGBO(104,
-                                                //         109, 224, 1),
-                                                //   ],
-                                                // ),
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(
-                                                            0.3), // Shadow color
-                                                    offset: const Offset(1,
-                                                        4), // Offset of the shadow (x, y)
-                                                    blurRadius:
-                                                        5, // Blur radius
-                                                  ),
-                                                ],
-                                              ),
-                                              child: TextButton.icon(
-                                                onPressed: () async {
-                                                  // Alertbtns
-                                                  //     .showMedConfirmDialogs(
-                                                  //         true);
-                                                  // if (Alertbtns
-                                                  //         .showMedConfirmDialog ==
-                                                  //     true) {
-                                                  medAlertMe('button-two');
-                                                  // } else {
-                                                  //   null;
-                                                  //   Alertbtns
-                                                  //       .showMedConfirmDialogs(
-                                                  //           false);
-                                                  // }
-                                                },
-                                                label: Text(
-                                                    '   ${buttonLabels[1]}',
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                icon: const Icon(
-                                                  Icons.emergency,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                        // Padding(
+                                        //   padding: const EdgeInsets.only(
+                                        //       // top: 5,
+                                        //       // bottom: 10,
+                                        //       left: 1,
+                                        //       right: 1),
+                                        //   child: SizedBox(
+                                        //     width: MediaQuery.of(context)
+                                        //             .size
+                                        //             .width /
+                                        //         2.2,
+                                        //     height: MediaQuery.of(context)
+                                        //             .size
+                                        //             .height /
+                                        //         18,
+                                        //     child: Container(
+                                        //       decoration: BoxDecoration(
+                                        //         color: const Color.fromRGBO(
+                                        //             15, 39, 127, 1),
+                                        //         // gradient:
+                                        //         //     LinearGradient(
+                                        //         //   colors: [
+                                        //         //     Color.fromRGBO(
+                                        //         //         242, 13, 54, 1),
+                                        //         //     Color.fromRGBO(104,
+                                        //         //         109, 224, 1),
+                                        //         //   ],
+                                        //         // ),
+                                        //         borderRadius:
+                                        //             BorderRadius.circular(10.0),
+                                        //         boxShadow: [
+                                        //           BoxShadow(
+                                        //             color: Colors.black
+                                        //                 .withOpacity(
+                                        //                     0.3), // Shadow color
+                                        //             offset: const Offset(1,
+                                        //                 4), // Offset of the shadow (x, y)
+                                        //             blurRadius:
+                                        //                 5, // Blur radius
+                                        //           ),
+                                        //         ],
+                                        //       ),
+                                        //       child: TextButton.icon(
+                                        //         onPressed: () async {
+                                        //           // Alertbtns
+                                        //           //     .showMedConfirmDialogs(
+                                        //           //         true);
+                                        //           // if (Alertbtns
+                                        //           //         .showMedConfirmDialog ==
+                                        //           //     true) {
+                                        //           medAlertMe('button-two');
+                                        //           // } else {
+                                        //           //   null;
+                                        //           //   Alertbtns
+                                        //           //       .showMedConfirmDialogs(
+                                        //           //           false);
+                                        //           // }
+                                        //         },
+                                        //         label: Text(
+                                        //             '   ${buttonLabels[1]}',
+                                        //             style: const TextStyle(
+                                        //                 color: Colors.white,
+                                        //                 fontWeight:
+                                        //                     FontWeight.bold)),
+                                        //         icon: const Icon(
+                                        //           Icons.emergency,
+                                        //           color: Colors.white,
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //   ),
+                                        // ),
                                         Padding(
                                           padding: const EdgeInsets.all(1.0),
                                           child: SizedBox(
+                                            // width: MediaQuery.of(context)
+                                            //         .size
+                                            //         .width /
+                                            //     2.2,
                                             width: MediaQuery.of(context)
                                                     .size
-                                                    .width /
-                                                2.2,
+                                                    .width -
+                                                20,
                                             height: MediaQuery.of(context)
                                                     .size
                                                     .height /
@@ -1685,52 +1688,52 @@ class _HomePageState extends State<HomePage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                InkWell(
-                                  onTap: () async {
-                                    //  await generatePDF();
-                                    updateMainIcons();
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                // PDFViewerPage(pdfPath: filePath)
-                                                const Visitors()));
-                                  },
-                                  child: SizedBox(
-                                    // color: Colors.green,
-                                    // height: 80,
-                                    width:
-                                        MediaQuery.of(context).size.width / 4,
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          height: 50,
-                                          width: 50,
-                                          decoration: BoxDecoration(
-                                              color: const Color.fromRGBO(
-                                                  236, 238, 240, 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(30)),
-                                          child: const Icon(Icons.car_rental,
-                                              //  Icons.table_chart_outlined,
-                                              color: Color.fromRGBO(
-                                                  15, 39, 127, 1)),
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.all(5.0),
-                                          child: Text(
-                                            'Visitors',
-                                            // "Bills",
-                                            style: TextStyle(
-                                                fontSize: 11,
-                                                // ),
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                // InkWell(
+                                //   onTap: () async {
+                                //     //  await generatePDF();
+                                //     updateMainIcons();
+                                //     Navigator.push(
+                                //         context,
+                                //         MaterialPageRoute(
+                                //             builder: (context) =>
+                                //                 // PDFViewerPage(pdfPath: filePath)
+                                //                 const Visitors()));
+                                //   },
+                                //   child: SizedBox(
+                                //     // color: Colors.green,
+                                //     // height: 80,
+                                //     width:
+                                //         MediaQuery.of(context).size.width / 4,
+                                //     child: Column(
+                                //       children: [
+                                //         Container(
+                                //           height: 50,
+                                //           width: 50,
+                                //           decoration: BoxDecoration(
+                                //               color: const Color.fromRGBO(
+                                //                   236, 238, 240, 1),
+                                //               borderRadius:
+                                //                   BorderRadius.circular(30)),
+                                //           child: const Icon(Icons.car_rental,
+                                //               //  Icons.table_chart_outlined,
+                                //               color: Color.fromRGBO(
+                                //                   15, 39, 127, 1)),
+                                //         ),
+                                //         const Padding(
+                                //           padding: EdgeInsets.all(5.0),
+                                //           child: Text(
+                                //             'Visitors',
+                                //             // "Bills",
+                                //             style: TextStyle(
+                                //                 fontSize: 11,
+                                //                 // ),
+                                //                 fontWeight: FontWeight.w600),
+                                //           ),
+                                //         )
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
                                 InkWell(
                                   onTap: () {
                                     updateMainIcons();
@@ -3168,7 +3171,10 @@ class _HomePageState extends State<HomePage> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('plots')
-          .where('societyName', isEqualTo: societyName)
+          .where('societyName', whereIn: [
+            // societyName,
+            "invoseg",
+          ])
           .orderBy('timestamp', descending: true)
           .get();
 
@@ -3209,7 +3215,7 @@ class _HomePageState extends State<HomePage> {
       final mainCollectionQuery = await FirebaseFirestore.instance
           .collection("UserRequest") // Replace with your main collection
           .where("owner", isEqualTo: owner)
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .get();
 
       if (mainCollectionQuery.docs.isNotEmpty) {

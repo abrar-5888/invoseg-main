@@ -576,7 +576,7 @@ class _UserProfileState extends State<UserProfile> {
                     'designation': userinfo["designation"] ?? "",
                     'age': userinfo["age"] ?? "",
                     'uid': userinfo["uid"] ?? "",
-                    "societyName": societyName,
+                    // "societyName": societyName,
                     'owner': userinfo["owner"] ?? "",
                     'email': userinfo["email"] ?? ""
                   }).then((value) {

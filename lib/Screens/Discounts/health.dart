@@ -67,7 +67,11 @@ class _HealthState extends State<Health> {
                 child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection("discounts")
-                        .where('societyName', isEqualTo: societyName)
+                        //  .where('societyName', whereIn: [
+                        //   // societyName,
+                        //   "invoseg",
+                        // ])
+                        // .where('izmir', isEqualTo: true)
                         .orderBy('timestamp', descending: true)
                         .where("category", isEqualTo: 'Health')
                         .get(),

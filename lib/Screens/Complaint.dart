@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:com.invoseg.innovation/global.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Complainform extends StatefulWidget {
+  const Complainform({super.key});
+
   @override
   State<Complainform> createState() => _ComplainformState();
 }
@@ -264,7 +265,7 @@ class _ComplainformState extends State<Complainform> {
                           child: StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('complian')
-                                .where('societyName', isEqualTo: societyName)
+                                //.where('societyName', isEqualTo: societyName)
                                 .limit(2)
                                 .orderBy('pressedTime', descending: true)
                                 .where('uid',
@@ -380,7 +381,7 @@ class _ComplainformState extends State<Complainform> {
 
           final mainCollectionQuery = await FirebaseFirestore.instance
               .collection("UserRequest")
-              .where('societyName', isEqualTo: societyName)
+              //.where('societyName', isEqualTo: societyName)
               .where("parentID", isEqualTo: userinfo['parentID'])
               .get();
           if (mainCollectionQuery.docs.isNotEmpty) {
@@ -447,7 +448,7 @@ class _ComplainformState extends State<Complainform> {
                   'pressedTime': DateTime.now(),
                   'owner': '${userinfo["owner"]}',
                   'complainStatus': 'pending',
-                  "societyName": societyName,
+                  // "societyName": societyName,
                   'FCMtoken': FCMtoken,
                   "edit": false,
                 }).then((value) {
@@ -470,7 +471,7 @@ class _ComplainformState extends State<Complainform> {
                   'fmphoneNo': fmphoneNo,
                   'fmName1': fmName1,
                   'fmphoneNo1': fmphoneNo1,
-                  "societyName": societyName,
+                  // "societyName": societyName,
                   'name': '${userinfo['name']}',
                   'email': '${userinfo['email']}',
                   'uid': '${userinfo["uid"]}',

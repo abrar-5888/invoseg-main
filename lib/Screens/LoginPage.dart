@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     print(info['societyName']);
                                     prefs.setString(
                                         'societyName', info['societyName']);
-                                    societyName = info['societyName'];
+                                    // societyName = info['societyName'];
                                     await prefs.setString(
                                         'email', info["email"]);
                                     await prefs.setString('pass',
@@ -207,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 print(info['societyName']);
                                 prefs.setString(
                                     'societyName', info['societyName']);
-                                societyName = info['societyName'];
+                               // societyName = info['societyName'];
                                 await prefs.setString(
                                     'pass', logins['pass'].toString().trim());
 
@@ -263,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     print("chal jai login 3");
                     print(info['societyName']);
                     prefs.setString('societyName', info['societyName']);
-                    societyName = info['societyName'];
+                   // societyName = info['societyName'];
                     await prefs.setString(
                         'pass', logins['pass'].toString().trim());
                     await prefs.setBool("token", true);
@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 print("chal jai login 4");
                 prefs.setString('societyName', info['societyName']);
                 print(info['societyName']);
-                societyName = info['societyName'];
+               // societyName = info['societyName'];
                 await prefs.setString('pass', logins['pass'].toString().trim());
 
                 await prefs.setBool("token", true);
@@ -404,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       print("chal jai login 5");
                       print(info['societyName']);
                       prefs.setString('societyName', info['societyName']);
-                      societyName = info['societyName'];
+                     // societyName = info['societyName'];
                       await prefs.setString(
                           'pass', logins['pass'].toString().trim());
 
@@ -507,7 +507,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   print(info['societyName']);
                                   prefs.setString(
                                       'societyName', info['societyName']);
-                                  societyName = info['societyName'];
+                                 // societyName = info['societyName'];
                                   await prefs.setString('userinfo', userinfo);
                                   await prefs.setString('email', info["email"]);
                                   await prefs.setString(
@@ -571,7 +571,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               print(info['societyName']);
                               prefs.setString(
                                   'societyName', info['societyName']);
-                              societyName = info['societyName'];
+                             // societyName = info['societyName'];
                               await prefs.setString('email', info["email"]);
                               await prefs.setString(
                                   'pass', logins['pass'].toString().trim());

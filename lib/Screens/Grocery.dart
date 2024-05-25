@@ -39,7 +39,7 @@ class _GroceryState extends State<Grocery> {
     try {
       var querySnapshot = await FirebaseFirestore.instance
           .collection('grocery')
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .get();
       var docs = querySnapshot.docs;
       for (var doc in docs) {
@@ -116,12 +116,12 @@ class _GroceryState extends State<Grocery> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage('assets/Images/logoBGR.png'),
               height: 40,
               width: 40,
             ),
@@ -787,7 +787,7 @@ class _GroceryState extends State<Grocery> {
       final mainCollectionQuery = await FirebaseFirestore.instance
           .collection("UserRequest") // Replace with your main collection
           .where("email", isEqualTo: userinfo['email'])
-          .where('societyName', isEqualTo: societyName)
+          //.where('societyName', isEqualTo: societyName)
           .get();
 
       if (mainCollectionQuery.docs.isNotEmpty) {
@@ -836,7 +836,7 @@ class _GroceryState extends State<Grocery> {
               "time": formattedTime,
               "date": formattedDate,
               // "FM${num}": userinfo["FM${num}"],
-              "societyName": societyName,
+              // "societyName": societyName,
               "uid": userinfo["uid"],
               "owner": userinfo["owner"],
               "email": userinfo["email"],
@@ -869,7 +869,8 @@ class _GroceryState extends State<Grocery> {
               "pressedTime": FieldValue.serverTimestamp(),
               "type": collect,
               "isProcessed": false,
-              "time": formattedTime, "societyName": societyName,
+              "time": formattedTime,
+              // "societyName": societyName,
               "date": formattedDate,
               // "FM${num}": userinfo["FM${num}"],
               "uid": userinfo["uid"],

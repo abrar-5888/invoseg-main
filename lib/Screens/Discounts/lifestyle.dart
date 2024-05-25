@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Screens/Discounts/discountDetails.dart';
-import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -67,7 +66,11 @@ class _LifeStyleState extends State<LifeStyle> {
                 child: FutureBuilder<QuerySnapshot>(
                     future: FirebaseFirestore.instance
                         .collection("discounts")
-                        .where('societyName', isEqualTo: societyName)
+                        // .where('societyName', whereIn: [
+                        //   // societyName,
+                        //   "invoseg",
+                        // ])
+                        // .where('izmir', isEqualTo: true)
                         .orderBy('timestamp', descending: true)
                         .where("category", isEqualTo: 'Life Style')
                         .get(),

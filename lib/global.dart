@@ -11,7 +11,7 @@ int history_count = 0;
 int plot_count = 0;
 int feed_count = 0;
 String logo = "";
-String societyName = '';
+// String societyName = '';
 bool isLoading = false;
 FirebaseApp secondApp = Firebase.app('CMS-All');
 

@@ -48,7 +48,7 @@ class _VisitorsState extends State<Visitors> {
       body: FutureBuilder<QuerySnapshot>(
         future: _firestore
             .collection('notifications')
-            .where('societyName', isEqualTo: societyName)
+            //.where('societyName', isEqualTo: societyName)
             .where('description', whereIn: [
               "You Have approved your freinds / relative identity",
               "You Have rejected a Person",

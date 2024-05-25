@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Providers/NotificationCounterProvider.dart';
-import 'package:com.invoseg.innovation/Screens/Emergency.dart';
 import 'package:com.invoseg.innovation/Screens/Grocery.dart';
+import 'package:com.invoseg.innovation/Screens/History.dart';
 import 'package:com.invoseg.innovation/Screens/feed/News&Feeds.dart';
 import 'package:com.invoseg.innovation/Screens/home.dart';
 import 'package:com.invoseg.innovation/Screens/plots.dart';
@@ -100,16 +100,6 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   int _selectedPageIndex = 0;
 
-  void getSocietyLogo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      societyName = prefs.getString('societyName')!;
-    });
-    if (logo.isEmpty) {
-      getLogo(societyName);
-    }
-  }
-
   @override
   void initState() {
     _pages = [
@@ -127,20 +117,20 @@ class _TabsScreenState extends State<TabsScreen> {
         'Pages': const Grocery(),
         'title': 'Grocery',
       },
-      {
-        'Pages': const Emergency(),
-        'title': 'Emergency',
-      },
-
       // {
-      //   'Pages': ButtonsHistory(),
-      //   'title': 'History',
+      //   'Pages': const Emergency(),
+      //   'title': 'Emergency',
       // },
+
       {
         'Pages': const Plots(),
         // 'Pages': Explore(),.
         'title': 'Explore',
-      }
+      },
+      {
+        'Pages': const ButtonsHistory(),
+        'title': 'History',
+      },
     ];
     super.initState();
 
@@ -148,7 +138,6 @@ class _TabsScreenState extends State<TabsScreen> {
     addFcmToken();
     addCount();
     getAllIsReadStatus();
-    print("++++++++++++++++++++++++++++++++++++++$med_count");
     setState(() {
       _selectedPageIndex = widget.index;
 
@@ -160,7 +149,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    getSocietyLogo();
+    // getSocietyLogo();
     final notificationCounter =
         Provider.of<NotificationCounter>(context, listen: false);
     void selectPage(int index) {
@@ -289,45 +278,45 @@ class _TabsScreenState extends State<TabsScreen> {
             label: 'Grocery',
           ),
 
-          BottomNavigationBarItem(
-            icon: Consumer<NotificationCounter>(
-                builder: (context, counter, child) {
-              if (notificationCounter.medicalCount > 0) {
-                return Stack(
-                  children: <Widget>[
-                    const Icon(Icons.medical_services_rounded),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color:
-                              Colors.red, // You can customize the badge color
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 15,
-                          minHeight: 15,
-                        ),
-                        child: Text(
-                          "${notificationCounter.medicalCount}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12, // You can customize the font size
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  ],
-                );
-              } else {
-                return const Icon(Icons.medical_services_rounded);
-              }
-            }),
-            label: 'Medical',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Consumer<NotificationCounter>(
+          //       builder: (context, counter, child) {
+          //     if (notificationCounter.medicalCount > 0) {
+          //       return Stack(
+          //         children: <Widget>[
+          //           const Icon(Icons.medical_services_rounded),
+          //           Positioned(
+          //             right: 0,
+          //             top: 0,
+          //             child: Container(
+          //               padding: const EdgeInsets.all(2),
+          //               decoration: const BoxDecoration(
+          //                 shape: BoxShape.circle,
+          //                 color:
+          //                     Colors.red, // You can customize the badge color
+          //               ),
+          //               constraints: const BoxConstraints(
+          //                 minWidth: 15,
+          //                 minHeight: 15,
+          //               ),
+          //               child: Text(
+          //                 "${notificationCounter.medicalCount}",
+          //                 style: const TextStyle(
+          //                   color: Colors.white,
+          //                   fontSize: 12, // You can customize the font size
+          //                 ),
+          //                 textAlign: TextAlign.center,
+          //               ),
+          //             ),
+          //           )
+          //         ],
+          //       );
+          //     } else {
+          //       return const Icon(Icons.medical_services_rounded);
+          //     }
+          //   }),
+          //   label: 'Medical',
+          // ),
 
           // BottomNavigationBarItem(
           //   icon: history_count > 0
@@ -392,6 +381,40 @@ class _TabsScreenState extends State<TabsScreen> {
                   )
                 : const Icon(Icons.explore),
             label: 'Plots',
+          ),
+          const BottomNavigationBarItem(
+            icon:
+                // plot_count > 0
+                // ? Stack(
+                //     children: <Widget>[
+                //       const Icon(Icons.explore),
+                //       Positioned(
+                //         right: 0,
+                //         child: Container(
+                //           padding: const EdgeInsets.all(2),
+                //           decoration: BoxDecoration(
+                //             color: Colors.red,
+                //             borderRadius: BorderRadius.circular(6),
+                //           ),
+                //           constraints: const BoxConstraints(
+                //             minWidth: 12,
+                //             minHeight: 12,
+                //           ),
+                //           child: Text(
+                //             plot_count.toString(),
+                //             style: const TextStyle(
+                //               color: Colors.white,
+                //               fontSize: 8,
+                //             ),
+                //             textAlign: TextAlign.center,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   )
+                // :
+                Icon(Icons.history),
+            label: 'History',
           ),
         ],
       ),

@@ -58,7 +58,7 @@ class _PlotsState extends State<Plots> {
         Provider.of<NotificationCounter>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('isRead', isEqualTo: false)
         .snapshots()
         .listen((snapshot) {
@@ -68,7 +68,7 @@ class _PlotsState extends State<Plots> {
         Provider.of<VisitorProvider>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('description',
             isEqualTo: 'please confirm identity of your friend')
         .orderBy('pressedTime', descending: true)
@@ -90,12 +90,12 @@ class _PlotsState extends State<Plots> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage('assets/Images/logoBGR.png'),
               height: 40,
               width: 40,
             ),
@@ -198,7 +198,11 @@ class _PlotsState extends State<Plots> {
           FutureBuilder<QuerySnapshot>(
               future: FirebaseFirestore.instance
                   .collection("plots")
-                  .where('societyName', isEqualTo: societyName)
+                  // .where('societyName', whereIn: [
+                  //   // societyName,
+                  //   "invoseg",
+                  // ])
+                  .where('izmir', isEqualTo: true)
                   .orderBy('timestamp', descending: true)
                   .get(),
               builder: (context, snapshot) {

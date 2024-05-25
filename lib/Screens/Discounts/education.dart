@@ -69,7 +69,11 @@ class _EducationState extends State<Education> {
                     future: FirebaseFirestore.instance
                         .collection("discounts")
                         .orderBy('timestamp', descending: true)
-                        .where('societyName', isEqualTo: societyName)
+                        // .where('societyName', whereIn: [
+                        //   // societyName,
+                        //   "invoseg",
+                        // ])
+                        // .where('izmir', isEqualTo: true)
                         .where("category", isEqualTo: 'Education')
                         .get(),
                     builder: (context, discountSnapshot) {

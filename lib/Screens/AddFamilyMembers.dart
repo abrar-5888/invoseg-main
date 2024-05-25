@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.invoseg.innovation/Models/addFM.dart';
-import 'package:com.invoseg.innovation/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +109,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
     String? emailaaa = userinfo.getString('email');
     var userrecord = FirebaseFirestore.instance
         .collection("UserRequest")
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('email', isEqualTo: emailaaa)
         .where('uid', isEqualTo: widget.id);
     print(widget.id);
@@ -142,7 +141,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
 
       setState(() {
         _isloading = false;
-        remaining = 7 - length;
+        remaining = 9 - length;
       });
       // print("Remaining = $remaining");
       _isloading = false;
@@ -186,7 +185,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
 
         var userrecord = FirebaseFirestore.instance
             .collection("UserRequest")
-            .where('societyName', isEqualTo: societyName)
+            //.where('societyName', isEqualTo: societyName)
             .where('email', isEqualTo: emailaaa)
             .where('uid', isEqualTo: widget.id);
         print(widget.id);
@@ -214,7 +213,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
           QuerySnapshot fmDataSnapshot = await fmDataCollection.get();
           var length = fmDataSnapshot.docs.length;
 
-          if (fmDataSnapshot.docs.length >= 8) {
+          if (fmDataSnapshot.docs.length >= 10) {
             // If the subcollection has 8 documents
             EasyLoading.showError("Maximum Logins Exceeded!");
           } else {
@@ -230,7 +229,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
               "status": "Approve",
               "email": FirebaseAuth.instance.currentUser!.email,
               "uid": user?.uid,
-              "societyName": societyName,
+              // "societyName": societyName,
               "password": addFMmodel.password,
               "residentID": "INVOSEG$fourDigitCode",
               // "CM_Token": FCMtoken,
@@ -435,7 +434,7 @@ class _FamilyMembersState extends State<FamilyMembers> {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "Maximum 8 Inherited Logins Allowed",
+                                        "Maximum 10 Inherited Logins Allowed",
                                         style: TextStyle(
                                           fontStyle: FontStyle.italic,
                                           fontSize: (MediaQuery.of(context)

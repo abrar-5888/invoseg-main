@@ -68,7 +68,11 @@ class _FitnessState extends State<Fitness> {
                     future: FirebaseFirestore.instance
                         .collection("discounts")
                         .orderBy('timestamp', descending: true)
-                        .where('societyName', isEqualTo: societyName)
+                        // .where('societyName', whereIn: [
+                        //   // societyName,
+                        //   "invoseg",
+                        // ])
+                        // .where('izmir', isEqualTo: true)
                         .where("category", isEqualTo: 'Fitness')
                         .get(),
                     builder: (context, discountSnapshot) {

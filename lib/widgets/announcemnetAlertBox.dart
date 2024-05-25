@@ -25,7 +25,7 @@ class AnnouncementAlertBox extends StatelessWidget {
                       children: [
                         const CircleAvatar(
                             backgroundImage:
-                                AssetImage('assets/Images/izmir.jpg')),
+                                AssetImage('assets/Images/logoBGR.png')),
                         const SizedBox(
                           width: 5,
                         ),

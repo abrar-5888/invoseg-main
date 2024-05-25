@@ -68,7 +68,11 @@ class _FoodState extends State<Food> {
                     future: FirebaseFirestore.instance
                         .collection("discounts")
                         .orderBy('timestamp', descending: true)
-                        .where('societyName', isEqualTo: societyName)
+                        //  .where('societyName', whereIn: [
+                        //   // societyName,
+                        //   "invoseg",
+                        // ])
+                        // .where('izmir', isEqualTo: true)
                         .where("category", isEqualTo: 'Food')
                         .get(),
                     builder: (context, discountSnapshot) {

@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/Screens/Notifications.dart';
+import 'package:com.invoseg.innovation/Screens/drawer.dart';
+import 'package:com.invoseg.innovation/global.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/Screens/Notifications.dart';
-import 'package:com.invoseg.innovation/Screens/drawer.dart';
-import 'package:com.invoseg.innovation/global.dart';
 
 class ButtonsHistory extends StatefulWidget {
   static const routename = 'history';
@@ -18,8 +18,6 @@ class ButtonsHistory extends StatefulWidget {
 }
 
 class _ButtonsHistoryState extends State<ButtonsHistory> {
-
-
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   @override
@@ -39,14 +37,25 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
         //     width: 60,
         //   ),
         // ),
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.black,
-            )),
+        // leading: IconButton(
+        //     onPressed: () {
+        //       Navigator.pop(context);
+        //     },
+        //     icon: const Icon(
+        //       Icons.arrow_back_ios_new,
+        //       color: Colors.black,
+        //     )),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Padding(
+            padding: EdgeInsets.all(3.0),
+            child: Image(
+              image: AssetImage('assets/Images/logoBGR.png'),
+              height: 40,
+              width: 40,
+            ),
+          ),
+        ),
         title: const Text(
           'History',
           style: TextStyle(
@@ -149,7 +158,7 @@ class _ButtonsHistoryState extends State<ButtonsHistory> {
                   future: FirebaseFirestore.instance
                       .collection("UserButtonRequest")
                       .where("uid", isEqualTo: myListData[0])
-                      .where('societyName', isEqualTo: societyName)
+                      //.where('societyName', isEqualTo: societyName)
                       // .snapshots(includeMetadataChanges: true),
                       .limit(30)
                       .get(),

@@ -80,8 +80,11 @@ class _HomeState extends State<Newsandfeeds> {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('feed')
+          // .where('societyName', whereIn: [
+          //   // societyName,
+          //   "invoseg",
+          // ])
           .where('izmir', isEqualTo: true)
-          .where('societyName', isEqualTo: societyName)
           .orderBy('timestamp', descending: true)
           .get();
       if (snapshot.docs.isNotEmpty) {
@@ -108,7 +111,7 @@ class _HomeState extends State<Newsandfeeds> {
     FirebaseFirestore.instance
         .collection('notifications')
         .where('isRead', isEqualTo: false)
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .snapshots()
         .listen((snapshot) {
       notificationCounter.updateCount(snapshot.docs.length);
@@ -117,7 +120,7 @@ class _HomeState extends State<Newsandfeeds> {
         Provider.of<VisitorProvider>(context, listen: false);
     FirebaseFirestore.instance
         .collection('notifications')
-        .where('societyName', isEqualTo: societyName)
+        //.where('societyName', isEqualTo: societyName)
         .where('description',
             isEqualTo: 'please confirm identity of your friend')
         .orderBy('pressedTime', descending: true)
@@ -144,12 +147,12 @@ class _HomeState extends State<Newsandfeeds> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 2.0),
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 2.0),
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.0),
             child: Image(
-              image: NetworkImage(logo),
+              image: AssetImage('assets/Images/logoBGR.png'),
               height: 40,
               width: 40,
             ),
@@ -174,9 +177,7 @@ class _HomeState extends State<Newsandfeeds> {
                   ),
                   Consumer<NotificationCounter>(
                     builder: (context, counter, child) {
-                      if (notificationCounter.count >
-                          0) 
-                      {
+                      if (notificationCounter.count > 0) {
                         return Positioned(
                           right: 0,
                           top: 0,
@@ -184,8 +185,7 @@ class _HomeState extends State<Newsandfeeds> {
                             padding: const EdgeInsets.all(2),
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors
-                                  .red,
+                              color: Colors.red,
                             ),
                             constraints: const BoxConstraints(
                               minWidth: 15,
