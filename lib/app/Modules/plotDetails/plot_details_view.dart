@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:com.invoseg.innovation/config/themes/themes%20color/colors.dart';
-import 'package:com.invoseg.innovation/data/Models/plotsModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/plotsModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PlotsDetail extends StatefulWidget {

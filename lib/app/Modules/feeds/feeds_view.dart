@@ -1,12 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.invoseg.innovation/app/Modules/feeds/feeds_controller.dart';
+import 'package:com.invoseg.innovation/app/data/Models/feedsModel.dart';
+import 'package:com.invoseg.innovation/app/data/api/feedsApi.dart';
+import 'package:com.invoseg.innovation/utils/formatter.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/app/Modules/feeds/feeds_controller.dart';
-import 'package:com.invoseg.innovation/data/Models/feedsModel.dart';
-import 'package:com.invoseg.innovation/data/api/feedsApi.dart';
-import 'package:com.invoseg.innovation/utils/formatter.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 // ignore_for_file: unnecessary_import
 
@@ -34,17 +35,20 @@ class FeedsState extends State<Feeds> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        Obx(
-          () => ListView.builder(
-            itemCount: controller.feeds.length,
-            itemBuilder: (context, index) {
-              FeedsModel feed = controller.feeds[index];
-              return _buildFeedItem(feed);
-            },
-          ),
-        ),
-      ]),
+      backgroundColor: Colors.white,
+      body: Obx(
+        () => controller.feeds.isNotEmpty
+            ? ListView.builder(
+                itemCount: controller.feeds.length,
+                itemBuilder: (context, index) {
+                  FeedsModel feed = controller.feeds[index];
+                  return _buildFeedItem(feed);
+                },
+              )
+            : const Center(
+                child: Text("No feeds available"),
+              ),
+      ),
     );
   }
 
@@ -146,22 +150,22 @@ class FeedsState extends State<Feeds> {
             child: IconButton(
               splashColor: Colors.transparent,
               onPressed: () async {
-                if (feed.likeUids.contains(controller.userUid)) {
+                if (feed.likeUids.contains(userId)) {
                   Map<String, dynamic> updatedData = {
                     'likes': feed.likes - 1,
-                    'Likesuids': FieldValue.arrayRemove([controller.userUid]),
+                    'Likesuids': FieldValue.arrayRemove([userId]),
                   };
 
                   FeedsApi.updateLikes(feed.id, updatedData);
                 } else {
                   Map<String, dynamic> updatedData = {
                     'likes': feed.likes + 1,
-                    'Likesuids': FieldValue.arrayUnion([controller.userUid]),
+                    'Likesuids': FieldValue.arrayUnion([userId]),
                   };
                   FeedsApi.updateLikes(feed.id, updatedData);
                 }
               },
-              icon: feed.likeUids.isNotEmpty && feed.likeUids.contains(controller.userUid)
+              icon: feed.likeUids.isNotEmpty && feed.likeUids.contains(userId)
                   ? const Icon(
                       Icons.favorite,
                       color: Colors.red,

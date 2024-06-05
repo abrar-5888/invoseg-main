@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:com.invoseg.innovation/app/Modules/Login/login_controller.dart';
 import 'package:com.invoseg.innovation/generated/assets.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +47,6 @@ class _LoginPAgeState extends State<LoginPage> {
                         width: 150,
                         height: 150,
                       ),
-
                       const SizedBox(
                         height: 10,
                       ),
@@ -78,7 +79,7 @@ class _LoginPAgeState extends State<LoginPage> {
                               controller: controller.emailOrPhone.value,
                               keyboardType: TextInputType.emailAddress,
                               decoration: const InputDecoration(
-                                  labelText: 'Email or PhoneNo.', border: InputBorder.none, hintText: 'Enter your Email Address or PhoneNo.', hintStyle: TextStyle(color: Colors.grey, fontSize: 10)),
+                                  labelText: 'PhoneNo.', border: InputBorder.none, hintText: 'Enter your Email Address or PhoneNo.', hintStyle: TextStyle(color: Colors.grey, fontSize: 10)),
                             ))
                           ],
                         ),
@@ -136,7 +137,7 @@ class _LoginPAgeState extends State<LoginPage> {
                           child: ElevatedButton(
                             onPressed: () {
                               if (controller.checkForm()) {
-                                controller.login();
+                                controller.loginWithNode();
                               }
                             },
                             style: ButtonStyle(
@@ -156,55 +157,34 @@ class _LoginPAgeState extends State<LoginPage> {
                           ),
                         ),
                       ),
-
-                      // Padding(
-                      //   padding: const EdgeInsets.only(
-                      //       right: 20.0, top: 5.0, bottom: 5.0),
-                      //   child: Align(
-                      //     alignment: Alignment.bottomRight,
-                      //     child: TextButton(
-                      //         onPressed: () {
-                      //           Get.dialog(AlertDialog(
-                      //             surfaceTintColor: Colors.white,
-                      //             title: const Text('Forgot Password'),
-                      //             content: const Column(
-                      //               crossAxisAlignment:
-                      //                   CrossAxisAlignment.start,
-                      //               mainAxisSize: MainAxisSize.min,
-                      //               children: [
-                      //                 Text('Please contact our admin at:'),
-                      //                 SizedBox(height: 8),
-                      //                 Text(
-                      //                   'info@invoseg.com',
-                      //                   style: TextStyle(
-                      //                     fontWeight: FontWeight.bold,
-                      //                     color: Colors
-                      //                         .blue, // Adjust the color as needed
-                      //                   ),
-                      //                 )
-                      //               ],
-                      //             ),
-                      //             actions: [
-                      //               TextButton(
-                      //                   onPressed: () {
-                      //                     Get.back();
-                      //                   },
-                      //                   child: const Text(
-                      //                     'OK',
-                      //                     style: TextStyle(color: Colors.black),
-                      //                   ))
-                      //             ],
-                      //           ));
-                      //         },
-                      //         child: const Text(
-                      //           'Forgot Password?',
-                      //           style: TextStyle(
-                      //               color: Colors.teal,
-                      //               fontWeight: FontWeight.bold,
-                      //               fontSize: 10),
-                      //         )),
-                      //   ),
-                      // )
+                      Padding(
+                        padding: const EdgeInsets.only(right: 20.0, top: 5.0, bottom: 5.0),
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: TextButton(
+                              onPressed: () {
+                                Get.dialog(AlertDialog(
+                                  surfaceTintColor: Colors.white,
+                                  title: const Text('SignUp'),
+                                  content: const Text('Please contact your society admin to get yourself registered'),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Get.back();
+                                        },
+                                        child: const Text(
+                                          'OK',
+                                          style: TextStyle(color: Colors.black),
+                                        ))
+                                  ],
+                                ));
+                              },
+                              child: const Text(
+                                'Don\'t have an account?',
+                                style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 10),
+                              )),
+                        ),
+                      )
                     ],
                   ),
                 ),

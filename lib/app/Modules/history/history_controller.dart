@@ -1,6 +1,9 @@
+import 'dart:convert';
+
+import 'package:com.invoseg.innovation/app/data/Models/historyModel.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/data/Models/historyModel.dart';
-import 'package:com.invoseg.innovation/data/api/historyApi.dart';
+import 'package:http/http.dart' as http;
 // ignore_for_file: avoid_print
 
 class HistoryController extends GetxController {
@@ -13,8 +16,17 @@ class HistoryController extends GetxController {
   }
 
   Future<void> fetchHistories() async {
-    HistoryApi.historyQuery.snapshots().listen((event) {
-      histories.value = event.docs.map((e) => HistoryModel.fromJson(e.data())).toList();
-    });
+    final String url = '$ip/api/history/$userId';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print(data);
+      } else {
+        print("Error ${response.body}");
+      }
+    } catch (e) {
+      print("Error :$e");
+    }
   }
 }

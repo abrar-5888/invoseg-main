@@ -1,6 +1,7 @@
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
+import 'package:com.invoseg.innovation/app/Modules/residentId/residentId_controller.dart';
 import 'package:com.invoseg.innovation/config/themes/themes%20color/colors.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ResidentId extends StatefulWidget {
   const ResidentId({super.key});
@@ -10,9 +11,11 @@ class ResidentId extends StatefulWidget {
 }
 
 class _ResidentIdState extends State<ResidentId> {
+  ResidentIdController controller = Get.put(ResidentIdController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -35,7 +38,32 @@ class _ResidentIdState extends State<ResidentId> {
       body: Center(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: ThemeColor.blue),
-          onPressed: () {},
+          onPressed: () {
+            controller.fetchResidentId();
+            Get.dialog(AlertDialog(
+              surfaceTintColor: Colors.white,
+              backgroundColor: Colors.white,
+              title: const Text("Resident ID"),
+              content: SizedBox(
+                  height: 50,
+                  child: Obx(
+                    () => Text(
+                      controller.residentId.value,
+                      style: const TextStyle(color: Colors.black, fontSize: 20),
+                    ),
+                  )),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: const Text(
+                      "ok",
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ))
+              ],
+            ));
+          },
           child: const Text(
             'Generate my resident Id',
             style: TextStyle(color: Colors.white),

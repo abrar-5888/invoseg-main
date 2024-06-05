@@ -1,6 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:com.invoseg.innovation/app/Modules/complain/complain_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/app/Modules/complain/complain_controller.dart';
 
 class ComplainPage extends StatefulWidget {
   const ComplainPage({super.key});
@@ -141,79 +143,84 @@ class _ComplainPageState extends State<ComplainPage> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Column(
-                  children: [
-                    Container(
-                      height: 4,
-                      color: Colors.grey[350],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: Text("Response to Previous Complains "),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 15.0,
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(15)),
-                        child: Card(
-                          margin: const EdgeInsets.all(8.0),
-                          color: const Color.fromARGB(255, 245, 245, 245),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          elevation: 5,
-                          child: const Column(
-                            children: [
-                              ListTile(
-                                title: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Row(
+            Obx(
+              () => controller.complains.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 4,
+                              color: Colors.grey[350],
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.all(15.0),
+                              child: Text("Response to Previous Complains "),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15.0,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(15)),
+                                child: Card(
+                                  margin: const EdgeInsets.all(8.0),
+                                  color: const Color.fromARGB(255, 245, 245, 245),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  elevation: 5,
+                                  child: Column(
                                     children: [
-                                      Text(
-                                        "Response : ",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                      for (var i in controller.complains)
+                                        ListTile(
+                                          title: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                const Text(
+                                                  "Response : ",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    i.response,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 3,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          subtitle: Row(
+                                            children: [
+                                              const Text(
+                                                "Complaint Status : ",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                i.complainStatus,
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          'sending...',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 3,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
-                                subtitle: Row(
-                                  children: [
-                                    Text(
-                                      "Complaint Status : ",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'completed',
-                                    ),
-                                  ],
-                                ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    )
+                  : const SizedBox.shrink(),
             )
           ],
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:com.invoseg.innovation/app/Modules/plotDetails/plot_details_view.dart';
 import 'package:com.invoseg.innovation/config/themes/themes%20color/colors.dart';
-import 'package:com.invoseg.innovation/data/Models/plotsModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/plotsModel.dart';
 
 class ListViewProperty extends StatelessWidget {
   final List<PlotsModel> list;

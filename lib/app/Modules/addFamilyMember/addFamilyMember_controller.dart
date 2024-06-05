@@ -1,15 +1,13 @@
-import 'dart:convert';
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/data/Models/familyMembersModel.dart';
-import 'package:com.invoseg.innovation/data/Models/usersModel.dart';
-import 'package:com.invoseg.innovation/data/api/firebaseNodes.dart';
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:com.invoseg.innovation/utils/Snackbars/snackbar.dart';
 import 'package:com.invoseg.innovation/utils/global.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 // ignore_for_file: file_names
 
 class AddFamilyMemberController extends GetxController {
@@ -19,95 +17,68 @@ class AddFamilyMemberController extends GetxController {
   var sPassword = TextEditingController();
   var cPassword = TextEditingController();
   RxInt remaining = 10.obs;
-  SharedPreferences? userInfo;
-  String? jsonStringUser;
-  String? jsonStringFM;
-  UsersModel? userData;
-  List<FamilyMembersModel> fm = <FamilyMembersModel>[].obs;
-  FamilyMembersModel? familyMember;
-
   @override
   void onInit() {
     super.onInit();
-    initializeSharedPreferences();
-    fetchRemainingLength();
+    fetchCount();
   }
 
-  Future<void> initializeSharedPreferences() async {
-    userInfo = await SharedPreferences.getInstance();
-    jsonStringUser = userInfo!.getString('userInfo');
+  String generateRandomFourDigitCode() {
+    Random random = Random();
+    int code = random.nextInt(10000);
 
-    var userdata = jsonDecode(jsonStringUser!);
-    if (!userdata.toString().contains('ownermail')) {
-      userData = UsersModel.fromJson(userdata);
-    }
+    return code.toString().padLeft(4, '0');
   }
 
-  bool checkForm() {
-    if (nameController.text.isEmpty || emailController.text.isEmpty || phoneController.text.isEmpty || cPassword.text.isEmpty || sPassword.text.isEmpty) {
-      Snackbars.errorSnackBar('Family Member', 'Please fill all fields');
-      return false;
-    }
-    if (sPassword.text.length < 6) {
-      Snackbars.errorSnackBar('Family Member', 'Password must contain 6 digits');
-      return false;
-    }
-    if (!emailController.text.endsWith('@gmail.com')) {
-      Snackbars.errorSnackBar('Family Member', 'Email is not correct.');
-      return false;
-    }
-    if (cPassword.text != sPassword.text) {
-      Snackbars.errorSnackBar('Family Member', 'Password does\'nt match');
-      return false;
-    }
-    if (phoneController.text.length > 11 || phoneController.text.length < 11) {
-      Snackbars.errorSnackBar('Family Member', 'Phone number is not correct');
-      return false;
-    }
-    return true;
-  }
-
-  void fetchRemainingLength() async {
-    FirebaseFirestore.instance.collection(FirebaseNodes.USER_REQUEST).doc(FirebaseAuth.instance.currentUser!.uid).collection(FirebaseNodes.FAMILY_MEMBERS).snapshots().listen((event) {
-      remaining.value = 10 - event.docs.length;
-      for (var i in event.docs) {
-        fm.add(FamilyMembersModel.fromJson(i.data()));
+  Future<void> fetchCount() async {
+    final String url = '$ip/api/users/family/$familyId';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print(data);
+        int count = data['userCount'] - 1;
+        remaining.value = remaining.value - count;
+      } else {
+        print("Error : ${response.body}");
       }
-      String fmJsonString = json.encode(fm);
-      userInfo!.setString('fmUserInfo', fmJsonString);
-    });
+    } catch (e) {
+      print("ERROR :$e");
+    }
   }
 
-  Future<void> addFM() async {
-    if (remaining <= 10) {
-      var collectionRef = FirebaseFirestore.instance.collection(FirebaseNodes.USER_REQUEST).doc(userData!.uid).collection(FirebaseNodes.FAMILY_MEMBERS);
-
-      remaining.value = remaining.value - 1;
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailController.text, password: sPassword.text).then((value) => {
-            familyMember = FamilyMembersModel(
-                phonenumber: phoneController.text,
-                name: nameController.text,
-                address: userData!.address,
-                email: emailController.text,
-                owner: userData!.name,
-                ownermail: userData!.email,
-                parentID: userData!.uid,
-                password: sPassword.text,
-                remaining: remaining.value,
-                residentID: '',
-                societyName: societyName,
-                status: 'Approve',
-                uid: value.user!.uid),
-            collectionRef.doc(value.user!.uid).set(familyMember!.toJson()).then((value) => {
-                  nameController.clear(),
-                  emailController.clear(),
-                  phoneController.clear(),
-                  sPassword.clear(),
-                  cPassword.clear(),
-                })
-          });
+  Future<void> registerFM(BuildContext context) async {
+    var residentId = 'SG${generateRandomFourDigitCode()}';
+    var url = Uri.parse('$ip/api/users');
+    if (remaining.value != 0) {
+      var response = await http.post(url, body: {
+        'Name': nameController.text,
+        "residentId": residentId,
+        'email': emailController.text,
+        'password': sPassword.text,
+        'phonenumber': phoneController.text,
+        'familyID': familyId,
+        "societyName": societyName
+      });
+      try {
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          print(data);
+          print('Family Member Added successfully');
+          sPassword.clear();
+          nameController.clear();
+          emailController.clear();
+          phoneController.clear();
+          remaining = remaining - 1;
+          Snackbars.successSnackBar('Smart Ghar', 'Family member added successfully');
+        } else {
+          Snackbars.errorSnackBar('Smart Ghar', 'Please check your internet connection');
+        }
+      } catch (e) {
+        Snackbars.errorSnackBar('Smart Ghar', 'Please check your internet connection');
+      }
     } else {
-      Snackbars.errorSnackBar('Family member', 'you have reached your limit ');
+      Snackbars.errorSnackBar('Smart Ghar', 'You have exceed your limit');
     }
   }
 }

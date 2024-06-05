@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
+import 'package:com.invoseg.innovation/app/data/Models/usersModel.dart';
+import 'package:com.invoseg.innovation/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
-import 'package:com.invoseg.innovation/generated/assets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Login/login_page.dart';
 
@@ -22,15 +24,24 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkAuthentication() async {
+    await initializeSharedPreferences();
+
     await Future.delayed(const Duration(seconds: 3));
 
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      Get.off(() => const MainPage(index: 0));
-    } else {
+    if (userData == null) {
       Get.off(() => const LoginPage());
+    } else {
+      Get.to(const MainPage(index: 0));
     }
+  }
+
+  UsersModel? userData;
+  Future<void> initializeSharedPreferences() async {
+    var userInfo = await SharedPreferences.getInstance();
+    var jsonStringUser = userInfo.getString('userInfo');
+
+    var userdata = jsonDecode(jsonStringUser!);
+    userData = UsersModel.fromJson(userdata);
   }
 
   @override

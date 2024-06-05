@@ -1,12 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// ignore_for_file: avoid_print
+
+import 'dart:convert';
+
+import 'package:com.invoseg.innovation/app/data/Models/groceryModel.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/data/Models/groceryModel.dart';
-import 'package:com.invoseg.innovation/data/api/groceryApi.dart';
+import 'package:http/http.dart' as http;
 
 class GroceryController extends GetxController {
   RxList<GroceryModel> groceries = <GroceryModel>[].obs;
-
-  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   void onInit() {
@@ -15,8 +17,19 @@ class GroceryController extends GetxController {
   }
 
   Future<void> fetchGrocery() async {
-    GroceryApi.groceryRef.where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots().listen((event) {
-      groceries.value = event.docs.map((e) => GroceryModel.fromJson(e.data())).toList();
-    });
+    final String url = '$ip/api/orders/$userId';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        for (var i in data) {
+          groceries.add(GroceryModel.fromJson(i));
+        }
+      } else {
+        print("ERRORS:${response.body}");
+      }
+    } catch (e) {
+      print("ERRORS : $e");
+    }
   }
 }

@@ -1,19 +1,19 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, unused_local_variable, file_names
+// ignore_for_file: prefer_typing_uninitialized_variables, unused_local_variable, file_names, avoid_print
 
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/data/Models/familyMembersModel.dart';
-import 'package:com.invoseg.innovation/data/Models/notHomeModel.dart';
-import 'package:com.invoseg.innovation/data/Models/usersModel.dart';
-import 'package:com.invoseg.innovation/data/api/firebaseNodes.dart';
+import 'package:com.invoseg.innovation/app/data/Models/familyMembersModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/notHomeModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/usersModel.dart';
 import 'package:com.invoseg.innovation/utils/Snackbars/snackbar.dart';
 import 'package:com.invoseg.innovation/utils/getMobileTokens.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotHomeController extends GetxController {
   RxInt days = 0.obs;
@@ -31,7 +31,7 @@ class NotHomeController extends GetxController {
   SharedPreferences? userInfo;
   String? jsonStringUser;
   String? jsonStringFM;
-  var userData;
+  UsersModel? userData;
   List<FamilyMembersModel> fmData = <FamilyMembersModel>[].obs;
   String docId = '';
   String fm2Name = '';
@@ -86,84 +86,110 @@ class NotHomeController extends GetxController {
     }
 
     var userdata = jsonDecode(jsonStringUser!);
-    if (!userdata.toString().contains('ownermail')) {
-      userData = UsersModel.fromJson(userdata);
-    } else {
-      userData = FamilyMembersModel.fromJson(userdata);
-    }
+    // if (!userdata.toString().contains('ownermail')) {
+    userData = UsersModel.fromJson(userdata);
   }
 
   Future<void> sendData() async {
     initializeSharedPreferences();
     String fcmToken = await getMobileToken();
     NotHomeModel notHome = NotHomeModel(
-        societyName: 'izmir',
-        Address: userData!.address ?? "",
-        Age: userData!.age ?? "",
-        Designation: userData!.designation ?? "",
-        Email: userData!.email ?? "",
-        FCMtoken: fcmToken,
-        ID: FirebaseAuth.instance.currentUser!.uid,
-        Name: userData!.name ?? "",
-        Owner: userData!.owner ?? "",
-        PhoneNo: userData!.phone ?? "",
-        Status: true,
-        cancelled: false,
-        days: daysDifference,
-        edit: false,
-        fPhoneNo: userData!.fatherPhoneNo ?? "",
-        fmName: userData!.fatherName ?? "",
+        fcmToken: fcmToken,
+        address: userData?.address ?? "",
+        age: userData?.age ?? "",
+        email: "",
+        designation: userData?.designation ?? "",
+        name: userData?.name ?? "",
+        fmName: fm1Name ?? "",
         fmName1: fm2Name ?? "",
-        fmphoneNo: fm1phone ?? "",
-        fmphoneNo1: fm2phone ?? "",
-        fname: fm1Name ?? "",
-        from: currentDate.text,
+        fmPhoneNo: fm1phone ?? "",
+        fmPhoneNo1: fm2phone ?? "",
+        phoneNo: userData?.phoneNumber ?? "",
+        fPhoneNo: userData?.fatherPhoneNumber ?? "",
+        fname: userData?.fatherName ?? "",
+        from: currentDate.text ?? "",
+        to: dateController.text ?? "",
+        time: DateTime.now().millisecondsSinceEpoch,
         nh: false,
         noti: true,
         pressedTime: DateTime.now().millisecondsSinceEpoch,
-        time: DateTime.now().millisecondsSinceEpoch,
-        to: dateController.text,
-        uid: FirebaseAuth.instance.currentUser!.uid);
+        owner: userData?.owner ?? "",
+        societyName: societyName ?? "",
+        status: true,
+        cancelled: false,
+        edit: false,
+        days: daysDifference ?? 0,
+        uid: userData?.id ?? "");
 
-    await FirebaseFirestore.instance.collection(FirebaseNodes.NOTHOME).add(notHome.toJson()).then((value) {
-      dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      Get.back();
-      Snackbars.successSnackBar('Not Home', 'Your details has been sent');
-    });
+    final String url = '$ip/api/nothome';
+    var sendData = jsonEncode(notHome.toJson());
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        body: sendData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      var data = jsonDecode(response.body);
+      if (response.statusCode == 201) {
+        Get.back();
+        Get.until((route) {
+          return !(Get.isDialogOpen!);
+        });
+
+        Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+        fetchNotHome();
+      } else {
+        EasyLoading.showError(data['message']);
+        print("ERROR : ${response.body}");
+      }
+    } catch (e) {
+      print("API Error : $e");
+    }
   }
 
   Future<void> fetchNotHome() async {
-    FirebaseFirestore.instance
-        .collection(FirebaseNodes.NOTHOME)
-        .where('Status', isEqualTo: true)
-        .orderBy('pressedTime', descending: true)
-        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-        .limit(1)
-        .snapshots()
-        .listen((event) {
-      for (var doc in event.docs) {
-        var data = doc.data();
-        days.value = data['days'];
-        from.value = data['from'];
-        to.value = data['to'];
-        notHomedocId.value = doc.id;
-        if (to.value == DateFormat('yyyy-MM-dd').format(DateTime.now())) {
-          FirebaseFirestore.instance.collection(FirebaseNodes.NOTHOME).doc(doc.id).update({
-            'Status': false,
-          });
-        }
+    print("fetching not home");
+    final String url = "$ip/api/nothome/$userId";
+
+    try {
+      var response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print("OKA");
+        print(data[0]['_id']);
+        notHomedocId.value = data[0]['_id'];
+      } else {
+        print("Error:${response.body}");
       }
-    });
+    } catch (e) {
+      print("ERROR: $e");
+    }
   }
 
   Future<void> cancelRequest() async {
-    FirebaseFirestore.instance.collection(FirebaseNodes.NOTHOME).doc(notHomedocId.value).update({
-      'Status': false,
-      'cancelled': true,
-    }).then((value) => {
-          notHomedocId.value = '',
-          Get.back(),
-          Snackbars.successSnackBar('Not Home', 'Your Not Home request is cancelled'),
+    final String url = '$ip/api/nothome/${notHomedocId.value}';
+    var body = jsonEncode({'status': false, 'cancelled': true});
+    try {
+      var response = await http.put(
+        Uri.parse(url),
+        body: body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).then((onValue) {
+        notHomedocId.value = '';
+        Get.back();
+        Get.until((route) {
+          return !(Get.isDialogOpen!);
         });
+
+        Snackbars.successSnackBar('Invoseg', 'Your request has been cancelled');
+      });
+    } catch (e) {
+      print("ERROR:$e");
+    }
   }
 }

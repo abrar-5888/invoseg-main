@@ -2,18 +2,20 @@
 
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/data/Models/familyMembersModel.dart';
-import 'package:com.invoseg.innovation/data/Models/plotsModel.dart';
-import 'package:com.invoseg.innovation/data/Models/sendRequestModel.dart';
-import 'package:com.invoseg.innovation/data/Models/usersModel.dart';
-import 'package:com.invoseg.innovation/data/api/plotsApi.dart';
+import 'package:com.invoseg.innovation/app/data/Models/familyMembersModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/groceryRequestModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/plotsModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/securityRequestModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/usersModel.dart';
+import 'package:com.invoseg.innovation/app/data/api/plotsApi.dart';
 import 'package:com.invoseg.innovation/utils/Snackbars/snackbar.dart';
-import 'package:com.invoseg.innovation/utils/formatter.dart';
 import 'package:com.invoseg.innovation/utils/getMobileTokens.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 // ignore_for_file: prefer_typing_uninitialized_variables
 
 class HomeController extends GetxController {
@@ -21,7 +23,7 @@ class HomeController extends GetxController {
   SharedPreferences? userInfo;
   String? jsonStringUser;
   String? jsonStringFM;
-  var userData;
+  UsersModel? userData;
   List<FamilyMembersModel> fmData = <FamilyMembersModel>[].obs;
   String docId = '';
   String fm2Name = '';
@@ -32,18 +34,18 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // fetchPlots();
+    fetchPlots();
   }
 
-  // void fetchPlots() async {
-  //   try {
-  //     PlotsAPI.plotsQuery.snapshots().listen((event) {
-  //       plots.value = event.docs.map((e) => PlotsModel.fromJson(e.data())).toList();
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  void fetchPlots() async {
+    try {
+      PlotsAPI.plotsQuery.snapshots().listen((event) {
+        plots.value = event.docs.map((e) => PlotsModel.fromJson(e.data())).toList();
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<void> initializeSharedPreferences() async {
     userInfo = await SharedPreferences.getInstance();
@@ -65,48 +67,185 @@ class HomeController extends GetxController {
     }
 
     var userdata = jsonDecode(jsonStringUser!);
-    if (!userdata.toString().contains('ownermail')) {
-      userData = UsersModel.fromJson(userdata);
+    // if (!userdata.toString().contains('ownermail')) {
+    userData = UsersModel.fromJson(userdata);
+  }
+
+  Future<void> alertMe(String collectionName) async {
+    await initializeSharedPreferences();
+
+    String fcmToken = await getMobileToken();
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    print("Connectivity == ${connectivityResult.toString()}");
+    if (connectivityResult == ConnectivityResult.none) {
+      Snackbars.errorSnackBar('internet Connection', "Please connect to internet connection");
     } else {
-      userData = FamilyMembersModel.fromJson(userdata);
+      if (collectionName.toLowerCase() == 'button-one') {
+        SecurityRequestModel securityRequestModel = SecurityRequestModel(
+          fcmToken: fcmToken,
+          address: userData?.address ?? "",
+          age: userData?.age ?? "",
+          count: false,
+          designation: userData?.designation ?? '',
+          email: 'example@example.com',
+          fatherPhoneNumber: '1234567890',
+          familyMemberName: 'John',
+          familyMemberName1: 'Doe',
+          fatherName: userData?.fatherName ?? "",
+          name: name,
+          notification: true,
+          owner: userData!.owner,
+          phoneNumber: phone,
+          residentId: 'res123',
+          pressedTime: DateTime.now().toString(),
+          pressedTime1: DateTime.now().toString(),
+          securityComplain: 'No complaint',
+          securityStatus: true,
+          societyName: userData!.societyName,
+          response: "",
+          userId: userData!.id,
+          edit: false,
+          buttonType: 'button-one',
+        );
+
+        final String url = '$ip/api/security/create';
+        var sendData = jsonEncode(securityRequestModel.toJson());
+        try {
+          var response = await http.post(
+            Uri.parse(url),
+            body: sendData,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+          var data = jsonDecode(response.body);
+          if (response.statusCode == 201) {
+            sendHistory('button-one').then((sas) {
+              sendEmail(
+                  name: name,
+                  email: '',
+                  message:
+                      "type : button-one\n name : $name\nAddress : ${userData!.address}\nPhone No : ${userData!.phoneNumber}\nF-Phone No ${userData!.fatherPhoneNumber}\nF-Name : ${userData!.fatherName}\nDesignation :${userData?.designation ?? ""}\nage :${userData?.age ?? ""}\nOwner :${userData?.owner ?? ""}",
+                  subject: "test subject");
+            });
+
+            Get.back();
+            Get.until((route) {
+              return !(Get.isDialogOpen!);
+            });
+
+            Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+          } else {
+            EasyLoading.showError(data['message']);
+            print("ERROR : ${response.body}");
+          }
+        } catch (e) {
+          print("API Error : $e");
+        }
+      } else {
+        GroceryRequestModel groceryRequestModel = GroceryRequestModel(
+          fcmToken: fcmToken,
+          address: userData?.address ?? '',
+          age: userData?.age ?? '',
+          count: false,
+          designation: userData?.designation ?? '',
+          email: 'example@example.com',
+          fatherPhoneNumber: '1234567890',
+          familyMemberName: 'John',
+          familyMemberName1: 'Doe',
+          fatherName: userData!.fatherName,
+          name: name,
+          notification: true,
+          owner: userData!.owner,
+          phoneNumber: phone,
+          residentId: 'res123',
+          pressedTime: DateTime.now().toString(),
+          pressedTime1: DateTime.now().toString(),
+          societyName: userData!.societyName,
+          response: "",
+          userId: userData!.id,
+          edit: false,
+          buttonType: 'button-three',
+        );
+
+        final String url = '$ip/api/grocery/create';
+        var sendData = jsonEncode(groceryRequestModel.toJson());
+        try {
+          var response = await http.post(
+            Uri.parse(url),
+            body: sendData,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          );
+          var data = jsonDecode(response.body);
+          if (response.statusCode == 201) {
+            sendHistory('button-three').then((sas) {
+              sendEmail(
+                  name: name,
+                  email: '',
+                  message:
+                      "type : button-three\n name : $name\nAddress : ${userData!.address}\nPhone No : ${userData!.phoneNumber}\nF-Phone No ${userData!.fatherPhoneNumber}\nF-Name : ${userData!.fatherName}\nDesignation :${userData?.designation ?? ""}\nage :${userData?.age ?? ""}\nOwner :${userData?.owner ?? ""}",
+                  subject: "test subject");
+            });
+            Get.back();
+            Get.until((route) {
+              return !(Get.isDialogOpen!);
+            });
+
+            Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+          } else {
+            EasyLoading.showError(data['message']);
+            print("ERROR : ${response.body}");
+          }
+        } catch (e) {
+          Snackbars.errorSnackBar('internet Connection', "Your internet connection is not stable");
+        }
+      }
     }
   }
 
-  Future<String> alertMe(String collectionName) async {
-    initializeSharedPreferences();
-    String fcmToken = await getMobileToken();
-    SendRequestModel sendRequestModel = SendRequestModel(
-        fcmToken: fcmToken,
-        address: userData.address,
-        age: userData.age,
-        date: formatDate(DateTime.now().millisecondsSinceEpoch),
-        designation: userData.designation,
-        email: userData.email,
-        fatherPhoneNo: userData.fatherPhoneNo ?? "",
-        fatherName: userData.fatherName ?? "",
-        fm1Name: fm1Name,
-        fm1PhoneNo: fm1phone,
-        fm2Name: fm2Name,
-        fm2phoneNo: fm2phone,
-        name: userData.name,
-        phone: userData.phone,
-        noti: true,
-        owner: userData.owner,
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-        residentId: '',
-        societyName: 'izmir',
-        time: formatTime(DateTime.now().millisecondsSinceEpoch),
-        type: collectionName,
-        uid: FirebaseAuth.instance.currentUser!.uid,
-        edit: false);
-    FirebaseFirestore.instance.collection(collectionName).add(sendRequestModel.toJson()).then((value) {
-      docId = value.id;
-    });
-    Get.until((route) {
-      return !(Get.isDialogOpen!);
-    });
-    Get.back();
-    Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
-    return docId;
+  Future<void> sendHistory(String type) async {
+    final String url = '$ip/api/history';
+    var body = jsonEncode({'type': type, 'uid': userId});
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        body: body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 201) {
+        print("Success");
+      } else {
+        print("Error :${response.body}");
+      }
+    } catch (e) {
+      print("ERROR :$e");
+    }
+  }
+
+  Future sendEmail({
+    required String name,
+    required String email,
+    required String subject,
+    required String message,
+  }) async {
+  
+    final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
+    var serviceId = 'service_s7hyzpr';
+    var templateId = 'template_0yvlqvj';
+    var userId = 'Jg-9ZFPX61IpyTv1w';
+    final response = await http.post(url,
+        body: json.encode({
+          'service_id': serviceId,
+          'template_id': templateId,
+          'user_id': userId,
+          'template_params': {'user_name': name, 'from_name': name, 'mail': "venrablejutt310@gmail.com", 'user_subject': subject, 'to_email': "daniyalhumayun7@gmail.com", 'user_message': message},
+        }),
+        headers: {'origin': "http://localhost", 'Content-Type': 'application/json'});
+
+    print(response.body);
   }
 }

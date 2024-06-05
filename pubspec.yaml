@@ -44,6 +44,8 @@ dependencies:
   firebase_messaging:
   intl: ^0.19.0
   carousel_slider: ^4.2.1
+  http: ^1.2.1
+  connectivity: ^3.0.6
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -70,6 +72,7 @@ flutter:
     - assets/Images/profile-Icon-SVG.jpg
     - assets/Images/logo.jpg
     - assets/Images/logoBGR.png
+    - assets/Images/loginbackground.jpg
     - assets/Svg/
     - assets/sounds/applepay.mp3
     - assets/sounds/alert.mp3

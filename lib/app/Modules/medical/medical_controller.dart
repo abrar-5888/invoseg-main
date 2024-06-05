@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/data/Models/medicalModel.dart';
-import 'package:com.invoseg.innovation/data/api/medicalApi.dart';
+import 'package:com.invoseg.innovation/app/data/Models/medicalModel.dart';
+import 'package:com.invoseg.innovation/app/data/api/medicalApi.dart';
 
 class MedicalController extends GetxController {
   RxList<MedicalModel> medicals = <MedicalModel>[].obs;

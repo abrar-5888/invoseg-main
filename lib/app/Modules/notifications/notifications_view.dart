@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
 import 'package:com.invoseg.innovation/app/Modules/complain/complain_view.dart';
 import 'package:com.invoseg.innovation/app/Modules/notifications/notifications_controller.dart';
-import 'package:com.invoseg.innovation/data/Models/notificationModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/notificationModel.dart';
 import 'package:com.invoseg.innovation/generated/assets.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class NotiScreen extends StatefulWidget {
   const NotiScreen({super.key});

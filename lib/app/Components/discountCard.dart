@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:com.invoseg.innovation/data/Models/discountsModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/discountsModel.dart';
 import 'package:com.invoseg.innovation/app/Modules/discountDetails/discountDetails_view.dart';
 // ignore_for_file: file_names
 

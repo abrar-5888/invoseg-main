@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/data/Models/medicalModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/medicalModel.dart';
 
 class Prescription extends StatefulWidget {
   final MedicalModel medical;

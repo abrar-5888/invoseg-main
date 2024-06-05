@@ -1,7 +1,6 @@
+import 'package:com.invoseg.innovation/app/data/Models/feedsModel.dart';
+import 'package:com.invoseg.innovation/app/data/api/feedsApi.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:com.invoseg.innovation/data/api/feedsApi.dart';
-import 'package:com.invoseg.innovation/data/Models/feedsModel.dart';
 // ignore_for_file: avoid_print
 
 // ignore_for_file: unused_local_variable
@@ -9,7 +8,6 @@ import 'package:com.invoseg.innovation/data/Models/feedsModel.dart';
 class FeedsController extends GetxController {
   RxList<FeedsModel> feeds = <FeedsModel>[].obs;
   RxInt currentIndex = 0.obs;
-  String userUid = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   void onInit() {

@@ -18,8 +18,6 @@ class Assets {
   static const String imagesProfileIconSVG = 'assets/Images/profile-Icon-SVG.jpg';
   static const String imagesRehman = 'assets/Images/rehman.png';
   static const String imagesTransparentLogo = 'assets/Images/TransparentLogo.png';
-  static const String soundsAlert = 'assets/sounds/alert.mp3';
-  static const String soundsApplepay = 'assets/sounds/applepay.mp3';
   static const String svgEdit = 'assets/Svg/Edit.svg';
   static const String svgUser = 'assets/Svg/user.svg';
   static const String logo = 'assets/Images/logo.jpg';

@@ -1,7 +1,8 @@
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-// ignore_for_file: file_names
+// ignore_for_file: deprecated_member_use
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+// ignore_for_file: file_names
 
 class Confirm extends StatelessWidget {
   final String name;

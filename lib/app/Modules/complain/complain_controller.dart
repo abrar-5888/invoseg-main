@@ -1,24 +1,24 @@
-// ignore_for_file: unnecessary_overrides
+// ignore_for_file: unnecessary_overrides, avoid_print
 
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:com.invoseg.innovation/data/Models/familyMembersModel.dart';
-import 'package:com.invoseg.innovation/data/Models/sendRequestModel.dart';
-import 'package:com.invoseg.innovation/data/Models/usersModel.dart';
-import 'package:com.invoseg.innovation/data/api/firebaseNodes.dart';
+import 'package:com.invoseg.innovation/app/data/Models/complainModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/complainRequestModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/familyMembersModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/usersModel.dart';
 import 'package:com.invoseg.innovation/utils/Snackbars/snackbar.dart';
-import 'package:com.invoseg.innovation/utils/formatter.dart';
 import 'package:com.invoseg.innovation/utils/getMobileTokens.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 // ignore_for_file: prefer_typing_uninitialized_variables
 
 class ComplainController extends GetxController {
   var textController = TextEditingController().obs;
-
+  RxList<ComplainModel> complains = <ComplainModel>[].obs;
   SharedPreferences? userInfo;
   String? jsonStringUser;
   String? jsonStringFM;
@@ -29,6 +29,12 @@ class ComplainController extends GetxController {
   String fm2phone = '';
   String fm1Name = '';
   String fm1phone = '';
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchComplain();
+  }
 
   Future<void> initializeSharedPreferences() async {
     userInfo = await SharedPreferences.getInstance();
@@ -50,48 +56,83 @@ class ComplainController extends GetxController {
     }
 
     var userdata = jsonDecode(jsonStringUser!);
-    if (!userdata.toString().contains('ownermail')) {
-      userData = UsersModel.fromJson(userdata);
-    } else {
-      userData = FamilyMembersModel.fromJson(userdata);
-    }
+
+    userData = UsersModel.fromJson(userdata);
   }
 
   Future<void> alertMe() async {
     if (textController.value.text.isNotEmpty) {
-      initializeSharedPreferences();
+      await initializeSharedPreferences();
       String fcmToken = await getMobileToken();
-      SendRequestModel sendRequestModel = SendRequestModel(
-          fcmToken: fcmToken,
-          address: userData.address,
-          age: userData.age,
-          date: formatDate(DateTime.now().millisecondsSinceEpoch),
-          designation: userData.designation,
-          email: userData.email,
-          fatherPhoneNo: userData.fatherPhoneNo ?? "",
-          fatherName: userData.fatherName ?? "",
-          fm1Name: fm1Name,
-          fm1PhoneNo: fm1phone,
-          fm2Name: fm2Name,
-          fm2phoneNo: fm2phone,
-          name: userData.name,
-          phone: userData.phone,
-          noti: true,
-          owner: userData.owner,
-          timestamp: DateTime.now().millisecondsSinceEpoch,
-          residentId: '',
-          societyName: 'izmir',
-          time: formatTime(DateTime.now().millisecondsSinceEpoch),
-          uid: FirebaseAuth.instance.currentUser!.uid,
-          edit: false,
-          type: 'complain');
-      FirebaseFirestore.instance.collection(FirebaseNodes.COMPLAIN).add(sendRequestModel.toJson()).then((value) async {
-        await FirebaseFirestore.instance.collection(FirebaseNodes.COMPLAIN).doc(value.id).update({'complain': textController.value.text});
-        textController.value.clear();
-        Snackbars.successSnackBar("Complain", "Complain has been sent");
-      });
+      ComplainRequestModel securityRequestModel = ComplainRequestModel(
+        fcmToken: fcmToken,
+        address: userData!.address ?? "",
+        age: userData!.age ?? "",
+        count: false,
+        designation: userData!.designation ?? '',
+        email: 'example@example.com',
+        fatherPhoneNumber: '1234567890',
+        familyMemberName: 'John',
+        familyMemberName1: 'Doe',
+        fatherName: userData!.fatherName,
+        name: name,
+        notification: true,
+        owner: userData!.owner,
+        phoneNumber: phone,
+        residentId: 'res123',
+        pressedTime: DateTime.now().toString(),
+        pressedTime1: DateTime.now().toString(),
+        complain: textController.value.text,
+        complainStatus: false,
+        societyName: userData!.societyName,
+        response: "",
+        userId: userData!.id,
+        edit: false,
+        buttonType: 'complain',
+      );
+
+      final String url = '$ip/api/complain/create';
+      var sendData = jsonEncode(securityRequestModel.toJson());
+      try {
+        var response = await http.post(
+          Uri.parse(url),
+          body: sendData,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        );
+        var data = jsonDecode(response.body);
+        if (response.statusCode == 201) {
+          textController.value.clear();
+
+          Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+        } else {
+          EasyLoading.showError(data['message']);
+          print("ERROR : ${response.body}");
+        }
+      } catch (e) {
+        print("API Error : $e");
+      }
     } else {
       Snackbars.errorSnackBar('Complain', 'Complain cannot be empty');
+    }
+  }
+
+  Future<void> fetchComplain() async {
+    final String url = '$ip/api/complain/6655aa3b63aefb20300501cb';
+    try {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        for (var i in data) {
+          complains.add(ComplainModel.fromJson(i));
+          print(complains);
+        }
+      } else {
+        print("Error:${response.body}");
+      }
+    } catch (e) {
+      print("ERROR $e");
     }
   }
 }

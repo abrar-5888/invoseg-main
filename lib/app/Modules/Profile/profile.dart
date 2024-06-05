@@ -1,12 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// ignore_for_file: deprecated_member_use
+
 import 'package:com.invoseg.innovation/app/Modules/Login/login_page.dart';
 import 'package:com.invoseg.innovation/app/Modules/Profile/profile_controller.dart';
 import 'package:com.invoseg.innovation/app/Modules/addFamilyMember/addFamilyMember_view.dart';
-import 'package:com.invoseg.innovation/data/Models/usersModel.dart';
 import 'package:com.invoseg.innovation/generated/assets.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -26,8 +26,8 @@ class _ProfileState extends State<Profile> {
                 onPressed: () async {
                   SharedPreferences userinfo = await SharedPreferences.getInstance();
                   userinfo.clear();
-                  FirebaseAuth.instance.signOut();
-                  Get.off(const LoginPage());
+
+                  Get.offAll(const LoginPage());
                 },
                 icon: const Icon(Icons.logout_outlined))
           ],
@@ -82,7 +82,7 @@ class _ProfileState extends State<Profile> {
                               const SizedBox(
                                 height: 10.0,
                               ),
-                              Text(controller.userData.name,
+                              Text(controller.userData!.name,
                                   style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 20.0,
@@ -90,14 +90,13 @@ class _ProfileState extends State<Profile> {
                               const SizedBox(
                                 height: 10.0,
                               ),
-                              if (controller.userData is UsersModel)
-                                Text(
-                                  controller.userData.designation,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15.0,
-                                  ),
+                              Text(
+                                controller.userData?.designation ?? "",
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15.0,
                                 ),
+                              ),
                               const SizedBox(
                                 height: 10.0,
                               ),
@@ -167,7 +166,7 @@ class _ProfileState extends State<Profile> {
                                                           ),
                                                         ),
                                                         Text(
-                                                          controller.userData.address,
+                                                          controller.userData?.address ?? "",
                                                           style: TextStyle(
                                                             fontSize: 12.0,
                                                             color: Colors.grey[400],
@@ -177,42 +176,77 @@ class _ProfileState extends State<Profile> {
                                                     )
                                                   ],
                                                 ),
-                                                const SizedBox(
-                                                  height: 20.0,
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.date_range_rounded,
-                                                      color: Colors.greenAccent[400],
-                                                      size: 35,
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 20.0,
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        if (controller.userData is UsersModel)
+                                                if (controller.userData!.age.isNotEmpty)
+                                                  const SizedBox(
+                                                    height: 20.0,
+                                                  ),
+                                                if (controller.userData!.age.isNotEmpty)
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.date_range_rounded,
+                                                        color: Colors.greenAccent[400],
+                                                        size: 35,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 20.0,
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
                                                           const Text(
                                                             "Age",
                                                             style: TextStyle(
                                                               fontSize: 15.0,
                                                             ),
                                                           ),
-                                                        if (controller.userData is UsersModel)
                                                           Text(
-                                                            controller.userData.age,
+                                                            controller.userData?.age ?? "",
                                                             style: TextStyle(
                                                               fontSize: 12.0,
                                                               color: Colors.grey[400],
                                                             ),
                                                           )
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+
+                                                // Row(
+                                                //   mainAxisAlignment: MainAxisAlignment.start,
+                                                //   children: [
+                                                //     Icon(
+                                                //       Icons.phone,
+                                                //       color: Colors.pinkAccent[400],
+                                                //       size: 35,
+                                                //     ),
+                                                //     const SizedBox(
+                                                //       width: 20.0,
+                                                //     ),
+                                                //     Column(
+                                                //       crossAxisAlignment: CrossAxisAlignment.start,
+                                                //       children: [
+                                                //         const Text(
+                                                //           "Phone",
+                                                //           style: TextStyle(
+                                                //             fontSize: 15.0,
+                                                //           ),
+                                                //         ),
+                                                //        Text(
+                                                //                 controller.userData!.phoneNumber,
+                                                //                 // "TEST",
+                                                //                 style: TextStyle(
+                                                //                   fontSize: 12.0,
+                                                //                   color: Colors.grey[400],
+                                                //                 ),
+                                                //               )
+
+                                                //       ],
+                                                //     )
+                                                //   ],
+                                                // ),
+
                                                 const SizedBox(
                                                   height: 20.0,
                                                 ),
@@ -220,8 +254,8 @@ class _ProfileState extends State<Profile> {
                                                   mainAxisAlignment: MainAxisAlignment.start,
                                                   children: [
                                                     Icon(
-                                                      Icons.phone,
-                                                      color: Colors.pinkAccent[400],
+                                                      Icons.star_purple500_outlined,
+                                                      color: Colors.blue[400],
                                                       size: 35,
                                                     ),
                                                     const SizedBox(
@@ -231,148 +265,62 @@ class _ProfileState extends State<Profile> {
                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         const Text(
-                                                          "Phone",
+                                                          "Father Name",
                                                           style: TextStyle(
                                                             fontSize: 15.0,
                                                           ),
                                                         ),
-                                                        controller.userData is UsersModel
-                                                            ? Text(
-                                                                controller.userData.phone,
-                                                                // "TEST",
-                                                                style: TextStyle(
-                                                                  fontSize: 12.0,
-                                                                  color: Colors.grey[400],
-                                                                ),
-                                                              )
-                                                            : Text(
-                                                                controller.userData.phonenumber,
-                                                                // "TEST",
-                                                                style: TextStyle(
-                                                                  fontSize: 12.0,
-                                                                  color: Colors.grey[400],
-                                                                ),
-                                                              )
+                                                        Text(
+                                                          controller.userData?.fatherName ?? "",
+                                                          style: TextStyle(
+                                                            fontSize: 12.0,
+                                                            color: Colors.grey[400],
+                                                          ),
+                                                        ),
                                                       ],
                                                     )
                                                   ],
                                                 ),
-                                                if (controller.userData is UsersModel)
-                                                  const SizedBox(
-                                                    height: 20.0,
-                                                  ),
-                                                if (controller.userData is UsersModel)
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.star_purple500_outlined,
-                                                        color: Colors.blue[400],
-                                                        size: 35,
-                                                      ),
-                                                      const SizedBox(
-                                                        width: 20.0,
-                                                      ),
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          const Text(
-                                                            "Father Name",
+                                                const SizedBox(
+                                                  height: 20.0,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.people,
+                                                      color: Colors.lightGreen[400],
+                                                      size: 35,
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 20.0,
+                                                    ),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const FittedBox(
+                                                          child: Text(
+                                                            "Father PhoneNo",
                                                             style: TextStyle(
                                                               fontSize: 15.0,
                                                             ),
                                                           ),
-                                                          Text(
-                                                            controller.userData.fatherName,
-                                                            style: TextStyle(
-                                                              fontSize: 12.0,
-                                                              color: Colors.grey[400],
-                                                            ),
+                                                        ),
+                                                        Text(
+                                                          controller.userData?.fatherPhoneNumber ?? "",
+                                                          style: TextStyle(
+                                                            fontSize: 12.0,
+                                                            color: Colors.grey[400],
                                                           ),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
-                                                if (controller.userData is UsersModel)
-                                                  const SizedBox(
-                                                    height: 20.0,
-                                                  ),
-                                                if (controller.userData is UsersModel)
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.people,
-                                                        color: Colors.lightGreen[400],
-                                                        size: 35,
-                                                      ),
-                                                      const SizedBox(
-                                                        width: 20.0,
-                                                      ),
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          const FittedBox(
-                                                            child: Text(
-                                                              "Father PhoneNo",
-                                                              style: TextStyle(
-                                                                fontSize: 15.0,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            controller.userData.fatherPhoneNo,
-                                                            style: TextStyle(
-                                                              fontSize: 12.0,
-                                                              color: Colors.grey[400],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
                                                 const SizedBox(
                                                   height: 20.0,
                                                 ),
-                                                // Row(
-                                                //   mainAxisAlignment:
-                                                //       MainAxisAlignment.start,
-                                                //   children: [
-                                                //     Icon(
-                                                //       Icons.phone_in_talk_rounded,
-                                                //       color: Colors.teal[400],
-                                                //       size: 35,
-                                                //     ),
-                                                //     const SizedBox(
-                                                //       width: 20.0,
-                                                //     ),
-                                                //     Column(
-                                                //       crossAxisAlignment:
-                                                //           CrossAxisAlignment.start,
-                                                //       children: [
-                                                //         const FittedBox(
-                                                //           child: Text(
-                                                //             "Other Family Member Phone",
-                                                //             style: TextStyle(
-                                                //               fontSize: 15.0,
-                                                //             ),
-                                                //           ),
-                                                //         ),
-                                                //         Text(
-                                                //           '03014530509',
-                                                //           // "TEST",
-                                                //           style: TextStyle(
-                                                //             fontSize: 12.0,
-                                                //             color: Colors.grey[400],
-                                                //           ),
-                                                //         ),
-                                                //       ],
-                                                //     )
-                                                //   ],
-                                                // ),
-                                                // const SizedBox(
-                                                //   height: 20.0,
-                                                // ),
+
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.start,
                                                   children: [
@@ -396,10 +344,6 @@ class _ProfileState extends State<Profile> {
                                                     )
                                                   ],
                                                 ),
-
-                                                // SizedBox(
-                                                //   width: 10.0,
-                                                // ),
                                               ],
                                             ),
                                           ),
@@ -419,7 +363,7 @@ class _ProfileState extends State<Profile> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Icon(
-                                Icons.email,
+                                Icons.phone,
                                 color: Colors.yellowAccent[400],
                                 size: 35,
                               ),
@@ -430,13 +374,13 @@ class _ProfileState extends State<Profile> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    "Email",
+                                    "Phone",
                                     style: TextStyle(
                                       fontSize: 15.0,
                                     ),
                                   ),
                                   Text(
-                                    controller.userData.email,
+                                    controller.userData!.phoneNumber,
                                     // "TEST",
                                     style: TextStyle(
                                       fontSize: 12.0,

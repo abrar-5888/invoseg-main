@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:com.invoseg.innovation/data/Models/discountsModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/discountsModel.dart';
 import 'package:com.invoseg.innovation/app/Components/discountCard.dart';
 // ignore_for_file: file_names
 

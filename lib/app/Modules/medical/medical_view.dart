@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:com.invoseg.innovation/app/Modules/medical/medical_controller.dart';
 import 'package:com.invoseg.innovation/app/Modules/prescription/prescription.dart';
-import 'package:com.invoseg.innovation/data/Models/medicalModel.dart';
+import 'package:com.invoseg.innovation/app/data/Models/medicalModel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Medical extends StatefulWidget {

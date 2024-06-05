@@ -1,18 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:com.invoseg.innovation/app/Components/custom_drawertile.dart';
-import 'package:com.invoseg.innovation/app/Modules/Login/login_page.dart';
 import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
 import 'package:com.invoseg.innovation/app/Modules/Profile/profile.dart';
-import 'package:com.invoseg.innovation/app/Modules/addFamilyMember/addFamilyMember_controller.dart';
 import 'package:com.invoseg.innovation/app/Modules/addFamilyMember/addFamilyMember_view.dart';
-import 'package:com.invoseg.innovation/app/Modules/history/history_view.dart';
+import 'package:com.invoseg.innovation/app/Modules/complain/complain_view.dart';
+import 'package:com.invoseg.innovation/app/Modules/discounts/discount_view.dart';
 import 'package:com.invoseg.innovation/app/Modules/residentId/resident_id_view.dart';
 import 'package:com.invoseg.innovation/config/themes/themes%20color/colors.dart';
 import 'package:com.invoseg.innovation/generated/assets.dart';
 import 'package:com.invoseg.innovation/utils/global.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DrawerW extends StatefulWidget {
   const DrawerW({super.key});
@@ -51,7 +48,7 @@ class _DrawerWState extends State<DrawerW> {
                   const Padding(padding: EdgeInsets.only(top: 10)),
                   Text(name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                   const Padding(padding: EdgeInsets.only(top: 5)),
-                  Text(phone, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+                  Text(address, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
                   const Padding(padding: EdgeInsets.only(top: 3)),
                   SizedBox(
                     width: 125,
@@ -88,19 +85,19 @@ class _DrawerWState extends State<DrawerW> {
                       const SizedBox(
                         height: 7,
                       ),
-                      DrawerTile(
-                          title: 'Medical',
-                          onPress: () {
-                            Get.to(() => const MainPage(index: 3));
-                          },
-                          iconData: Icons.medical_services),
-                      const SizedBox(
-                        height: 7,
-                      ),
+                      // DrawerTile(
+                      //     title: 'Medical',
+                      //     onPress: () {
+                      //       Get.to(() => const MainPage(index: 3));
+                      //     },
+                      //     iconData: Icons.medical_services),
+                      // const SizedBox(
+                      //   height: 7,
+                      // ),
                       DrawerTile(
                           title: 'Grocery',
                           onPress: () {
-                            Get.to(() => const MainPage(index: 2));
+                            Get.to(const MainPage(index: 2));
                           },
                           iconData: Icons.shopping_basket_rounded),
                       const SizedBox(
@@ -109,7 +106,7 @@ class _DrawerWState extends State<DrawerW> {
                       DrawerTile(
                           title: 'History',
                           onPress: () {
-                            Get.to(() => const HistoryScreen());
+                            Get.to(() => const MainPage(index: 4));
                           },
                           iconData: Icons.feed),
                       const SizedBox(
@@ -118,9 +115,27 @@ class _DrawerWState extends State<DrawerW> {
                       DrawerTile(
                           title: 'Plots',
                           onPress: () {
-                            Get.to(() => const MainPage(index: 4));
+                            Get.to(() => const MainPage(index: 3));
                           },
                           iconData: Icons.line_style_outlined),
+                      const SizedBox(
+                        height: 7,
+                      ),
+                      DrawerTile(
+                          title: 'Discounts',
+                          onPress: () {
+                            Get.to(() => const DiscountScreen());
+                          },
+                          iconData: Icons.sunny),
+                      const SizedBox(
+                        height: 7,
+                      ),
+                      DrawerTile(
+                          title: 'Complain',
+                          onPress: () {
+                            Get.to(() => const ComplainPage());
+                          },
+                          iconData: Icons.note_add_outlined),
                       const SizedBox(
                         height: 7,
                       ),
@@ -130,18 +145,7 @@ class _DrawerWState extends State<DrawerW> {
                             Get.to(() => const ResidentId());
                           },
                           iconData: Icons.calendar_view_day_outlined),
-                      const SizedBox(
-                        height: 7,
-                      ),
-                      DrawerTile(
-                          title: 'Logout',
-                          onPress: () async {
-                            SharedPreferences userinfo = await SharedPreferences.getInstance();
-                            userinfo.clear();
-                            FirebaseAuth.instance.signOut();
-                            Get.off(const LoginPage());
-                          },
-                          iconData: Icons.logout_rounded),
+
                       const SizedBox(
                         height: 50,
                       ),

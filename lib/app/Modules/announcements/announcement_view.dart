@@ -1,7 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:com.invoseg.innovation/app/Modules/announcements/announcement_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:com.invoseg.innovation/app/Modules/announcements/announcement_controller.dart';
-import 'package:com.invoseg.innovation/data/api/AnnouncementApi.dart';
 
 class AnnouncementDialog extends StatelessWidget {
   const AnnouncementDialog({super.key});
@@ -11,6 +12,7 @@ class AnnouncementDialog extends StatelessWidget {
     AnnouncementDialogController controller = Get.put(AnnouncementDialogController());
     return Center(
       child: AlertDialog(
+        backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         content: SizedBox(
           width: Get.width / 1,
@@ -59,9 +61,8 @@ class AnnouncementDialog extends StatelessWidget {
                             backgroundColor: MaterialStateProperty.all(Colors.black),
                           ),
                           onPressed: () {
-                            AnnouncementsApi.updateAnnouncement(controller.announcement!.id, controller.auth.currentUser!.uid);
-                            controller.showAnnouncementDialog.value = false;
-                            Get.back();
+                            controller.updateAnnouncements();
+                            // Get.back();
                           },
                           child: const Text('OK', style: TextStyle(color: Colors.white)),
                         ),
