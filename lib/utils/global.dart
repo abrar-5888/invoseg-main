@@ -4,5 +4,5 @@ String societyName = '';
 String address = '';
 String familyId = '';
 String userId = '';
-String ip = 'http://172.20.10.2:5000';
+String ip = 'http://3.227.95.41:5000';
 String appLogo = '';

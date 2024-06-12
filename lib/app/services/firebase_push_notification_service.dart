@@ -1,7 +1,11 @@
 // ignore_for_file: avoid_print, unused_local_variable
 
+import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
+import 'package:com.invoseg.innovation/app/Modules/complain/complain_view.dart';
 import 'package:com.invoseg.innovation/app/Modules/notifications/notifications_controller.dart';
+import 'package:com.invoseg.innovation/main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 // ignore_for_file: non_constant_identifier_names
@@ -30,12 +34,15 @@ class FirebaseApi {
       message1 = message;
       String? title = message1!.notification!.title;
       String? body = message1!.notification!.body;
-      // if (title.toString().toLowerCase().contains("complain")) {
-      //   navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => const ComplainPage()));
-      // } else if (title.toString().toLowerCase() == "order completed") {
-      //   var data = message1!.data['documentId'];
-      //   controller.moveToRecipt(data);
-      // } else if (title.toString().toLowerCase().contains("link generated")) {
+      if (title.toString().toLowerCase().contains("complain")) {
+        navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => const ComplainPage()));
+      } else if (title.toString().toLowerCase().contains("security")) {
+        navigatorKey.currentState?.push(MaterialPageRoute(
+            builder: (context) => const MainPage(
+                  index: 0,
+                )));
+      }
+      //else if (title.toString().toLowerCase().contains("link generated")) {
       //   navigatorKey.currentState?.push(MaterialPageRoute(builder: (context) => const MainPage(index: 3)));
       // } else if (title.toString().toLowerCase().contains("prescription")) {
       //   var data = message1!.data['documentId'];

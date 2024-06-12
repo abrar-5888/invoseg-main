@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:com.invoseg.innovation/app/Modules/history/history_controller.dart';
 import 'package:com.invoseg.innovation/app/data/Models/familyMembersModel.dart';
 import 'package:com.invoseg.innovation/app/data/Models/groceryRequestModel.dart';
 import 'package:com.invoseg.innovation/app/data/Models/plotsModel.dart';
@@ -133,8 +134,10 @@ class HomeController extends GetxController {
             Get.until((route) {
               return !(Get.isDialogOpen!);
             });
-
-            Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+            HistoryController controller = Get.put<HistoryController>(HistoryController());
+            controller.histories.clear();
+            controller.fetchHistories();
+            Snackbars.successSnackBar('Smart Ghar', 'Your details has been sent');
           } else {
             EasyLoading.showError(data['message']);
             print("ERROR : ${response.body}");
@@ -187,13 +190,16 @@ class HomeController extends GetxController {
                   message:
                       "type : button-three\n name : $name\nAddress : ${userData!.address}\nPhone No : ${userData!.phoneNumber}\nF-Phone No ${userData!.fatherPhoneNumber}\nF-Name : ${userData!.fatherName}\nDesignation :${userData?.designation ?? ""}\nage :${userData?.age ?? ""}\nOwner :${userData?.owner ?? ""}",
                   subject: "test subject");
+              HistoryController controller = Get.put<HistoryController>(HistoryController());
+              controller.histories.clear();
+              controller.fetchHistories();
             });
             Get.back();
             Get.until((route) {
               return !(Get.isDialogOpen!);
             });
 
-            Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+            Snackbars.successSnackBar('Smart Ghar', 'Your details has been sent');
           } else {
             EasyLoading.showError(data['message']);
             print("ERROR : ${response.body}");
@@ -232,7 +238,6 @@ class HomeController extends GetxController {
     required String subject,
     required String message,
   }) async {
-  
     final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
     var serviceId = 'service_s7hyzpr';
     var templateId = 'template_0yvlqvj';

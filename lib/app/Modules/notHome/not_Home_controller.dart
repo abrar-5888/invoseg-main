@@ -138,7 +138,7 @@ class NotHomeController extends GetxController {
           return !(Get.isDialogOpen!);
         });
 
-        Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+        Snackbars.successSnackBar('Smart Ghar', 'Your details has been sent');
         fetchNotHome();
       } else {
         EasyLoading.showError(data['message']);
@@ -186,7 +186,7 @@ class NotHomeController extends GetxController {
           return !(Get.isDialogOpen!);
         });
 
-        Snackbars.successSnackBar('Invoseg', 'Your request has been cancelled');
+        Snackbars.successSnackBar('Smart Ghar', 'Your request has been cancelled');
       });
     } catch (e) {
       print("ERROR:$e");

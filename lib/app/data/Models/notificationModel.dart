@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class NotificationModel {
   final String description;
   final String image;
@@ -5,12 +7,9 @@ class NotificationModel {
   final String title;
   final String uid;
   final String id;
-  final String pressedTime;
+  final int pressedTime;
   final String time;
   final String date;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final int v;
 
   NotificationModel({
     required this.description,
@@ -22,9 +21,6 @@ class NotificationModel {
     required this.pressedTime,
     required this.time,
     required this.date,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.v,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -34,13 +30,10 @@ class NotificationModel {
       isRead: json['isRead'],
       title: json['title'],
       uid: json['uid'],
-      id: json['_id'],
-      pressedTime: json['pressedTime'],
+      id: json['id'],
+      pressedTime: (json['pressedTime'] as Timestamp).millisecondsSinceEpoch,
       time: json['time'],
       date: json['date'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      v: json['__v'],
     );
   }
 
@@ -51,13 +44,10 @@ class NotificationModel {
       'isRead': isRead,
       'title': title,
       'uid': uid,
-      '_id': id,
+      'id': id,
       'pressedTime': pressedTime,
       'time': time,
       'date': date,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      '__v': v,
     };
   }
 }

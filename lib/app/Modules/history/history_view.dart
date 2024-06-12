@@ -72,18 +72,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       color: ThemeColor.blue,
                                     )
                                   : const Icon(
-                                      Icons.medical_information,
+                                      Icons.shopping_bag_rounded,
                                       color: ThemeColor.blue,
                                     )),
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(history.type == 'button-one' ? 'SECURITY' : 'MEDICAL'),
+                              Text(history.type == 'button-one' ? 'SECURITY' : 'GROCERY'),
                             ],
                           ),
                           subtitle: Column(
                             children: [
-                              Text(history.type == 'button-one' ? 'You have purchased grocery item on monday at $time' : 'You have purchased grocery item on monday at $time', maxLines: 2),
+                              Text(history.type == 'button-one' ? 'You send security request on $date at $time' : 'You sent grocery request on $date at $time', maxLines: 2),
                               Padding(
                                 padding: const EdgeInsets.only(right: 12.0),
                                 child: Align(
@@ -110,7 +110,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   },
                 )
               : const Center(
-                  child: Text("No history available"),
+                  child: Text("No Recents available"),
                 ),
         ));
   }

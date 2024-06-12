@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:com.invoseg.innovation/app/Modules/Main/main_view.dart';
 import 'package:com.invoseg.innovation/app/data/Models/usersModel.dart';
 import 'package:com.invoseg.innovation/generated/assets.dart';
+import 'package:com.invoseg.innovation/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,24 +25,29 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkAuthentication() async {
-    await initializeSharedPreferences();
-
     await Future.delayed(const Duration(seconds: 3));
-
-    if (userData == null) {
-      Get.off(() => const LoginPage());
-    } else {
-      Get.to(const MainPage(index: 0));
-    }
+    await initializeSharedPreferences();
   }
 
-  UsersModel? userData;
   Future<void> initializeSharedPreferences() async {
     var userInfo = await SharedPreferences.getInstance();
-    var jsonStringUser = userInfo.getString('userInfo');
+    String jsonStringUser = userInfo.getString('userInfo') ?? '';
 
-    var userdata = jsonDecode(jsonStringUser!);
-    userData = UsersModel.fromJson(userdata);
+    if (jsonStringUser.isEmpty) {
+      Get.off(() => const LoginPage());
+    } else {
+      var userdata = jsonDecode(jsonStringUser);
+      UsersModel userData = UsersModel.fromJson(userdata);
+      print(userdata);
+      societyName = userData.societyName;
+      name = userData.name;
+      phone = userData.phoneNumber;
+      address = userData.address;
+      familyId = userData.familyID;
+      userId = userData.id;
+
+      Get.off(() => const MainPage(index: 0));
+    }
   }
 
   @override

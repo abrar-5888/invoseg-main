@@ -105,7 +105,9 @@ class ComplainController extends GetxController {
         if (response.statusCode == 201) {
           textController.value.clear();
 
-          Snackbars.successSnackBar('Invoseg', 'Your details has been sent');
+          Snackbars.successSnackBar('Smart Ghar', 'Your details has been sent');
+          complains.clear();
+          await fetchComplain();
         } else {
           EasyLoading.showError(data['message']);
           print("ERROR : ${response.body}");
@@ -119,7 +121,7 @@ class ComplainController extends GetxController {
   }
 
   Future<void> fetchComplain() async {
-    final String url = '$ip/api/complain/6655aa3b63aefb20300501cb';
+    final String url = '$ip/api/complain/$userId';
     try {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

@@ -77,7 +77,7 @@ class _DrawerWState extends State<DrawerW> {
                   child: Column(
                     children: [
                       DrawerTile(
-                          title: 'Add FamilyMember',
+                          title: 'Add Family Member',
                           onPress: () {
                             Get.to(const AddMember());
                           },
@@ -167,7 +167,7 @@ class _DrawerWState extends State<DrawerW> {
                             width: 50,
                           ),
                           Text(
-                            'INVOSEG',
+                            'Smart Ghar',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,

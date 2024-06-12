@@ -22,6 +22,7 @@ class HistoryController extends GetxController {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         print(data);
+        // histories.add(HistoryModel.fromJson(data));
       } else {
         print("Error ${response.body}");
       }

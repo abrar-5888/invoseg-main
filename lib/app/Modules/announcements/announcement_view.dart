@@ -50,22 +50,19 @@ class AnnouncementDialog extends StatelessWidget {
                   const SizedBox(
                     height: 5,
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: SizedBox(
-                      width: Get.width / 4.5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Colors.black),
-                          ),
-                          onPressed: () {
-                            controller.updateAnnouncements();
-                            // Get.back();
-                          },
-                          child: const Text('OK', style: TextStyle(color: Colors.white)),
+                  SizedBox(
+                    width: Get.width / 4.5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.black),
                         ),
+                        onPressed: () {
+                          controller.updateAnnouncements();
+                          // Get.back();
+                        },
+                        child: const Text('OK', style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ),

@@ -18,7 +18,9 @@ class _NotiScreenState extends State<NotiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          surfaceTintColor: Colors.white,
           centerTitle: true,
           backgroundColor: Colors.white,
           elevation: 0,
@@ -38,64 +40,64 @@ class _NotiScreenState extends State<NotiScreen> {
           ),
         ),
         body: Obx(
-          () => ListView.builder(
-            itemCount: controller.notifications.length,
-            itemBuilder: (context, index) {
-              NotificationModel notification = controller.notifications[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                child: Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(10),
-                    onTap: () async {
-                      if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("prescription")) {
-                        controller.moveToPrescription(notification.id);
-                      } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("order")) {
-                        controller.moveToRecipt(notification.id);
-                      } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("complain")) {
-                        Get.to(() => const ComplainPage());
-                      } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("meet id")) {
-                        Get.to(() => const MainPage(
-                              index: 3,
-                            ));
-                      } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("home")) {
-                        Get.to(() => const MainPage(
-                              index: 0,
-                            ));
-                      }
-                    },
-                    tileColor: Colors.grey[100],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    leading: Container(
-                        height: 100,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          borderRadius: BorderRadius.circular(15),
+          () => controller.notifications.isEmpty
+              ? const Center(
+                  child: Text("No notifications available"),
+                )
+              : ListView.builder(
+                  itemCount: controller.notifications.length,
+                  itemBuilder: (context, index) {
+                    NotificationModel notification = controller.notifications[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      child: Card(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: Image.asset(Assets.logoBGR)),
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(notification.title),
-                        Text(
-                          "${notification.date} at ${notification.time}",
-                          style: const TextStyle(fontSize: 8),
-                        )
-                      ],
-                    ),
-                    subtitle: Text(notification.description, maxLines: 2),
-                  ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(10),
+                          onTap: () async {
+                            if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("prescription")) {
+                              controller.moveToPrescription(notification.id);
+                            } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("order")) {
+                              controller.moveToRecipt(notification.id);
+                            } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("complain")) {
+                              Get.to(() => const ComplainPage());
+                            } else if (notification.description.isNotEmpty && notification.description.toString().toLowerCase().contains("meet id")) {
+                              Get.to(() => const MainPage(
+                                    index: 3,
+                                  ));
+                            }
+                          },
+                          tileColor: Colors.grey[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          leading: Container(
+                              height: 100,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Image.asset(Assets.logoBGR)),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(notification.title),
+                              Text(
+                                "${notification.date} at ${notification.time}",
+                                style: const TextStyle(fontSize: 8),
+                              )
+                            ],
+                          ),
+                          subtitle: Text(notification.description, maxLines: 2),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ));
   }
 }
