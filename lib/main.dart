@@ -1,10 +1,10 @@
+import 'package:com.invoseg.innovation/main_app/app/Modules/Splash/splashscreen.dart';
+import 'package:com.invoseg.innovation/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:com.invoseg.innovation/app/Modules/Splash/splashscreen.dart';
-import 'package:com.invoseg.innovation/firebase_options.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
